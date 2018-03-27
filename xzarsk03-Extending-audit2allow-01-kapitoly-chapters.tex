@@ -290,6 +290,22 @@ comments with helpful messages. TODO
 \chapter{Analysis}
 TODO
 
+\section{Mislabeled Files}
+TODO: audit2allow assumes correct labels, some rules does not make sense, there
+is sometimes path field, but mostly only inode and file name.
+
+\section{Extended Permissions}
+TODO: new policy statements, extends classic allow rules, currently supported
+only ioctl command, audit2allow does not generate them, audit2allow should parse
+the ioctlcmd field and generate allowxperm rules, discussion about default
+behaviour.
+
+\section{TODO: Labeling Network Ports, Nodes and Interfaces}
+TODO
+
+\section{TODO: Checking Neverallow Rules}
+TODO
+
 \chapter{Implementation}
 TODO
 
