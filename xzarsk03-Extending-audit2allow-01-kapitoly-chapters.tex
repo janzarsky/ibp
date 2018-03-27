@@ -49,24 +49,57 @@ developed by SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
 Security-Enhanced Linux (SELinux) is a Linux kernel security module that
 provides mandatory access control mechanisms. (TODO)
 
-How does SELinux enforce a security policy \cite[p.~19]{tsn}:
+\subsection{What problems does SELinux solve}
+Without SELinux, operating system relies on traditinal access control methods
+such as file permissions. Users can grant insecure file permissions to others or
+gain access to files that they do not need. For example:
 \begin{itemize}
+    % TODO read permissions for everyone on file.. rephrase
+    \item Users can reveal sensitive information by setting world readable
+        permissions on files. For example, they can set read permission for
+        everyone on ssh keys in \texttt{\textasciitilde/.ssh/} directory.
+    \item Processes can change security properties: mail client can make user's
+        mail readable by other users.
+    \item Processes inherit user's rights. For example, every application, even
+        though it may be compromised, is able to read all user's files.
+\end{itemize}
+
+With enabled SELinux, every action is denied by default. A security policy is
+written which allows individual applications to perform actions required to
+function. Applications do not need to be aware of SELinux. When an action is
+denied, it is reported via ``access denied'' error code to the application
+\cite{centoshowto}.
+
+\subsection{How does SELinux enforce a security policy}
+The high-level process of enforcing the policy:
+\begin{enumerate}
     \item A \emph{subject} wants to perform an action upon an \emph{object}.
     \item An \emph{Object Manager} queries the \emph{Security Server} for a
     decision.
     \item \emph{Security Server} consults the \emph{Security Policy}
     and makes decision to allow or deny the action.
-\end{itemize}
+\end{enumerate}
 
 % TODO
-Figure 1: High level SELinux components
+Figure 1: High-level process of policy enforcing
 
 For example, when process \texttt{httpd} wants to open the
-\texttt{/etc/httpd/conf/httpd.conf} file, the operation is allowed (it is
-desirable to allow \texttt{httpd} access its configuration files). But if
-process \texttt{httpd} would want to write to the \texttt{/etc/passwd} file, the
-operation would be denied (\texttt{httpd} should not change the
-\texttt{/etc/passwd} file).
+\texttt{/etc/httpd/conf/httpd.conf} file, the operation is allowed. It is
+desirable to allow \texttt{httpd} access its configuration files, so the SELinux
+policy contains rules that allow this operation. But if process \texttt{httpd}
+would want to write to the \texttt{/etc/passwd} file, the operation would be
+denied. Process \texttt{httpd} should not change the \texttt{/etc/passwd} file,
+so the rules which would allow this operation are not present in policy.
+
+There are 3 modes of operation. The default mode is \emph{enforcing}. In this
+mode, everything which is not allowed by the policy is denied. When a process
+tries to perform an action which is not allowed by the policy, it is logged. In
+\emph{permissive} mode, SELinux is not enforcing the policy, it only logs
+actions. In \emph{disabled} mode, SELinux is turned off.
+
+\subsection{SELinux components}
+% TODO
+Figure 2: SELinux components
 
 SELinux \emph{security server} is embedded in the kernel and it obtains the
 security policy via userspace tools.
@@ -122,6 +155,9 @@ to other objects, there are several policy statements, such as \texttt{portcon}
 
 TODO processes, transitions
 
+\section{Problems with SELinux}
+TODO
+
 \section{Linux Audit System}
 The \emph{Linux Audit system} provides an auditing system for tracking
 security-relevant system events. It is used to track file access, monitor system
@@ -158,30 +194,68 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 
 \section{The audit2allow tool}
 The \emph{audit2allow} is a userspace tool that scans the AVC messages and
-generates SELinux policy snippets based on them. In default mode, it scans the
-AVC denial messages and generates policy rules which allows the operations that
-were denied.
+generates SELinux policy snippets based on them.
 
-For example, based on this AVC message:
+\subsection{Purpose of audit2allow}
+The audit2allow tool is designed to help administrators troubleshoot SELinux
+denials.
+
+TODO: basic mode - generating rules, admin can decide whether they could be
+allowed, for development - devels can use permissive domain, run tests, collect
+AVC, create basis for policy module, additional useful info - booleans,
+interfaces, ...
+
+\subsection{TODO: what it does}
+In default mode, it scans the AVC denial messages and generates policy rules
+which allows the operations that were denied.
+
+For example, when the \texttt{httpd} process tries to perform \texttt{getattr}
+action on the \texttt{/var/www/html/file1} file, the following AVC message is
+generated:
 \begin{lstlisting}
 type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
 for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
 ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
 tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 \end{lstlisting}
-audit2allow would generate the following policy rule:
+The audit2allow would generate the following policy rule:
 \begin{lstlisting}
 allow httpd_t samba_share_t:file getattr;
 \end{lstlisting}
 
-The audit2allow is able to read input from stdin, dmesg, audit log, or arbitrary
-file. It can output the rules directly or create a loadable module which can be
-loaded directly into the policy.
+The audit2allow is able to read AVC messages from stdin, dmesg, audit log, or
+arbitrary file. There is \texttt{-{}-boot} option which loads only messages
+generated since last boot and \texttt{-{}-lastreload} option which loads only
+messages since last policy reload.
 
-The audit2allow is not only transforming AVC message to policy rules, it also
-queries the policy and tries to get additional informations about the denial.
+The audit2allow can output the policy rules directly to stdout or file, or
+create a policy module which can be loaded directly into the policy.
+
+% TODO make sure that booleans are explained earlier
+The audit2allow is using currently loaded policy (or any other policy specified
+in the \texttt{-{}-policy} option) to get more information about the denials.
 For example, audit2allow suggests turning on a boolean that would allow the
 denied operations.
+
+When run with the \texttt{-{}-reference} option, audit2allow tries to match the
+denials against defined interfaces. Example of audit2allow output without the
+\texttt{-{}-reference} option:
+\begin{lstlisting}
+#============= httpd_t ==============
+allow httpd_t samba_share_t:file getattr;
+\end{lstlisting}
+Example of audit2allow output with the \texttt{-{}-reference} option:
+\begin{lstlisting}
+require {
+	type httpd_t;
+}
+
+#============= httpd_t ==============
+samba_read_share_files(httpd_t)
+\end{lstlisting}
+The audit2allow found an interface which contained the same allow
+rule. Interfaces creates more readable code but can contain more rules that are
+necessary.
 
 \chapter{Analysis}
 TODO
