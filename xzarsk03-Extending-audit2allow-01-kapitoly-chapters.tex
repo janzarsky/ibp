@@ -6,98 +6,182 @@ TODO: how I solved it, avoid first person
 TODO: overview which chapter solves what
 
 \chapter{Security-Enhanced Linux and audit2allow}
-TODO: describe SELinux, describe audit2allow, use examples, what are the problems of SELinux. Purpose of audit2allow, how is it used, how does it work, internal structure of audit2allow.
-
-% here just to avoid compile error
-TODO \cite{tsn}
+TODO: describe SELinux, describe audit2allow, use examples, what are the
+problems of SELinux. Purpose of audit2allow, how is it used, how does it work,
+internal structure of audit2allow.
 
 \section{Discretionary Access Control}
-Discretionary access control is defined by TCSES standard. System with DAC must enable users to protect their data by controlling access to that data, e.g. by setting permissions for other users or user groups.
+Discretionary access control is defined by TCSES standard. System with DAC must
+enable users to protect their data by controlling access to that data, e.g. by
+setting permissions for other users or user groups.
 
-In DAC, users make security decisions by specifying who can access their data. The problem is that users can easily propagate information.
+In DAC, users make security decisions by specifying who can access their data.
+The problem is that users can easily propagate information.
 
-Linux implements discretionary access control. Every object has an owner that controls access to that object. Permissions are set in three scopes: user, group, and others. For each scope, permissions to read, write and execute can be set.
+Linux implements discretionary access control. Every object has an owner that
+controls access to that object. Permissions are set in three scopes: user,
+group, and others. For each scope, permissions to read, write and execute can be
+set.
 
 \section{Mandatory Access Control}
-Mandatory access control (MAC), defined by Trusted Computer System Evaluation
-Criteria (TCSEC) standard \cite{orangebook}, provides more restrictions than DAC. In this type of access control, operating system can prevent subjects to perform operations on objects. This is achieved by attaching subjects and objects set of security attributes. When a subject (usually a process) wants to perform an operation on an object (file, directory, socket, etc.), operating system first examines these attributes. Security policy is then used to determine whether this operation should be allowed or not. When using MAC, users do not have the ability to override the security policy and, for example, propagate sensitive information.
+Mandatory access control (MAC), defined by \emph{Trusted Computer System
+Evaluation Criteria} (TCSEC) standard \cite{orangebook}, provides more
+restrictions than DAC. In this type of access control, operating system can
+prevent subjects to perform operations on objects. This is achieved by attaching
+subjects and objects set of security attributes. When a subject (usually a
+process) wants to perform an operation on an object (file, directory, socket,
+etc.), operating system first examines these attributes. Security policy is then
+used to determine whether this operation should be allowed or not. When using
+MAC, users do not have the ability to override the security policy and, for
+example, propagate sensitive information.
 
-There are several implementations of MAC. Linux kernel currently contains several security modules implemented using Linux Security Modules (LSM) framework \cite{lsmusage}. Security-Enhanced Linux (SELinux), developed by National Security Agency and Red Hat \cite{selinuxcontr}, is used in Red Hat Enterprise Linux (RHEL), CentOS, Fedora and Android \cite{selinuxguide,selinuxguidefedora,selinuxandroid}. AppArmor, developed by SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
-\cite{apparmor,apparmorubuntu}. There are two other security modules, Smack and TOMOYO Linux.
+There are several implementations of MAC. Linux kernel currently contains
+several security modules implemented using \emph{Linux Security Modules} (LSM)
+framework \cite{lsmusage}. \emph{Security-Enhanced Linux} (SELinux), developed
+by National Security Agency and Red Hat \cite{selinuxcontr}, is used in Red Hat
+Enterprise Linux (RHEL), CentOS, Fedora and Android
+\cite{selinuxguide,selinuxguidefedora,selinuxandroid}. \emph{AppArmor},
+developed by SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
+\cite{apparmor,apparmorubuntu}. There are two other security modules,
+\emph{Smack} and \emph{TOMOYO Linux}.
 
 \section{Security-Enhanced Linux}
-Security-Enhanced Linux (SELinux) is a Linux kernel security module that provides mandatory access control mechanisms. (TODO)
+Security-Enhanced Linux (SELinux) is a Linux kernel security module that
+provides mandatory access control mechanisms. (TODO)
 
-How does SELinux enforce a security policy [1] (TODO):
-A subject wants to perform an action upon an object.
-An Object Manager queries the Security Server for a decision.
-Security Server consults the Security Policy and makes decision to allow or deny the action.
+How does SELinux enforce a security policy \cite[p.~19]{tsn}:
+\begin{itemize}
+    \item A \emph{subject} wants to perform an action upon an \emph{object}.
+    \item An \emph{Object Manager} queries the \emph{Security Server} for a
+    decision.
+    \item \emph{Security Server} consults the \emph{Security Policy}
+    and makes decision to allow or deny the action.
+\end{itemize}
 
+% TODO
 Figure 1: High level SELinux components
 
-For example, when process httpd wants to open the /etc/httpd/conf/httpd.conf file, the operation is allowed (it is desirable to allow httpd access its configuration files). But if process httpd would want to write to the /etc/passwd file, the operation would be denied (httpd should not change the /etc/passwd file).
+For example, when process \texttt{httpd} wants to open the
+\texttt{/etc/httpd/conf/httpd.conf} file, the operation is allowed (it is
+desirable to allow \texttt{httpd} access its configuration files). But if
+process \texttt{httpd} would want to write to the \texttt{/etc/passwd} file, the
+operation would be denied (\texttt{httpd} should not change the
+\texttt{/etc/passwd} file).
 
-SELinux security server is embedded in the kernel and it obtains the security policy via userspace tools.
+SELinux \emph{security server} is embedded in the kernel and it obtains the
+security policy via userspace tools.
 
-Object managers resides mainly in kernel and make use of hooks provided by Linux Security Module framework. There are object managers for kernel services such as files, sockets, IPC etc. Userspace object managers are known as “SELinux-aware” applications and adds MAC support for X-Windows, D-bus messaging, databases, etc.
+\emph{Object managers} resides mainly in kernel and make use of hooks provided
+by Linux Security Module framework. There are object managers for kernel
+services such as files, sockets, IPC etc. Userspace object managers are known as
+``SELinux-aware'' applications and adds MAC support for X-Windows, D-bus
+messaging, databases, etc.
 
-SELinux security policy is contained in /etc/selinux directory. It consists of base policy and several policy modules. Base policy contains information required by other modules. Policy modules usually supports one particular service or application (e.g. policy module for Apache web server) [2].
+SELinux \emph{security policy} is contained in \texttt{/etc/selinux} directory.
+It consists of base policy and several policy modules. Base policy contains
+information required by other modules. Policy modules usually supports one
+particular service or application (e.g. policy module for Apache web server)
+\cite[pp.~20--22]{tsn}.
 
-Maintaining SELinux requires several userspace tools. The checkmodule, checkpolicy, load\_policy commands compile and load policy. The semanage and restorecon command manages security labels of various system resources [3].
+Maintaining SELinux requires several userspace tools. The \texttt{checkmodule},
+\texttt{checkpolicy}, \texttt{load\_policy} commands compile and load policy.
+The \texttt{semanage} and \texttt{restorecon} command manages security labels of
+various system resources \cite[p.~389]{tsn}.
 
 \section{SELinux Policy Language}
-Security decisions made by the security server in kernel are resolved using SELinux policy. The policy is either monolithic (compiled from single source file) or modular. Modular policy, which is used in Fedora and RHEL, consists of mandatory base policy source file and loadable modules. In Fedora, almost every module contains policy for one application or service, such as the apache or xserver modules.
+Security decisions made by the security server in kernel are resolved using
+SELinux policy. The policy is either monolithic (compiled from single source
+file) or modular. Modular policy, which is used in Fedora and RHEL, consists of
+mandatory base policy source file and loadable modules. In Fedora, almost every
+module contains policy for one application or service, such as the
+\texttt{apache} or \texttt{xserver} modules.
 
 SELinux policy statements starts with a statement keyword usually followed by
-several identifiers and semicolon at the end. Comments starts with a ‘\#’. Example of an allow rule:
+several identifiers and semicolon at the end. Comments starts with a ``\#''.
+Example of an allow rule:
 
 \begin{lstlisting}
 # This is an allow rule
 allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
 \end{lstlisting}
 
-SELinux assigns context to objects in the system. A SELinux context consists of user, role and type. In order to assign objects types, they must be declared using the type statement.
+SELinux assigns context to objects in the system. A \emph{SELinux context}
+consists of user, role and type. In order to assign objects types, they must be
+declared using the type statement.
 
 \begin{lstlisting}
 # declare type bin_t
 type bin_t;
 \end{lstlisting}
 
-For assigning context to a file, the file\_contexts file (which is compiled together with the policy source file) is used. For assigning contexts to other objects, there are several policy statements, such as portcon (for TCP/IP ports), nodecon (for IP addresses), or netifcon (for network interfaces).
+For assigning context to a file, the \texttt{file\_contexts} file (which is
+compiled together with the policy source file) is used. For assigning contexts
+to other objects, there are several policy statements, such as \texttt{portcon}
+(for TCP/IP ports), \texttt{nodecon} (for IP addresses), or \texttt{netifcon}
+(for network interfaces).
+
 TODO processes, transitions
 
 \section{Linux Audit System}
-The Linux Audit system provides an auditing system for tracking security-relevant system events. It is used to track file access, monitor system calls, record commands run by user, record failed login attempts and others [1]. The Linux Audit system does not provide additional security by itself, it can be only used to discover security violations.
+The \emph{Linux Audit system} provides an auditing system for tracking
+security-relevant system events. It is used to track file access, monitor system
+calls, record commands run by user, record failed login attempts and others
+\cite{secguide}. The Linux Audit system does not provide additional security by
+itself, it can be only used to discover security violations.
 
-The Linux Audit system consists of kernel and userspace part. Kernel filters events and sends them to the audit daemon. Audit daemon then writes the received events to log file. There are several userspace tools used for interacting with the audit system and for working with the log file.
+The Linux Audit system consists of kernel and userspace part. Kernel filters
+events and sends them to the \emph{audit daemon}. Audit daemon then writes the
+received events to log file. There are several userspace tools used for
+interacting with the audit system and for working with the log file.
 
 \section{Audit and SELinux}
-In Fedora and RHEL, SELinux uses the Linux Audit system to log security events. When a process tries to perform operation without the permissions, an Access Vector Cache (AVC) denial message is logged using the audit daemon [1]. This message can be then processed by tools such as setroubleshoot or audit2allow.
+In Fedora and RHEL, SELinux uses the Linux Audit system to log security events.
+When a process tries to perform operation without the permissions, an
+\emph{Access Vector Cache} (AVC) denial message is logged using the audit daemon
+\cite{selinuxguide}. This message can be then processed by tools such as
+\texttt{setroubleshoot} or \texttt{audit2allow}.
 
-Every AVC message contains information about source context (the context of the
-process), object class (for example file), and target context (the context of
-the object). For example, when a process httpd running in context
-‘unconfined\_u:system\_r:httpd\_t:s0’ is trying to perform the getattr operation
-on a file /var/www/html/file1 with context ‘system\_u:object\_r:samba\_share\_t:s0’ and fails, the following AVC message is generated:
+Every AVC message contains information about \emph{source context} (the context
+of the process), \emph{object class} (for example file), and \emph{target
+context} (the context of the object). For example, when a process \texttt{httpd}
+running in context \texttt{unconfined\_u:system\_r:httpd\_t:s0} is trying to
+perform the \texttt{getattr} operation on file \texttt{/var/www/html/file1} with
+context \texttt{system\_u:object\_r:samba\_share\_t:s0} and fails, the following
+AVC message is generated:
 
 \begin{lstlisting}
-type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr } for  pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0 ino=399185 scontext=unconfined_u:system_r:httpd_t:s0 tcontext=system_u:object_r:samba_share_t:s0 tclass=file
+type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
+for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
+ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
+tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 \end{lstlisting}
 
 \section{The audit2allow tool}
-The audit2allow is a userspace tool that scans the AVC messages and generates SELinux policy snippets based on them. In default mode, it scans the AVC denial messages and generates policy rules which allows the operations that were denied.
+The \emph{audit2allow} is a userspace tool that scans the AVC messages and
+generates SELinux policy snippets based on them. In default mode, it scans the
+AVC denial messages and generates policy rules which allows the operations that
+were denied.
 
 For example, based on this AVC message:
 \begin{lstlisting}
-type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr } for  pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0 ino=399185 scontext=unconfined_u:system_r:httpd_t:s0 tcontext=system_u:object_r:samba_share_t:s0 tclass=file
+type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
+for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
+ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
+tcontext=system_u:object_r:samba_share_t:s0 tclass=file
+\end{lstlisting}
 audit2allow would generate the following policy rule:
+\begin{lstlisting}
 allow httpd_t samba_share_t:file getattr;
 \end{lstlisting}
 
-The audit2allow is able to read input from stdin, dmesg, audit log, or arbitrary file. It can output the rules directly or create a loadable module which can be loaded directly into the policy.
+The audit2allow is able to read input from stdin, dmesg, audit log, or arbitrary
+file. It can output the rules directly or create a loadable module which can be
+loaded directly into the policy.
 
-The audit2allow is not only transforming AVC message to policy rules, it also queries the policy and tries to get additional informations about the denial. For example, audit2allow suggests turning on a boolean that would allow the denied operations.
-
+The audit2allow is not only transforming AVC message to policy rules, it also
+queries the policy and tries to get additional informations about the denial.
+For example, audit2allow suggests turning on a boolean that would allow the
+denied operations.
 
 \chapter{Analysis}
 TODO
