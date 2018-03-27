@@ -192,7 +192,7 @@ ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
 tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 \end{lstlisting}
 
-\section{The audit2allow tool}
+\section{The audit2allow Tool}
 The \emph{audit2allow} is a userspace tool that scans the AVC messages and
 generates SELinux policy snippets based on them.
 
@@ -205,7 +205,7 @@ allowed, for development - devels can use permissive domain, run tests, collect
 AVC, create basis for policy module, additional useful info - booleans,
 interfaces, ...
 
-\subsection{TODO: what it does}
+\subsection{TODO: What It Does}
 In default mode, it scans the AVC denial messages and generates policy rules
 which allows the operations that were denied.
 
@@ -256,6 +256,36 @@ samba_read_share_files(httpd_t)
 The audit2allow found an interface which contained the same allow
 rule. Interfaces creates more readable code but can contain more rules that are
 necessary.
+
+TODO: dontaudit rules
+
+\subsection{TODO: How Does audit2allow Work}
+The audit2allow first collects audit messages from various sources and then
+filters out AVC messages and other useful messages. From every AVC message,
+source context, target context, object class, and permissions are extracted and
+converted into \emph{access vector sets}. Each access vector has unique source
+context, target context, and object class combination. Permissions from multiple
+AVC messages are merged into one access vector. Example of an access vector set:
+% TODO: do it better
+\begin{lstlisting}
+{
+    ("unconfined_u:system_r:httpd_t:s0",
+     "system_u:object_r:samba_share_t:s0",
+     "file"): [ "getattr", "open" ],
+    ("unconfined_u:system_r:httpd_t:s0",
+     "system_u:object_r:sssd_conf_t:s0",
+     "file"): [ "getattr" ],
+}
+\end{lstlisting}
+
+Each access vector is then converted into an allow rule. Example:
+\begin{lstlisting}
+allow httpd_t samba_share_t:file { getattr, open};
+allow httpd_t sssd_conf_t:file getattr;
+\end{lstlisting}
+
+Various other information is stored during processing. The audit2allow prints
+comments with helpful messages. TODO
 
 \chapter{Analysis}
 TODO
