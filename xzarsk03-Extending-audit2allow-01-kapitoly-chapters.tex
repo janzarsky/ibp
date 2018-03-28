@@ -375,12 +375,90 @@ and it does not solve the real problem.
 The audit2allow should detect when the AVC message is caused by mislabeled file
 and suggest solution using the \texttt{restorecon} utility.
 
-TODO: audit2allow assumes correct labels, some rules does not make sense, there
-is sometimes path field, but mostly only inode and file name.
+There are three fields in the AVC message that can be used to detect if the file
+was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
+\texttt{path} field is present, audit2allow can run \texttt{matchpathcon} to get
+the default context of the file and compare it with actual file context.
 
-\section{Extended Permissions}
-TODO: new policy statements, extends classic allow rules, currently supported
-only ioctl command, audit2allow does not generate them, audit2allow should parse
+In many cases, the \texttt{path} field is not present, only inode number and
+name of the file (without full path). In this case it is difficult to find the
+full path of the file. Ryan Hallisey created solution \cite{restoreconpullreq}
+that is using \texttt{locate} utility to get all files matching the name and
+then stat these files to get the inode number. This solution is only partial, it
+does not work on files that are not indexed in the database created by
+\texttt{updatedb}.
+
+\section{Extended Permission Access Vector Rules}
+Since policy version 30, there are extended permission access vector (AV) rules
+that expand the permission sets. Access vector rules operates with 32~bit
+permission sets, extended permission AV rules adds arbitrary number of 256~bit
+increments. Extended permission AV rules are currently (policy version 31) used
+only ioctl whitelisting, but they provide generic tool that can be used in
+future for more granular control over an operation \cite{selinuxmailxperms}.
+
+\subsection{Syntax and Usage of Extended Permission AV Rules}
+The format of extended permission AV rules is \cite{xpermrules}:
+\begin{lstlisting}
+rule_name source_type target_type : class operation xperm_set;
+\end{lstlisting}
+where:
+\begin{description}
+    \item [\texttt{rule\_name}] is one of the following: \texttt{allowxperm},
+        \texttt{dontauditxperm}, \texttt{auditallowxperm}, or
+        \texttt{neverallowxperm}. The meaning is similar to standard AV rules.
+    \item [\texttt{source\_type}, \texttt{target\_type}, \texttt{class}] are
+        source type, target type, and object class, same as with normal AV rule.
+    \item [\texttt{operation}] is a single keyword defining the operation to be
+        implemented by the rule. As of policy version 31, only \texttt{ioctl}
+        operation is supported.
+    \item [\texttt{xperm\_set}] are extended permissions represented by numeric
+        values.
+\end{description}
+
+Example of an extended permission AV rule:
+\begin{lstlisting}
+allowxperm my_app_t my_socket_t : tcp_socket ioctl { 20 30 0x40 50-60 };
+\end{lstlisting}
+
+In order for ioctl whitelisting to work, standard \texttt{allow} rule must be
+present in the policy. With \texttt{allow} rule for ioctl, all ioctl syscalls
+are allowed. With \texttt{allowxperm} rule, only specified values are allowed.
+
+\subsection{AVC Denials Caused by Extended Permission AV Rules}
+Suppose there are following rules present in the policy:
+\begin{lstlisting}
+allow src_t tgt_t : tcp_socket ioctl;
+allowxperm src_t tgt_t : tcp_socket ioctl 0x42;
+\end{lstlisting}
+When the process tries to call \texttt{ioctl(0x1234, ...)}, the operation would
+be denied, because only syscall \texttt{ioctl(0x42, ...)} is allowed. The
+following AVC denial message would be generated:
+\begin{lstlisting}
+type=AVC msg=audit(1515017775.689:1722): avc:  denied  { ioctl } for
+pid=14587 comm="test" dev="dm-0" ino=8390105 ioctlcmd=0x1234
+scontext=unconfined_u:unconfined_r:src_t:s0-s0:c0.c1023
+tcontext=unconfined_u:object_r:tgt_t:s0 tclass=tcp_socket permissive=0
+\end{lstlisting}
+Field \texttt{ioctlcmd} contains first parameter of ioctl syscall that was
+denied. This value can be used to construct an allowxperm rule to allow this
+operation.
+
+When used for troubleshooting this AVC denial, audit2allow produces the
+following output:
+\begin{lstlisting}
+#============= src_t ==============
+
+#!!!! This avc is allowed in the current policy
+allow src_t tgt_t:tcp_socket ioctl;
+\end{lstlisting}
+which is not helpful. Administrator must know about extended permissions and
+assume that the allow rule was overridden.
+
+\subsection{Generating Extended permission AV rules in audit2allow}
+The audit2allow does have all the information to generate extended permission AV
+rules.
+
+TODO: audit2allow should parse
 the ioctlcmd field and generate allowxperm rules, discussion about default
 behaviour.
 
