@@ -280,7 +280,7 @@ AVC messages are merged into one access vector. Example of an access vector set:
 
 Each access vector is then converted into an allow rule. Example:
 \begin{lstlisting}
-allow httpd_t samba_share_t:file { getattr, open};
+allow httpd_t samba_share_t:file { getattr, open };
 allow httpd_t sssd_conf_t:file getattr;
 \end{lstlisting}
 
@@ -291,6 +291,42 @@ comments with helpful messages. TODO
 TODO
 
 \section{Mislabeled Files}
+When accessing files, SELinux relies on labels stored with those files to make a
+security decision. SELinux labels can be viewed using the \texttt{ls -Z}
+command:
+\begin{lstlisting}
+$ ls -Z
+unconfined_u:object_r:user_home_t:s0    testdir
+unconfined_u:object_r:user_home_t:s0    testfile
+\end{lstlisting}
+Labels are stored in extended attributes in the security namespace
+\cite{xattrman}:
+\begin{lstlisting}
+$ getfattr -n security.selinux testfile
+# file: testfile
+security.selinux="unconfined_u:object_r:user_home_t:s0
+\end{lstlisting}
+
+There are rules in policy that specifies the default context of every file based
+on its path and file type (regular file, directory, socket file, etc.). The
+rules are written using regular expressions and can be found in the
+\texttt{file\_contexts} file. Example:
+\begin{lstlisting}
+/run/.*         --  system_u:object_r:var_run_t:s0
+/var/.*	        --  system_u:object_r:var_t:s0
+/etc/.*	        --  system_u:object_r:etc_t:s0
+/lib/.*	        --  system_u:object_r:lib_t:s0
+/usr/.*\.cgi    --  system_u:object_r:httpd_sys_script_exec_t:s0
+/root(/.*)?     --  system_u:object_r:admin_home_t:s0
+/dev/[0-9].*    -c  system_u:object_r:usb_device_t:s0
+/dev/.*tty[^/]* -c  system_u:object_r:tty_device_t:s0
+\end{lstlisting}
+The \texttt{-{}-} is means every file type, \texttt{-c} means character device.
+When a new file is created, its context is looked up in default labeling rules
+\cite[pp.~31-33]{tsn}.
+For example, new file in the \texttt{/root} directory would obtain label
+\texttt{system\_u:object\_r:admin\_home\_t:s0}.
+
 TODO: audit2allow assumes correct labels, some rules does not make sense, there
 is sometimes path field, but mostly only inode and file name.
 
@@ -309,7 +345,24 @@ TODO
 \chapter{Implementation}
 TODO
 
+\section{Extended permissions}
+TODO
+
 \chapter{Functional Testing}
+TODO: about tests, chosen coverage
+
+\section{Unit Tests}
+
+TODO: test\_access
+
+TODO: test\_audit
+
+TODO: test\_policygen
+
+TODO: test\_refpolicy
+
+\section{Integration Tests}
+
 TODO
 
 \chapter{Summary}
