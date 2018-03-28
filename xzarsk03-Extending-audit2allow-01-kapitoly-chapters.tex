@@ -291,6 +291,9 @@ comments with helpful messages. TODO
 TODO
 
 \section{Mislabeled Files}
+TODO
+
+\subsection{Labeling of Files}
 When accessing files, SELinux relies on labels stored with those files to make a
 security decision. SELinux labels can be viewed using the \texttt{ls -Z}
 command:
@@ -307,10 +310,28 @@ $ getfattr -n security.selinux testfile
 security.selinux="unconfined_u:object_r:user_home_t:s0
 \end{lstlisting}
 
-There are rules in policy that specifies the default context of every file based
-on its path and file type (regular file, directory, socket file, etc.). The
-rules are written using regular expressions and can be found in the
-\texttt{file\_contexts} file. Example:
+There are rules in policy that specifies the context of files created by
+processes. For example, when process running with \texttt{httpd\_t} context
+creates a file in directory with \texttt{var\_run\_t} context, the file will get
+context \texttt{httpd\_var\_run\_t}:
+% TODO explain
+\begin{lstlisting}
+$ sesearch -T -s httpd_t -t var_run_t -c file
+type_transition httpd_t var_run_t:file httpd_var_run_t;
+\end{lstlisting}
+
+There are situations when files get label that is different than the default
+one:
+\begin{enumerate}
+    % TODO fix
+    \item When moving files, label is preserved. This does not happen when
+        copying files because new file is always created.
+    \item When SELinux is disabled, labels are not assigned to files.
+    \item When policy is changed (for example when a module is unloaded), there
+        may be some files left with type that is no longer defined in policy.
+\end{enumerate}
+For these situations, there is a \texttt{file\_contexts} file which specifies
+default contexts for every file. Example:
 \begin{lstlisting}
 /run/.*         --  system_u:object_r:var_run_t:s0
 /var/.*	        --  system_u:object_r:var_t:s0
@@ -322,10 +343,37 @@ rules are written using regular expressions and can be found in the
 /dev/.*tty[^/]* -c  system_u:object_r:tty_device_t:s0
 \end{lstlisting}
 The \texttt{-{}-} is means every file type, \texttt{-c} means character device.
-When a new file is created, its context is looked up in default labeling rules
-\cite[pp.~31-33]{tsn}.
-For example, new file in the \texttt{/root} directory would obtain label
-\texttt{system\_u:object\_r:admin\_home\_t:s0}.
+The \texttt{restorecon} utility is used to restore security contexts on files.
+
+\subsection{AVC Denial Messages Caused by Mislabeled Files}
+When a process is trying to access file that is mislabeled, the operation is
+usually denied (unless the process has access also to the new label). Similar
+AVC denial message is generated:
+\begin{lstlisting}
+type=AVC msg=audit(1226270358.848:238): avc:  denied  { getattr }
+for  pid=13349 comm="httpd" path="/var/www/html/index.html"
+dev=dm-0 ino=218171 scontext=system_u:system_r:httpd_t:s0
+tcontext=system_u:object_r:user_home_t:s0 tclass=file
+\end{lstlisting}
+File \texttt{/var/www/html/index.html} is mislabeled, because files in
+\texttt{/var/www/html} should have context \texttt{httpd\_sys\_content\_t}. This
+denial should be fixed by running \texttt{restorecon} on the file:
+\begin{lstlisting}
+# restorecon -v /var/www/html/index.html
+Relabeled /var/www/html/index.html from unconfined_u:object_r:user_home_t:s0
+to unconfined_u:object_r:httpd_sys_content_t:s0
+\end{lstlisting}
+
+When using audit2allow, the following rules are generated:
+\begin{lstlisting}
+allow httpd_t user_home_t:file getattr;
+\end{lstlisting}
+This solution is not secure because it is adding unnecessary rules to the policy
+and it does not solve the real problem.
+
+\subsection{Proposal for Improvement to audit2allow}
+The audit2allow should detect when the AVC message is caused by mislabeled file
+and suggest solution using the \texttt{restorecon} utility.
 
 TODO: audit2allow assumes correct labels, some rules does not make sense, there
 is sometimes path field, but mostly only inode and file name.
