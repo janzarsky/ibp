@@ -287,6 +287,96 @@ allow httpd_t sssd_conf_t:file getattr;
 Various other information is stored during processing. The audit2allow prints
 comments with helpful messages. TODO
 
+\subsection{Implementation of audit2allow}
+The audit2allow utility is written mostly in Python with several parts written
+in C.  Main script, \texttt{audit2allow}, parses command-line options, retrieves
+audit messages, and prints the output.  Main logic of converting AVC denial
+messages to access vector rules is implemented in package \texttt{sepolgen}.
+
+The \texttt{sepolgen} package contains the following modules:
+\begin{description}
+    \item [\texttt{audit}] Defines classes for various audit messages, contains
+        audit message parser.
+    \item [\texttt{access}] Defines access vectors and access vector sets.
+    \item [\texttt{policygen}] Creates policy rules based on access vectors.
+    \item [\texttt{refpolicy}] Creates policy rules based on access vectors.
+    \item [\texttt{output}] Outputs the generated rules.
+    \item [Other modules] There are several other modules which are either not
+        significant (e.g. the \texttt{utils} package) or used only for
+        generating policy using interfaces (e.g. the \texttt{interfaces}
+        package).
+\end{description}
+
+\subsubsection{The audit2allow Script}
+% parse options
+% load policy
+    % init the audit2why C module
+% read input
+    % creates audit parser
+    % reads messages
+    % feeds them to the parser
+% process input
+    % filters messages if neccessary
+    % converts messages to access vectors
+% output
+    % output audit2why if selected
+    % creates policy generator
+    % sets options to the generator
+    % adds AVs to the generator
+    % writes the output
+
+The main script does the following steps:
+\begin{enumerate}
+    \item Parse command-line arguments and check potential conflicts.
+    \item Read audit messages. Create \texttt{AuditParser} instance and feed it
+        the messages.
+    \item Filter the messages (if specified by the \texttt{-{}-type} option) and
+        convert them to access vectors.
+    \item Create and setup a \texttt{PolicyGenerator} instance, feed it the
+        access vectors, and convert them to policy rules.
+    \item Write the output.
+\end{enumerate}
+
+\subsubsection{The audit Module}
+% convenience functions
+% AuditMessage class
+    % base class for all messages
+% InvalidMessage class
+% PathMessage class
+% PolicyLoadMessage class
+% DaemonStartMessage class
+% ComputeSidMessage class
+% AVCMessage class
+    % from_split_string
+    % analyze
+% AuditParser class
+    % parse_file, parse_string
+    % to_role, to_access
+% AVCTypeFilter
+% ComputeSidTypeFilter
+
+The \texttt{audit} module is used for parsing audit messages. The
+\texttt{AuditParser} class reads strings and creates objects of appropriate type
+for each message. The \texttt{AuditMessage} class is the base class for all
+message types. The \texttt{AVCMessage} class is most important because it
+contains information about AVC denials.
+
+After parsing of AVC message, the denial is analyzed in \texttt{audit2why}
+module. The \texttt{audit2why} module tries to find out the reason of the denial
+by analyzing the policy. The module is written in C and uses the
+\texttt{libsepol} library.
+
+TODO: to\_access()
+
+\subsubsection{The access Module}
+TODO
+
+\subsubsection{The policygen Module}
+TODO
+
+\subsubsection{The refpolicy Module}
+TODO
+
 \chapter{Analysis}
 TODO
 
@@ -474,8 +564,9 @@ SELinux policy supports labeling of TCP and UDP ports, network nodes
 \texttt{eth0}).
 
 \subsection{Network Ports}
-SELinux can enforce access to system ports. For example, in Fedora 27, there are
-several hundred \texttt{portcon} rules that label TCP and UDP ports. Example:
+SELinux can enforce binding to system ports. For example, in Fedora 27, there
+are several hundred \texttt{portcon} rules that label TCP and UDP ports.
+Example:
 \begin{lstlisting}
 $ seinfo --portcon
 
@@ -506,7 +597,7 @@ Portcon rules can overlap, for example TCP port number 80 is labeled
     61001--65535 & \texttt{unreserved\_port\_t} \\
 \end{tabular}
 
-When a process tries to access port and it is denied by policy, AVC message is
+When a process tries to bind port and it is denied by policy, AVC message is
 generated. For example:
 \begin{lstlisting}
 type=AVC msg=audit(1516026512.648:4191): avc:  denied  { name_bind } for
@@ -515,16 +606,26 @@ tcontext=system_u:object_r:reserved_port_t:s0
 tclass=tcp_socket permissive=0
 \end{lstlisting}
 
-Proper way, how to allow the process to bind on port number 43 would be to label
-this port with a context specific to the application. The audit2allow suggest
-adding the following rule to the policy:
+Proper way how to allow the process to bind on port number 43 would be to label
+this port with a application-specific context. The audit2allow suggest adding
+the following rule to the policy:
 \begin{lstlisting}
 allow my_app_t reserved_port_t:tcp_socket name_bind;
 \end{lstlisting}
 This rule would allow \texttt{my\_app\_t} access to all reserved ports which is
 unneccessary and potentially unsecure.
 
-\section{TODO: Checking Neverallow Rules}
+Ports can be labeled using the \texttt{portcon} rules, but as of policy version
+31, these rules are not valid in policy module, only in base policy. So
+audit2allow would not be able to generate \texttt{portcon} rules directly.
+Another way of labeling ports is via the \texttt{semanage port} command. The
+audit2allow should suggest using the \texttt{semanage port} command when
+appropriate.
+
+\subsection{Network Nodes}
+TODO
+
+\subsection{Network Interfaces}
 TODO
 
 \chapter{Implementation}
