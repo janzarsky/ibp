@@ -299,7 +299,8 @@ The \texttt{sepolgen} package contains the following modules:
         audit message parser.
     \item [\texttt{access}] Defines access vectors and access vector sets.
     \item [\texttt{policygen}] Creates policy rules based on access vectors.
-    \item [\texttt{refpolicy}] Creates policy rules based on access vectors.
+    \item [\texttt{refpolicy}] Contains classes that represent the policy
+        statements.
     \item [\texttt{output}] Outputs the generated rules.
     \item [Other modules] There are several other modules which are either not
         significant (e.g. the \texttt{utils} package) or used only for
@@ -358,24 +359,98 @@ The main script does the following steps:
 The \texttt{audit} module is used for parsing audit messages. The
 \texttt{AuditParser} class reads strings and creates objects of appropriate type
 for each message. The \texttt{AuditMessage} class is the base class for all
-message types. The \texttt{AVCMessage} class is most important because it
-contains information about AVC denials.
+message types. The \texttt{AVCMessage} class represents AVC denials and is used
+for generating access vectors.
 
 After parsing of AVC message, the denial is analyzed in \texttt{audit2why}
 module. The \texttt{audit2why} module tries to find out the reason of the denial
 by analyzing the policy. The module is written in C and uses the
-\texttt{libsepol} library.
-
-TODO: to\_access()
+\texttt{libsepol} library. Each message is then converted to an access vector
+from the \texttt{access} module.
 
 \subsubsection{The access Module}
-TODO
+% AccessVector
+    % basic representation of access
+    % single source and target type, single object class, set of permissions
+% AccessVectorSet
+    % used for storing AVs
+    % AVs with same source and target type and class are merged
+    % add() adds AV to the set
+% RoleTypeSet
+
+The \texttt{access} module defines the \texttt{AccessVector} and
+\texttt{AccessVectorSet} classes. Access vector is a basic representation of an
+access in SELinux. It contains single source and target type, single object
+class, and set of permissions. Every AVC denial message can be converted into an
+access vector. For example this AVC denial message:
+\begin{lstlisting}
+type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
+for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
+ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
+tcontext=system_u:object_r:samba_share_t:s0 tclass=file
+\end{lstlisting}
+would be converted into the following access vector:
+\begin{lstlisting}
+{
+    source_context: "unconfined_u:system_r:httpd_t:s0",
+    target_context: "system_u:object_r:samba_share_t:s0",
+    object_class: "file",
+    permissions: [ getattr ]
+}
+\end{lstlisting}
+
+Multiple access vectors are aggregated in access vector sets. Access vectors
+that share the same source and target type and object class are merged together
+so that there are no duplicates. Access vector sets serves as a basis for
+generating policy access vector rules in \texttt{policygen} module.
 
 \subsubsection{The policygen Module}
-TODO
+% PolicyGenerator
+    % generates policy module from access vectors
+    % has several options
+    % set_gen_refpol()
+    % set_gen_requires()
+    % set_gen_explain()
+    % set_gen_dontaudit()
+    % add_access()
+% explain_access()
+% call_interface()
+% InterfaceGenerator
+% gen_requires()
 
-\subsubsection{The refpolicy Module}
-TODO
+The \texttt{policygen} module defines \texttt{PolicyGenerator} class that
+generates policy module from access vectors. The \texttt{PolicyGenerator}
+converts access vector set into SELinux policy statements. For example, this
+access vector:
+\begin{lstlisting}
+{
+    source_context: "unconfined_u:system_r:httpd_t:s0",
+    target_context: "system_u:object_r:samba_share_t:s0",
+    object_class: "file",
+    permissions: [ getattr, open, read ]
+}
+\end{lstlisting}
+would be converted into this policy statement:
+\begin{lstlisting}
+allow httpd_t samba_share_t:file { getattr open read };
+\end{lstlisting}
+
+The \texttt{PolicyGenerator} uses objects from the \texttt{refpolicy} module to
+represent policy statements. The \texttt{PolicyGenerator} provides several
+configuration methods:
+\begin{description}
+    \item [\texttt{set\_gen\_refpol()}] Turn on interface generation.
+    \item [\texttt{set\_gen\_requires()}] Add module requires (neccessary for
+        creating a standalone policy module).
+    \item [\texttt{set\_gen\_explain()}] Add comments explaining why were the
+        policy statements generated.
+    % TODO: make sure that dontaudit rules are explained earlier
+    \item [\texttt{set\_gen\_dontaudit()}] Generate \texttt{dontaudit} rules
+        instead of \texttt{allow} rules.
+\end{description}
+The output of the \texttt{PolicyGenerator} is a tree-like structure containing
+generated statements. The \texttt{output} module then just prints out every
+statement.
 
 \chapter{Analysis}
 TODO
