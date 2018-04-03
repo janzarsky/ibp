@@ -269,12 +269,12 @@ AVC messages are merged into one access vector. Example of an access vector set:
 % TODO: do it better
 \begin{lstlisting}
 {
-    ("unconfined_u:system_r:httpd_t:s0",
-     "system_u:object_r:samba_share_t:s0",
-     "file"): [ "getattr", "open" ],
-    ("unconfined_u:system_r:httpd_t:s0",
-     "system_u:object_r:sssd_conf_t:s0",
-     "file"): [ "getattr" ],
+    ('unconfined_u:system_r:httpd_t:s0',
+     'system_u:object_r:samba_share_t:s0',
+     'file'): [ 'getattr', 'open' ],
+    ('unconfined_u:system_r:httpd_t:s0',
+     'system_u:object_r:sssd_conf_t:s0',
+     'file'): [ 'getattr' ],
 }
 \end{lstlisting}
 
@@ -392,10 +392,10 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 would be converted into the following access vector:
 \begin{lstlisting}
 {
-    source_context: "unconfined_u:system_r:httpd_t:s0",
-    target_context: "system_u:object_r:samba_share_t:s0",
-    object_class: "file",
-    permissions: [ "getattr" ]
+    source_context: 'unconfined_u:system_r:httpd_t:s0',
+    target_context: 'system_u:object_r:samba_share_t:s0',
+    object_class: 'file',
+    permissions: [ 'getattr' ]
 }
 \end{lstlisting}
 
@@ -424,10 +424,10 @@ converts access vector set into SELinux policy statements. For example, this
 access vector:
 \begin{lstlisting}
 {
-    source_context: "unconfined_u:system_r:httpd_t:s0",
-    target_context: "system_u:object_r:samba_share_t:s0",
-    object_class: "file",
-    permissions: [ "getattr", "open", "read" ]
+    source_context: 'unconfined_u:system_r:httpd_t:s0',
+    target_context: 'system_u:object_r:samba_share_t:s0',
+    object_class: 'file',
+    permissions: [ 'getattr', 'open', 'read' ]
 }
 \end{lstlisting}
 would be converted into this policy statement:
@@ -453,10 +453,18 @@ generated statements. The \texttt{output} module then just prints out every
 statement.
 
 \chapter{Analysis}
-TODO
+Several improvements to audit2allow were proposed:
+\begin{enumerate}
+    \item Changing label of an object instead of creating new policy rules. This
+        includes checking of mislabeled files, labeling network ports, nodes,
+        and interfaces.
+    \item Support for new SELinux policy statements.
+\end{enumerate}
 
 \section{Mislabeled Files}
-TODO
+SELinux relies on files that are correctly labeled. Sometimes, files get
+mislabeled and causes AVC denials. When used for troubleshooting, audit2allow
+suggests adding new rules to the policy instead of changing label of the file.
 
 \subsection{Labeling of Files}
 When accessing files, SELinux relies on labels stored with those files to make a
@@ -472,7 +480,7 @@ Labels are stored in extended attributes in the security namespace
 \begin{lstlisting}
 $ getfattr -n security.selinux testfile
 # file: testfile
-security.selinux="unconfined_u:object_r:user_home_t:s0
+security.selinux="unconfined_u:object_r:user_home_t:s0"
 \end{lstlisting}
 
 There are rules in policy that specifies the context of files created by
@@ -704,17 +712,34 @@ TODO
 TODO
 
 \chapter{Implementation}
-TODO
+From the list of possible improvements to audit2allow, extended permissions were
+implemented.
 
 \section{Extended permissions}
-TODO
+Modules \texttt{audit}, \texttt{access}, \texttt{policygen}, \texttt{refpolicy}
+were modified to support extended permissions. New command-line option
+\texttt{-{}-xperms} was added to turn on generating of the extended permission
+access vector rules.
 
 \subsection{Parsing AVC Denial Messages}
 The \texttt{audit} module was extended to parse \texttt{ioctlcmd} field in AVC
 denial messages. The \texttt{ioctlcmd} field is then converted to fit the
 general concept of extended permissions and passed to the access vector set.
 
-\subsection{Representation of Extended Permission AV Rule}
+\subsection{Storing Extended Permissions in Access Vector Sets}
+Extended permissions are stored inside an access vector as a dictionary, where
+the operation is the key. Example of extended permissions:
+\begin{lstlisting}
+{
+    'ioctl': <refpolicy.XpermSet() object>,
+    'other_command': <refpolicy.XpermSet() object>,
+    'another_command': <refpolicy.XpermSet() object>,
+}
+\end{lstlisting}
+The \texttt{AccessVectorSet} was modified to correctly merge two access vectors
+with extended permissions attached.
+
+\subsection{Representation of Extended Permission AV Rules}
 Extended permission access vector rules are represented in the
 \texttt{refpolicy} module by the \texttt{AVExtRule} class. These rules are
 created from access vectors using the \texttt{from\_av()} method. Method
@@ -727,7 +752,7 @@ allowxperm my_app_t my_socket_t : tcp_socket ioctl { 20 30 0x40 50-60 };
 The extended permission set (in the previous listing \texttt{\{ 20 30 0x40 50-60
 \}}) is represented by separate class \texttt{XpermSet}.
 
-\subsection{Storing Extended Permissions in Access Vectors}
+\subsection{Generating Extended Permission AV rules}
 Without extended permissions, every access vector can be converted into single
 AV rule. With extended permissions attached to the access vector, to fully
 convert access vector to policy rules, there needs to be one AV rule and
@@ -735,30 +760,32 @@ possibly several extended permission AV rules. For example, this access vector:
 % TODO use different contexts and tcp_socket
 \begin{lstlisting}
 {
-    source_context: "unconfined_u:system_r:httpd_t:s0",
-    target_context: "system_u:object_r:samba_share_t:s0",
-    object_class: "file",
-    permissions: [ "getattr", "ioctl", "open" ]
+    source_context: 'unconfined_u:system_r:httpd_t:s0',
+    target_context: 'system_u:object_r:samba_share_t:s0',
+    object_class: 'file',
+    permissions: [ 'getattr', 'ioctl', 'open' ]
     extended_permissions: {
-        "ioctl": [ 1, 2, 3 ],
-        "other_command": [ 40, 50, 60 ],
-        "another_command": [ 700, 800, 900 ],
+        'ioctl': [ 1, 2, 3 ],
+        'other_command': [ 40, 50, 60 ],
+        'another_command': [ 700, 800, 900 ],
     }
 }
 \end{lstlisting}
-would be converted into these policy rules:
+would be converted into these policy rules\footnote{Note that as of policy
+version 31, only the \texttt{ioctl} operation is supported, operations
+\texttt{other\_command} and \texttt{another\_command} were added only as an
+example.}:
 \begin{lstlisting}
 allow httpd_t samba_share_t:file { getattr ioctl open };
 allowxperm httpd_t samba_share_t:file ioctl { 1 2 3 };
 allowxperm httpd_t samba_share_t:file other_command { 40 50 60 };
 allowxperm httpd_t samba_share_t:file another_command { 700 800 900 };
 \end{lstlisting}
-(Note that the \texttt{other\_command} and \texttt{another\_command} operations
-are made up as only the \texttt{ioctl} operation is supported as of policy
-version 31.)
 
-\subsection{Generating Extended Permission AV Rules}
-TODO
+The \texttt{PolicyGenerator} was modified to generate extended permission AV
+rules for every operation in access vector. New configuration method was added,
+\texttt{set\_gen\_xperms()}, to specify whether the extended permission AV rules
+should be generated.
 
 \chapter{Functional Testing}
 TODO: about tests, chosen coverage
