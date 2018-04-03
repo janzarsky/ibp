@@ -54,7 +54,26 @@ The high-level process of enforcing the policy:
 \end{enumerate}
 
 % TODO
-Figure 1: High-level process of policy enforcing
+\begin{figure}
+    \begin{tikzpicture}
+        \usetikzlibrary{calc}
+        \tikzstyle{line} = [->,>=stealth, line width=1pt]
+        \tikzstyle{rec} = [rectangle, draw=black, align=center, text width=5cm]
+
+        \node(subject) [rec] {Subject};
+        \node(objman) [rec, below of=subject, node distance=3cm] {Object
+        Manager\\ Queries the security server.};
+        \node(secser) [rec, below of=objman, node distance=3cm] {Security
+        Server\\ Makes decisions based on the SELinux policy.};
+
+        \draw[line] (subject) -- node[midway,left] {Request access} (objman);
+        \draw[line] ([xshift=-0.5cm]objman.south) -- node[midway,left] {Query
+        permissions} ([xshift=-0.5cm]secser.north);
+        \draw[line] ([xshift=0.5cm]secser.north) -- node[midway,right] {Get
+        answer} ([xshift=0.5cm]objman.south);
+    \end{tikzpicture}
+    \caption{High-level process of policy enforcing}
+\end{figure}
 
 For example, when process \texttt{httpd} wants to open the
 \texttt{/etc/httpd/conf/httpd.conf} file, the operation is allowed. It is
