@@ -49,7 +49,7 @@ developed by SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
 Security-Enhanced Linux (SELinux) is a Linux kernel security module that
 provides mandatory access control mechanisms. (TODO)
 
-\subsection{What problems does SELinux solve}
+\subsection{What Problems Does SELinux Solve}
 Without SELinux, operating system relies on traditinal access control methods
 such as file permissions. Users can grant insecure file permissions to others or
 gain access to files that they do not need. For example:
@@ -70,7 +70,7 @@ function. Applications do not need to be aware of SELinux. When an action is
 denied, it is reported via ``access denied'' error code to the application
 \cite{centoshowto}.
 
-\subsection{How does SELinux enforce a security policy}
+\subsection{How Does SELinux Enforce a Security Policy}
 The high-level process of enforcing the policy:
 \begin{enumerate}
     \item A \emph{subject} wants to perform an action upon an \emph{object}.
@@ -97,7 +97,7 @@ tries to perform an action which is not allowed by the policy, it is logged. In
 \emph{permissive} mode, SELinux is not enforcing the policy, it only logs
 actions. In \emph{disabled} mode, SELinux is turned off.
 
-\subsection{SELinux components}
+\subsection{SELinux Components}
 % TODO
 Figure 2: SELinux components
 
