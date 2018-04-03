@@ -195,12 +195,8 @@ $ ls -Z /etc
 ...
 \end{lstlisting}
 
-\section{TODO: SUBJECTS}
+\section{Subjects and Objects}
 % 2.8 SUBJECTS                                                          Y
-
-TODO
-
-\section{TODO: OBJECT}
 % 2.9 OBJECTS                                                           Y
     % 2.9.1 Object Classes and Permissions                              Y
     % 2.9.2 Allowing a Process Access to Resources                      Y
@@ -210,7 +206,39 @@ TODO
         % 2.9.3.2 Labeling Subjects                                     Y
     % 2.9.4 Object Reuse                                                N
 
-TODO
+A \emph{subject} is an entity that causes information to flow among objects or
+changes the system state. Within SELinux, a subject is an active process that
+can access objects. Note that a process can also be an object, for example when
+sending signal to another process, the receiving process is an object.
+
+An \emph{object} is a system resource such as file, socket, pipe, TCP or UDP
+port, network interface, semaphore or shared memory segment. Objects are
+accessed via subjects. Objects are divided into classes based on permission
+sets.
+
+\subsection{Object Classes}
+% TODO cite reference policy
+Each object is assigned class identifier which specifies set of permissions that
+describe what operations can object handle. For example, in Reference Policy
+version 2.20180114, class \texttt{shm} provides the following permissions:
+\begin{lstlisting}
+create, destroy, getattr, setattr, read, write, associate, unix_read,
+unix_write, lock
+\end{lstlisting}
+SELinux object classes maps to the kernel object classes (files, sockets, etc.)
+and userspace objects (for X-Windows or D-Bus).
+
+\subsection{Allowing a Subject to Access an Object}
+Subjects are given access to objects via \texttt{allow} rules in the security
+policy. Example of an \texttt{allow} rule:
+\begin{lstlisting}
+allow httpd_t samba_share_t:file { getattr open read };
+\end{lstlisting}
+Here the process running with context \texttt{httpd\_t} (Apache HTTP Server) is
+given access to file labeled as \texttt{samba\_share\_t} (files shared via
+Samba). The allowed operations are \texttt{getattr}, \texttt{open}, and
+\texttt{read}. This means that the process can open and read from these files
+but it cannot modify them.
 
 \section{TODO: COMPUTING SECURITY CONTEXTS}
 % 2.10 COMPUTING SECURITY CONTEXTS                                      Y
