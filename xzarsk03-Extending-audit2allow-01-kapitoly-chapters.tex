@@ -170,7 +170,7 @@ Where:
     \item [\texttt{user}] The SELinux user.
     \item [\texttt{role}] The SELinux role.
     \item [\texttt{type}] Used by type enforcement.
-    \item [\texttt{range}] Used by MLS or MCS.
+    \item [\texttt{range}] Used by MLS or MCS. It is optional.
 \end{description}
 
 Example of subject security contexts:
@@ -240,7 +240,7 @@ Samba). The allowed operations are \texttt{getattr}, \texttt{open}, and
 \texttt{read}. This means that the process can open and read from these files
 but it cannot modify them.
 
-\section{TODO: COMPUTING SECURITY CONTEXTS}
+\section{Labeling Subjects and Objects}
 % 2.10 COMPUTING SECURITY CONTEXTS                                      Y
     % 2.10.1 Security Context Computation for Kernel Objects            Y
         % 2.10.1.1 Process                                              Y
@@ -259,7 +259,29 @@ but it cannot modify them.
         % 2.10.2.2 avc_compute_member and security_compute_member       N
         % 2.10.2.3 security_compute_relabel                             N
 
-TODO
+% TODO
+Security contexts are computed by the kernel security server using several
+policy statements.
+
+\subsection{Labeling Processes}
+The first init process usually transitions to its own unique process, for
+example \texttt{init\_t}. On fork, a process inherits the security context of
+its parent. On exec, a process may transition to different security context.
+This is achieved by various transition policy statements. SELinux-aware
+processes may change context by calling \texttt{setcon} or \texttt{setexeccon}.
+
+\subsection{Labeling Files}
+Security context for files is computed as follows:
+\begin{description}
+    \item [\texttt{user}] User is inherited from the creating process.
+    \item [\texttt{role}] Role defaults to \texttt{object\_r} unless modified by
+        \texttt{role\_transition} statement.
+    \item [\texttt{type}] Type defaults to the type of the parent directory
+        unless modified by \texttt{type\_transition} statement.
+    \item [\texttt{range}/\texttt{level}] Defaults to the low/current level of
+        the creating process unless modified by \texttt{range\_transition}
+        statement.
+\end{description}
 
 \section{TODO: COMPUTING ACCESS DECISIONS}
 % 2.11 COMPUTING ACCESS DECISIONS                                       ?
