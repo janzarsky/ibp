@@ -64,12 +64,6 @@ would want to write to the \texttt{/etc/passwd} file, the operation would be
 denied. Process \texttt{httpd} should not change the \texttt{/etc/passwd} file,
 so the rules which would allow this operation are not present in policy.
 
-There are 3 modes of operation. The default mode is \emph{enforcing}. In this
-mode, everything which is not allowed by the policy is denied. When a process
-tries to perform an action which is not allowed by the policy, it is logged. In
-\emph{permissive} mode, SELinux is not enforcing the policy, it only logs
-actions. In \emph{disabled} mode, SELinux is turned off.
-
 \subsection{SELinux Components}
 % TODO
 Figure 2: SELinux components
@@ -248,7 +242,7 @@ but it cannot modify them.
         % 2.10.1.3 File Descriptors                                     N
         % 2.10.1.4 Filesystems                                          N
         % 2.10.1.5 Network File System (nfsv4)                          N
-        % 2.10.1.6 INET Sockets                                         Y
+        % 2.10.1.6 INET Sockets                                         N
         % 2.10.1.7 IPC                                                  N
         % 2.10.1.8 Message Queues                                       N
         % 2.10.1.9 Semaphores                                           N
@@ -283,18 +277,30 @@ Security context for files is computed as follows:
         statement.
 \end{description}
 
-\section{TODO: COMPUTING ACCESS DECISIONS}
-% 2.11 COMPUTING ACCESS DECISIONS                                       ?
-
-TODO
-
-\section{TODO: DOMAIN AND OBJECT TRANSITIONS}
+\section{Type Transitions}
 % 2.12 DOMAIN AND OBJECT TRANSITIONS                                    Y
     % 2.12.1 Domain Transition                                          Y
         % 2.12.1.1 Type Enforcement Rules                               Y
     % 2.12.2 Object Transition                                          Y
 
-TODO
+% TODO explain domain
+To run different processes in different domains, we need a way how to
+\emph{transition} a process from one domain to another. To attach file a label
+different than its parent's label, we need to transition an object from one type
+to another. Both can be achieved using the \texttt{type\_transition} statement.
+
+\subsection{Domain Transition}
+
+Starting new process with different security context is called domain
+transition. For example, \texttt{systemd} running as \texttt{init\_t} needs to
+start the Apache HTTP Server as \texttt{httpd\_t}. Apache executables are
+labeled \texttt{httpd\_exec\_t}. The following policy rule allows the
+transition:
+\begin{lstlisting}
+type_transition init_t httpd_exec_t:process httpd_t;
+\end{lstlisting}
+
+\subsection{Object Transition}
 
 \section{TODO: MLS AND MCS}
 % 2.13 MULTI-LEVEL SECURITY AND MULTI-CATEGORY SECURITY                 Y
@@ -307,25 +313,14 @@ TODO
 
 TODO
 
-\section {TODO: TYPES OF SELINUX POLICY}
-% 2.14 TYPES OF SELINUX POLICY                                          Y
-    % 2.14.1 Example Policy                                             N
-    % 2.14.2 Reference Policy                                           Y
-    % 2.14.3 Policy Functionality Based on Name or Type                 Y
-    % 2.14.4 Custom Policy                                              N
-    % 2.14.5 Monolithic Policy                                          Y
-    % 2.14.6 Loadable Module Policy                                     Y
-        % 2.14.6.1 Optional Policy                                      N
-    % 2.14.7 Conditional Policy                                         ?
-    % 2.14.8 Binary Policy                                              Y
-    % 2.14.9 Policy Versions                                            Y
-
-TODO
-
-\section{TODO: SELINUX MODES}
+\section{SELinux Modes of Operation}
 % 2.15 SELINUX PERMISSIVE AND ENFORCING MODES                           Y
 
-TODO
+SELinux has three modes of operation. The default mode is \emph{enforcing}. In
+this mode, everything which is not allowed by the policy is denied. When a
+process tries to perform an action which is not allowed by the policy, it is
+logged. In \emph{permissive} mode, SELinux is not enforcing the policy, it only
+logs actions. In \emph{disabled} mode, SELinux is turned off.
 
 \section{TODO: LSM AND SELINUX}
 % 2.19 LINUX SECURITY MODULE AND SELINUX                                Y
@@ -340,6 +335,18 @@ TODO
 % other:
 % 2.4 SELINUX USERS                                                     ?
 % 2.5 ROLE-BASED ACCESS CONTROL (RBAC)                                  ?
+% 2.11 COMPUTING ACCESS DECISIONS                                       ?
+% 2.14 TYPES OF SELINUX POLICY                                          Y
+    % 2.14.1 Example Policy                                             N
+    % 2.14.2 Reference Policy                                           Y
+    % 2.14.3 Policy Functionality Based on Name or Type                 Y
+    % 2.14.4 Custom Policy                                              N
+    % 2.14.5 Monolithic Policy                                          Y
+    % 2.14.6 Loadable Module Policy                                     Y
+        % 2.14.6.1 Optional Policy                                      N
+    % 2.14.7 Conditional Policy                                         ?
+    % 2.14.8 Binary Policy                                              Y
+    % 2.14.9 Policy Versions                                            Y
 % 2.17 POLYINSTANTIATION SUPPORT                                        N
     % 2.17.1 Polyinstantiated Objects                                   N
     % 2.17.2 Polyinstantiation support in PAM                           N
