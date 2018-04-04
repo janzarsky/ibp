@@ -419,12 +419,25 @@ TODO
     % 2.21.4.1 Configuration Examples                                   N
 
 \section{SELinux Policy Language}
+% 4.1 INTRODUCTION                                                      Y
+%     4.1.1 CIL Overview                                                Y
+
 Security decisions made by the security server in kernel are resolved using
 SELinux policy. The policy is either monolithic (compiled from single source
 file) or modular. Modular policy, which is used in Fedora and RHEL, consists of
 mandatory base policy source file and loadable modules. In Fedora, almost every
 module contains policy for one application or service, such as the
 \texttt{apache} or \texttt{xserver} modules.
+
+\subsection{TODO: KERNEL POLICY LANGUAGE}
+% 4.2 KERNEL POLICY LANGUAGE                                            Y
+%     4.2.1 Policy Source Files                                         Y
+%     4.2.2 Conditional, Optional and Require Statement Rules           Y
+%     4.2.3 MLS Statements and Optional MLS Components                  N
+%     4.2.4 General Statement Information                               Y
+%     4.2.5 Section Contents                                            N
+% 4.3 POLICY CONFIGURATION STATEMENTS                                   Y
+%     4.3.1 policycap                                                   Y
 
 SELinux policy statements starts with a statement keyword usually followed by
 several identifiers and semicolon at the end. Comments starts with a ``\#''.
@@ -435,6 +448,32 @@ Example of an allow rule:
 allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
 \end{lstlisting}
 
+% 4.4 DEFAULT OBJECT RULES                                              Y
+%     4.4.1 default_user                                                ?
+%     4.4.2 default_role                                                ?
+%     4.4.3 default_type                                                ?
+%     4.4.4 default_range                                               ?
+
+\subsection{TODO: USER, ROLE, AND TYPE STATEMENTS}
+% 4.5 USER STATEMENTS                                                   ?
+%     4.5.1 user                                                        ? 
+% 4.6 ROLE STATEMENTS                                                   ?
+%     4.6.1 role                                                        ?
+%     4.6.2 attribute_role                                              ?
+%     4.6.3 roleattribute                                               ?
+%     4.6.4 allow                                                       ?
+%     4.6.5 role_transition                                             ?
+%     4.6.6 dominance                                                   ?
+% 4.7 TYPE STATEMENTS                                                   Y
+%     4.7.1 type                                                        Y
+%     4.7.2 attribute                                                   Y
+%     4.7.3 typeattribute                                               Y
+%     4.7.4 typealias                                                   Y
+%     4.7.5 permissive                                                  Y
+%     4.7.6 type_transition                                             Y
+%     4.7.7 type_change                                                 N
+%     4.7.8 type_member                                                 N
+
 SELinux assigns context to objects in the system. A \emph{SELinux context}
 consists of user, role and type. In order to assign objects types, they must be
 declared using the type statement.
@@ -444,13 +483,85 @@ declared using the type statement.
 type bin_t;
 \end{lstlisting}
 
-For assigning context to a file, the \texttt{file\_contexts} file (which is
-compiled together with the policy source file) is used. For assigning contexts
-to other objects, there are several policy statements, such as \texttt{portcon}
-(for TCP/IP ports), \texttt{nodecon} (for IP addresses), or \texttt{netifcon}
-(for network interfaces).
 
-TODO processes, transitions
+\subsection{TODO: BOUNDS RULES}
+% 4.8 BOUNDS RULES                                                      Y
+%     4.8.1 typebounds                                                  Y
+
+TODO
+
+\subsection{TODO: ACCESS VECTOR RULES}
+% 4.9 ACCESS VECTOR RULES                                               Y
+%     4.9.1 allow                                                       Y
+%     4.9.2 dontaudit                                                   Y
+%     4.9.3 auditallow                                                  Y
+%     4.9.4 neverallow                                                  Y
+
+TODO
+
+\subsection{TODO: OBJECT CLASS AND PERMISSION STATEMENTS}
+% 4.10 OBJECT CLASS AND PERMISSION STATEMENTS                           Y
+%     4.10.1 class                                                      Y
+%     4.10.2 Associating Permissions to a Class                         Y
+%     4.10.3 common                                                     Y
+%     4.10.4 class                                                      Y
+
+TODO
+
+\subsection{TODO: CONDITIONAL POLICY STATEMENTS}
+% 4.11 CONDITIONAL POLICY STATEMENTS                                    Y
+%     4.11.1 bool                                                       Y
+%     4.11.2 if                                                         Y
+
+TODO
+
+\subsection{TODO: NETWORK LABELING STATEMENTS}
+% 4.16 NETWORK LABELING STATEMENTS                                      Y
+%     4.16.1 IP Address Formats                                         Y
+%         4.16.1.1 IPv4 Address Format                                  Y
+%         4.16.1.2 IPv6 Address Formats                                 Y
+%     4.16.2 netifcon                                                   Y
+%     4.16.3 nodecon                                                    Y
+%     4.16.4 portcon                                                    Y
+
+TODO
+
+\subsection{TODO: MODULAR POLICY SUPPORT STATEMENTS}
+% 4.17 MODULAR POLICY SUPPORT STATEMENTS                                Y
+%     4.17.1 module                                                     Y
+%     4.17.2 require                                                    Y
+%     4.17.3 optional                                                   Y
+
+TODO
+
+% others
+% 4.12 CONSTRAINT STATEMENTS                                            ?
+%     4.12.1 constrain                                                  ?
+%     4.12.2 validatetrans                                              ?
+%     4.12.3 mlsconstrain                                               ?
+%     4.12.4 mlsvalidatetrans                                           ?
+% 4.13 MLS STATEMENTS                                                   N
+%     4.13.1 sensitivity                                                N
+%     4.13.2 dominance                                                  N
+%     4.13.3 category                                                   N
+%     4.13.4 level                                                      N
+%     4.13.5 range_transition                                           N
+%         4.13.5.1 MLS range Definition                                 N
+%     4.13.6 mlsconstrain                                               N
+%     4.13.7 mlsvalidatetrans                                           N
+% 4.14 SECURITY ID (SID) STATEMENT                                      N
+%     4.14.1 sid                                                        N
+%     4.14.2 sid context                                                N
+% 4.15 FILE SYSTEM LABELING STATEMENTS                                  N
+%     4.15.1 fs_use_xattr                                               N
+%     4.15.2 fs_use_task                                                N
+%     4.15.3 fs_use_trans                                               N
+%     4.15.4 genfscon                                                   N
+% 4.18 XEN STATEMENTS                                                   N
+%     4.18.1 iomemcon                                                   N
+%     4.18.2 ioportcon                                                  N
+%     4.18.3 pcidevicecon                                               N
+%     4.18.4 pirqcon                                                    N
 
 \section{Problems with SELinux}
 TODO
