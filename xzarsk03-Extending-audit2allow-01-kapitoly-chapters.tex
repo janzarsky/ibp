@@ -596,12 +596,23 @@ There are three other AV rules:
 
 TODO
 
-\subsection{TODO: CONDITIONAL POLICY STATEMENTS}
+\subsection{Conditional Policy}
 % 4.11 CONDITIONAL POLICY STATEMENTS                                    Y
 %     4.11.1 bool                                                       Y
 %     4.11.2 if                                                         Y
 
-TODO
+SELinux policy allows turning on and off set of policy statements without the
+need for reloading policy. Conditional policy is defined using the \texttt{bool}
+statement that defines a condition. Then a \texttt{if}/\texttt{else} construct
+is used. Example:
+\begin{lstlisting}
+bool allow_execmem false;
+
+if (allow_execmem) {
+    allow sysadm_t self:process execmem;
+}
+\end{lstlisting}
+Booleans can be turned on and off using the \texttt{semanage boolean} command.
 
 \subsection{TODO: NETWORK LABELING STATEMENTS}
 % 4.16 NETWORK LABELING STATEMENTS                                      Y
