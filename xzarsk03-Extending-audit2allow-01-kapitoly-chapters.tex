@@ -1,5 +1,10 @@
 % ==============================================================================
 \chapter{Introduction}
+% TODO: improve
+% motivation - longer
+% how I solved it, avoid first person
+% overview which chapter solves what
+
 % establish your territory
 %   state the general topic and give some background
 Security-Enhanced Linux is a mandatory access control mechanism used in Linux
@@ -34,10 +39,6 @@ audit2allow usage. Fourth chapter describes implementation details of selected
 improvements to audit2allow.
 %   outline the methodology
 
-% TODO: motivation - longer
-% TODO: how I solved it, avoid first person
-% TODO: overview which chapter solves what
-
 % ==============================================================================
 \chapter{Security-Enhanced Linux and audit2allow}
 % TODO: describe SELinux, describe audit2allow, use examples, what are the
@@ -53,7 +54,7 @@ Security-Enhanced Linux, and the details of the audit2allow utility.
 % 2.1 INTRODUCTION                                                      Y
     % 2.1.1 Is SELinux useful                                           Y
 
-% TODO
+% TODO: improve
 Security-Enhanced Linux (SELinux) is a mandatory access control mechanism that
 consists of kernel modifications and user-space tools and is a part of several
 Linux distributions.
@@ -81,6 +82,7 @@ denied, it is reported via ``access denied'' error code to the application
 
 \subsection{TODO: CORE SELINUX COMPONENTS}
 % 2.2 CORE SELINUX COMPONENTS                                           Y
+% TODO: write intro text, check with TSN, patch the whole subsection
 
 TODO
 
@@ -94,7 +96,7 @@ The high-level process of enforcing the policy:
     and makes decision to allow or deny the action.
 \end{enumerate}
 
-% TODO
+% TODO: finish the figure
 \begin{figure}
     \begin{tikzpicture}
         \usetikzlibrary{calc}
@@ -125,7 +127,7 @@ denied. Process \texttt{httpd} should not change the \texttt{/etc/passwd} file,
 so the rules which would allow this operation are not present in policy.
 
 \subsubsection{SELinux Components}
-% TODO
+% TODO: add picture, decide what to put in it
 Figure 2: SELinux components
 
 SELinux \emph{security server} is embedded in the kernel and it obtains the
@@ -151,6 +153,7 @@ various system resources \cite[p.~389]{tsn}.
 
 \subsection{Mandatory Access Control}
 % 2.3 MANDATORY ACCESS CONTROL (MAC)                                    Y
+% TODO: write intro text, glue subsection together
 
 TODO
 
@@ -306,7 +309,7 @@ but it cannot modify them.
         % 2.10.2.2 avc_compute_member and security_compute_member       N
         % 2.10.2.3 security_compute_relabel                             N
 
-% TODO
+% TODO: refine intro text
 Security contexts are computed by the kernel security server using several
 policy statements.
 
@@ -336,7 +339,7 @@ Security context for files is computed as follows:
         % 2.12.1.1 Type Enforcement Rules                               Y
     % 2.12.2 Object Transition                                          Y
 
-% TODO explain domain
+% TODO explain what is domain
 To run different processes in different domains, we need a way how to
 \emph{transition} a process from one domain to another. To attach file a label
 different than its parent's label, we need to transition an object from one type
@@ -397,6 +400,7 @@ automatically.
     % 2.13.2 Managing Security Levels via Dominance Rules               N
     % 2.13.3 MLS Labeled Network and Database Support                   N
     % 2.13.4 Common Criteria Certification                              N
+% TODO: decide if this section is needed
 
 TODO
 
@@ -416,6 +420,7 @@ logs actions. In \emph{disabled} mode, SELinux is turned off.
     % 2.19.2.1 Fork System Call Walk-thorough                           N
     % 2.19.2.2 Process Transition Walk-thorough                         N
     % 2.19.2.3 SELinux Filesystem                                       N
+% TODO: write it
 
 TODO
 
@@ -457,6 +462,7 @@ TODO
 \section{SELinux Policy}
 % 4.1 INTRODUCTION                                                      Y
 %     4.1.1 CIL Overview                                                Y
+% TODO: refine intro
 
 Security decisions made by the security server in kernel are resolved using
 SELinux policy.
@@ -625,6 +631,7 @@ There are three other AV rules:
 %     4.10.2 Associating Permissions to a Class                         Y
 %     4.10.3 common                                                     Y
 %     4.10.4 class                                                      Y
+% TODO: write it
 
 TODO
 
@@ -790,6 +797,8 @@ require {
 
 % ------------------------------------------------------------------------------
 \section{Problems with SELinux}
+% TODO: decide what to do with this section
+
 TODO
 
 % ------------------------------------------------------------------------------
@@ -833,10 +842,13 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 
 % ------------------------------------------------------------------------------
 \section{The audit2allow Utility}
+% TODO: improve the structure
 The \emph{audit2allow} is a userspace tool that scans the AVC messages and
 generates SELinux policy snippets based on them.
 
 \subsection{Purpose of audit2allow}
+% TODO: write
+
 The audit2allow tool is designed to help administrators troubleshoot SELinux
 denials.
 
@@ -846,6 +858,7 @@ AVC, create basis for policy module, additional useful info - booleans,
 interfaces, ...
 
 \subsection{TODO: What It Does}
+% TODO: write
 In default mode, it scans the AVC denial messages and generates policy rules
 which allows the operations that were denied.
 
@@ -871,7 +884,6 @@ messages since last policy reload.
 The audit2allow can output the policy rules directly to stdout or file, or
 create a policy module which can be loaded directly into the policy.
 
-% TODO make sure that booleans are explained earlier
 The audit2allow is using currently loaded policy (or any other policy specified
 in the \texttt{-{}-policy} option) to get more information about the denials.
 For example, audit2allow suggests turning on a boolean that would allow the
@@ -897,6 +909,7 @@ The audit2allow found an interface which contained the same allow
 rule. Interfaces creates more readable code but can contain more rules that are
 necessary.
 
+% TODO: write it
 TODO: dontaudit rules
 
 \subsection{TODO: How Does audit2allow Work}
@@ -906,7 +919,7 @@ source context, target context, object class, and permissions are extracted and
 converted into \emph{access vector sets}. Each access vector has unique source
 context, target context, and object class combination. Permissions from multiple
 AVC messages are merged into one access vector. Example of an access vector set:
-% TODO: do it better
+% TODO: improve the listing
 \begin{lstlisting}
 {
     ('unconfined_u:system_r:httpd_t:s0',
@@ -924,12 +937,13 @@ allow httpd_t samba_share_t:file { getattr, open };
 allow httpd_t sssd_conf_t:file getattr;
 \end{lstlisting}
 
+% TODO: write more
 Various other information is stored during processing. The audit2allow prints
-comments with helpful messages. TODO
+comments with helpful messages.
 
 \subsection{Implementation of audit2allow}
 The audit2allow utility is written mostly in Python with several parts written
-in C.  Main script, \texttt{audit2allow}, parses command-line options, retrieves
+in C. Main script, \texttt{audit2allow}, parses command-line options, retrieves
 audit messages, and prints the output.  Main logic of converting AVC denial
 messages to access vector rules is implemented in package \texttt{sepolgen}.
 
@@ -1084,7 +1098,6 @@ configuration methods:
         creating a standalone policy module).
     \item [\texttt{set\_gen\_explain()}] Add comments explaining why were the
         policy statements generated.
-    % TODO: make sure that dontaudit rules are explained earlier
     \item [\texttt{set\_gen\_dontaudit()}] Generate \texttt{dontaudit} rules
         instead of \texttt{allow} rules.
 \end{description}
@@ -1094,6 +1107,7 @@ statement.
 
 % ==============================================================================
 \chapter{Analysis}
+% TODO: improve
 Several improvements to audit2allow were proposed:
 \begin{enumerate}
     \item Changing label of an object instead of creating new policy rules. This
@@ -1282,7 +1296,8 @@ denied because of extended permission AV rules. In the preceding example, there
 should be a warning message. Then there should be a way how to generate extended
 permission AV rules from AVC messages, for example a command-line option.
 
-TODO: discussion about default behaviour.
+% TODO: discussion about default behaviour
+TODO
 
 % ------------------------------------------------------------------------------
 \section{Labeling Network Ports, Nodes and Interfaces}
@@ -1350,9 +1365,11 @@ audit2allow should suggest using the \texttt{semanage port} command when
 appropriate.
 
 \subsection{Network Nodes}
+% TODO: write
 TODO
 
 \subsection{Network Interfaces}
+% TODO: write
 TODO
 
 % ==============================================================================
@@ -1435,21 +1452,45 @@ should be generated.
 
 % ==============================================================================
 \chapter{Functional Testing}
-TODO: about tests, chosen coverage
+% TODO: write about tests, chosen coverage
+The functionality of implemented features to audit2allow was tested by extending
+existing unit tests and writing integration tests that are focused on operation
+with SELinux and Linux Audit system.
 
 % ------------------------------------------------------------------------------
 \section{Unit Tests}
+% TODO: write more stuff
 
-TODO: test\_access
+Unit tests were extended to ensure that the new functionality does not break
+existing code. New test cases were added to test the new features.
 
-TODO: test\_audit
+\subsection{Testing audit Module}
+% TODO: write
 
-TODO: test\_policygen
+In this module, audit message parser was modified to recognize new fields and to
+convert the fields to extended permissions.
 
-TODO: test\_refpolicy
+\subsection{Testing access Module}
+% TODO: write
+
+In this module, classes \texttt{AccessVector} and \texttt{AccessVectorSet} were
+extended.
+
+\subsection{Testing policygen Module}
+% TODO: write
+
+In this module, \texttt{PolicyGenerator} was extended to generate extended
+permission access vector modules.
+
+\subsection{Testing refpolicy Module}
+% TODO: write
+
+The \texttt{XpermSet} and \texttt{AVExtRule} classes were added to represent
+extended permission access vector rules.
 
 % ------------------------------------------------------------------------------
 \section{Integration Tests}
+% TODO: write
 
 TODO
 
@@ -1460,6 +1501,8 @@ TODO
 % zkušeností s řešeným projektem a uvede rovněž návaznosti na právě dokončené
 % projekty (řešené v rámci ostatních bakalářských prací v daném roce nebo na
 % projekty řešené na externích pracovištích). 
+
+% TODO: write
 
 % 1. Conclusions: concise statements about your main findings, related to your
 %       aims/objectives/hypothesis.
