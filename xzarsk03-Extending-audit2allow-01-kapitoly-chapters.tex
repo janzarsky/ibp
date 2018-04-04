@@ -549,14 +549,43 @@ states that the \emph{bounded domain} cannot have more permissions than the
 typebounds bounding_domain bounded_domain;
 \end{lstlisting}
 
-\subsection{TODO: ACCESS VECTOR RULES}
+\subsection{Access Vector Rules}
 % 4.9 ACCESS VECTOR RULES                                               Y
 %     4.9.1 allow                                                       Y
 %     4.9.2 dontaudit                                                   Y
 %     4.9.3 auditallow                                                  Y
 %     4.9.4 neverallow                                                  Y
 
-TODO
+The AV rules are basic policy rules that control what access do processes get.
+The \texttt{allow} rule grants process an access to an object. Syntax:
+\begin{lstlisting}
+allow source_type target_type:class perm_set;
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{source\_type}] One or more type or attribute identifiers.
+    \item [\texttt{target\_type}] One or more type or attribute identifiers.
+        When the target type is same as source type, \texttt{self} keyword can
+        be used instead of target type.
+    \item [\texttt{class}] One or more object classes.
+    \item [\texttt{perm\_set}] One or more permissions.
+\end{description}
+Example:
+\begin{lstlisting}
+allow httpd_t samba_share_t:file { getattr open read };
+\end{lstlisting}
+
+There are three other AV rules:
+\begin{description}
+    \item [\texttt{dontaudit}] Stops auditing of denials. It is used when the
+        denial is expected to happen and does not cause any issues. The
+        \texttt{dontaudit} rules help to keep audit logs clean.
+    \item [\texttt{auditallow}] Audits the event. Note that standard
+        \texttt{allow} is also needed.
+    \item [\texttt{neverallow}] Compiler statement that stops compilation if
+        this rule is found somewhere in policy. It is used for marking rules
+        that may be unsecure.
+\end{description}
 
 \subsection{TODO: OBJECT CLASS AND PERMISSION STATEMENTS}
 % 4.10 OBJECT CLASS AND PERMISSION STATEMENTS                           Y
