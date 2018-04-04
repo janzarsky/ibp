@@ -1,10 +1,42 @@
 % ==============================================================================
 \chapter{Introduction}
-TODO: motivation - longer
+% establish your territory
+%   state the general topic and give some background
+Security-Enhanced Linux is a mandatory access control mechanism used in Linux
+distributions. The audit2allow utility is used for analyzing security denials
+and creating snippets of security policy.
+%   provide a review of the literature related to the topic
+%   define the terms and scope of the topic
 
-TODO: how I solved it, avoid first person
+% establish a niche
+%   outline the current situation
+%   evaluate the current situation (advantages/ disadvantages) and identify the gap
+The audit2allow utility fails to provide effective and secure solution in
+certain situations. It relies on objects having correct labels and it does not
+recognize certain security policy statements.
 
-TODO: overview which chapter solves what
+% introduce the current research
+%   identify the importance of the proposed research
+Because of audit2allow, users often end up with policy rules that are too
+permissive and thus unsecure.
+%   state the research problem/ questions
+%   state the research aims and/or research objectives
+Improvements to audit2allow aim to suggest policy rules that are more
+restrictive or to suggest more suitable solutions than adding new rules to the
+policy.
+
+%   state the hypotheses
+%   outline the order of information in the thesis
+Second chapter presents Security-Enhanced Linux, introduces SELinux policy
+languages, describes auditing of security events, and describes in detail the
+audit2allow utility. Third chapter discusses problems that arise with
+audit2allow usage. Fourth chapter describes implementation details of selected
+improvements to audit2allow.
+%   outline the methodology
+
+% TODO: motivation - longer
+% TODO: how I solved it, avoid first person
+% TODO: overview which chapter solves what
 
 % ==============================================================================
 \chapter{Security-Enhanced Linux and audit2allow}
