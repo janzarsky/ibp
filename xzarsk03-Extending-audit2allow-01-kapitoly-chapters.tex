@@ -614,7 +614,7 @@ if (allow_execmem) {
 \end{lstlisting}
 Booleans can be turned on and off using the \texttt{semanage boolean} command.
 
-\subsection{TODO: NETWORK LABELING STATEMENTS}
+\subsection{Labeling Network Objects}
 % 4.16 NETWORK LABELING STATEMENTS                                      Y
 %     4.16.1 IP Address Formats                                         Y
 %         4.16.1.1 IPv4 Address Format                                  Y
@@ -623,15 +623,102 @@ Booleans can be turned on and off using the \texttt{semanage boolean} command.
 %     4.16.3 nodecon                                                    Y
 %     4.16.4 portcon                                                    Y
 
-TODO
+SELinux policy supports labeling of the following network objects:
+\begin{description}
+    \item [Network ports] TCP or UDP port numbers.
+    \item [Network nodes] Represented by IP addresses and subnet masks.
+    \item [Network interfaces] Interfaces managed by \texttt{ifconfig} (e.g.
+        \texttt{eth0}).
+\end{description}
 
-\subsection{TODO: MODULAR POLICY SUPPORT STATEMENTS}
+The \texttt{netifcon} statement labels network interface statements. Syntax:
+\begin{lstlisting}
+netifcon netif_id netif_context packet_context
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{netif\_id}] Name of the network interface (e.g.
+        \texttt{eth0}).
+    \item [\texttt{netif\_context}] Security context of the interface.
+    \item [\texttt{packet\_context}] Security context of the packets. This is
+        not currently used.
+\end{description}
+Example:
+\begin{lstlisting}
+netifcon eth0 system_u:object_r:netif_t:s0 system_u:object_r:netif_t:s0
+\end{lstlisting}
+
+The \texttt{nodecon} statement labels network addresses. Syntax:
+\begin{lstlisting}
+nodecon subnet netmask node_context
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{subnet}] The IP address.
+    \item [\texttt{netmask}] The subnet mask.
+    \item [\texttt{node\_context}] Security context of the node.
+\end{description}
+Example:
+\begin{lstlisting}
+nodecon ff00:: ff00:: system_u:object_r:multicast_node_t:s0
+\end{lstlisting}
+
+The \texttt{portcon} statement labels TCP and UDP ports. Syntax:
+\begin{lstlisting}
+portcon protocol port_number port_context
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{protocol}] Either \texttt{udp} or \texttt{tcp}.
+    \item [\texttt{port\_number}] Port number or a range.
+    \item [\texttt{port\_context}] Security context of the port.
+\end{description}
+Example:
+\begin{lstlisting}
+portcon tcp 22 system_u:object_r:ssh_port_t:s0
+\end{lstlisting}
+
+\subsection{Policy Modules}
 % 4.17 MODULAR POLICY SUPPORT STATEMENTS                                Y
 %     4.17.1 module                                                     Y
 %     4.17.2 require                                                    Y
 %     4.17.3 optional                                                   Y
 
-TODO
+The \texttt{module} and \texttt{require} statements are used to support policy
+modules. Every policy module must start with the \texttt{module} statement.
+Syntax:
+\begin{lstlisting}
+module module_name version;
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{module\_name}] Name of the module.
+    \item [\texttt{version}] Version number in format \texttt{X.Y.Z}.
+\end{description}
+
+The \texttt{require} statement indicates what parts of policy are required from
+other modules or base policy. Syntax:
+\begin{lstlisting}
+require { require_list }
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{require\_list}] One or more keywords followed by identifier
+        separated by semicolon. Valid keywords are: \texttt{role},
+        \texttt{type}, \texttt{attribute}, \texttt{user}, \texttt{bool},
+        \texttt{sensitivity}, \texttt{category}, \texttt{class}.
+\end{description}
+
+Example of \texttt{module} and \texttt{require} statements:
+\begin{lstlisting}
+module my_module 1.2.0;
+
+require {
+    type nscd_t, nscd_var_run_t;
+    class nscd { getserv getpwd getgrp gethost shmempwd shmemgrp
+        shmemhost shmemserv };
+}
+\end{lstlisting}
 
 % others
 % 4.3 POLICY CONFIGURATION STATEMENTS                                   ?
