@@ -1,3 +1,4 @@
+% ==============================================================================
 \chapter{Introduction}
 TODO: motivation - longer
 
@@ -5,6 +6,7 @@ TODO: how I solved it, avoid first person
 
 TODO: overview which chapter solves what
 
+% ==============================================================================
 \chapter{Security-Enhanced Linux and audit2allow}
 % TODO: describe SELinux, describe audit2allow, use examples, what are the
 % problems of SELinux. Purpose of audit2allow, how is it used, how does it work,
@@ -14,6 +16,7 @@ This chapter describes basic concepts of Security-Enhanced Linux, writing of
 security policy, basic overview of the Linux Audit System and how it is used by
 Security-Enhanced Linux, and the details of the audit2allow utility.
 
+% ------------------------------------------------------------------------------
 \section{Security-Enhanced Linux}
 % 2.1 INTRODUCTION                                                      Y
     % 2.1.1 Is SELinux useful                                           Y
@@ -418,6 +421,7 @@ TODO
     % 2.21.4 Labeled IPSec                                              N
     % 2.21.4.1 Configuration Examples                                   N
 
+% ------------------------------------------------------------------------------
 \section{SELinux Policy Language}
 % 4.1 INTRODUCTION                                                      Y
 %     4.1.1 CIL Overview                                                Y
@@ -563,9 +567,11 @@ TODO
 %     4.18.3 pcidevicecon                                               N
 %     4.18.4 pirqcon                                                    N
 
+% ------------------------------------------------------------------------------
 \section{Problems with SELinux}
 TODO
 
+% ------------------------------------------------------------------------------
 \section{Linux Audit System}
 The \emph{Linux Audit system} provides an auditing system for tracking
 security-relevant system events. It is used to track file access, monitor system
@@ -604,6 +610,7 @@ ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
 tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 \end{lstlisting}
 
+% ------------------------------------------------------------------------------
 \section{The audit2allow Utility}
 The \emph{audit2allow} is a userspace tool that scans the AVC messages and
 generates SELinux policy snippets based on them.
@@ -864,6 +871,7 @@ The output of the \texttt{PolicyGenerator} is a tree-like structure containing
 generated statements. The \texttt{output} module then just prints out every
 statement.
 
+% ==============================================================================
 \chapter{Analysis}
 Several improvements to audit2allow were proposed:
 \begin{enumerate}
@@ -873,6 +881,7 @@ Several improvements to audit2allow were proposed:
     \item Support for new SELinux policy statements.
 \end{enumerate}
 
+% ------------------------------------------------------------------------------
 \section{Mislabeled Files}
 SELinux relies on files that are correctly labeled. Sometimes, files get
 mislabeled and causes AVC denials. When used for troubleshooting, audit2allow
@@ -973,6 +982,7 @@ then stat these files to get the inode number. This solution is only partial, it
 does not work on files that are not indexed in the database created by
 \texttt{updatedb}.
 
+% ------------------------------------------------------------------------------
 \section{Extended Permission Access Vector Rules}
 Since policy version 30, there are extended permission access vector (AV) rules
 that expand the permission sets. Access vector rules operates with 32~bit
@@ -1053,6 +1063,7 @@ permission AV rules from AVC messages, for example a command-line option.
 
 TODO: discussion about default behaviour.
 
+% ------------------------------------------------------------------------------
 \section{Labeling Network Ports, Nodes and Interfaces}
 SELinux policy supports labeling of TCP and UDP ports, network nodes
 (represented by IP addresses and subnet masks), and network interfaces (e.g.
@@ -1123,10 +1134,12 @@ TODO
 \subsection{Network Interfaces}
 TODO
 
+% ==============================================================================
 \chapter{Implementation}
 From the list of possible improvements to audit2allow, extended permissions were
 implemented.
 
+% ------------------------------------------------------------------------------
 \section{Extended permissions}
 Modules \texttt{audit}, \texttt{access}, \texttt{policygen}, \texttt{refpolicy}
 were modified to support extended permissions. New command-line option
@@ -1199,9 +1212,11 @@ rules for every operation in access vector. New configuration method was added,
 \texttt{set\_gen\_xperms()}, to specify whether the extended permission AV rules
 should be generated.
 
+% ==============================================================================
 \chapter{Functional Testing}
 TODO: about tests, chosen coverage
 
+% ------------------------------------------------------------------------------
 \section{Unit Tests}
 
 TODO: test\_access
@@ -1212,6 +1227,7 @@ TODO: test\_policygen
 
 TODO: test\_refpolicy
 
+% ------------------------------------------------------------------------------
 \section{Integration Tests}
 
 TODO
