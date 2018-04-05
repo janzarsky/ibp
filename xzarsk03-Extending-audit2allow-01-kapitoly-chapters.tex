@@ -140,9 +140,9 @@ various system resources \cite[p.~389]{tsn}.
 
 \subsection{Mandatory Access Control}
 % 2.3 MANDATORY ACCESS CONTROL (MAC)                                    Y
-% TODO: write intro text, glue subsection together
 
-TODO
+SELinux provides a mandatory access control mechanism that extends the
+discretionary access control mechanisms present in Linux kernel.
 
 \subsubsection{Discretionary Access Control}
 Discretionary access control is defined by TCSES standard. System with DAC must
@@ -150,7 +150,7 @@ enable users to protect their data by controlling access to that data, e.g. by
 setting permissions for other users or user groups.
 
 In DAC, users make security decisions by specifying who can access their data.
-The problem is that users can easily propagate information.
+The problem is that users can propagate sensitive information.
 
 Linux implements discretionary access control. Every object has an owner that
 controls access to that object. Permissions are set in three scopes: user,
@@ -161,13 +161,13 @@ set.
 Mandatory access control (MAC), defined by \emph{Trusted Computer System
 Evaluation Criteria} (TCSEC) standard \cite{orangebook}, provides more
 restrictions than DAC. In this type of access control, operating system can
-prevent subjects to perform operations on objects. This is achieved by attaching
-subjects and objects set of security attributes. When a subject (usually a
-process) wants to perform an operation on an object (file, directory, socket,
-etc.), operating system first examines these attributes. Security policy is then
-used to determine whether this operation should be allowed or not. When using
-MAC, users do not have the ability to override the security policy and, for
-example, propagate sensitive information.
+prevent subjects from performing operations on objects. This is achieved by
+attaching subjects and objects set of security attributes. When a subject
+(usually a process) wants to perform an operation on an object (file, directory,
+socket, etc.), operating system first examines these attributes. Security policy
+is then used to determine whether this operation should be allowed or not. When
+using MAC, users do not have the ability to override the security policy and
+for example propagate sensitive information.
 
 There are several implementations of MAC. Linux kernel currently contains
 several security modules implemented using \emph{Linux Security Modules} (LSM)
@@ -296,7 +296,6 @@ but it cannot modify them.
         % 2.10.2.2 avc_compute_member and security_compute_member       N
         % 2.10.2.3 security_compute_relabel                             N
 
-% TODO: refine intro text
 Security contexts are computed by the kernel security server using several
 policy statements.
 
@@ -400,16 +399,18 @@ process tries to perform an action which is not allowed by the policy, it is
 logged. In \emph{permissive} mode, SELinux is not enforcing the policy, it only
 logs actions. In \emph{disabled} mode, SELinux is turned off.
 
-\subsection{TODO: LSM AND SELINUX}
+\subsection{Linux Security Module}
 % 2.19 LINUX SECURITY MODULE AND SELINUX                                Y
     % 2.19.1 The LSM Module                                             Y
     % 2.19.2 The SELinux Module                                         Y
     % 2.19.2.1 Fork System Call Walk-thorough                           N
     % 2.19.2.2 Process Transition Walk-thorough                         N
     % 2.19.2.3 SELinux Filesystem                                       N
+
 % TODO: write it
 
-TODO
+The Linux Security Module is security framework that allows other access control
+mechanisms to be linked to the kernel.
 
 % other:
 % 2.4 SELINUX USERS                                                     ?
