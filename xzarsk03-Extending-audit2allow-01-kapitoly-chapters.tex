@@ -62,9 +62,8 @@ Linux distributions.
 \subsection{What Problems Does SELinux Solve}
 Without SELinux, operating system relies on traditinal access control methods
 such as file permissions. Users can grant insecure file permissions to others or
-gain access to files that they do not need. For example:
+gain access to files that they do not need:
 \begin{itemize}
-    % TODO read permissions for everyone on file.. rephrase
     \item Users can reveal sensitive information by setting world readable
         permissions on files. For example, they can set read permission for
         everyone on ssh keys in \texttt{\textasciitilde/.ssh/} directory.
@@ -80,14 +79,16 @@ function. Applications do not need to be aware of SELinux. When an action is
 denied, it is reported via ``access denied'' error code to the application
 \cite{centoshowto}.
 
-\subsection{TODO: CORE SELINUX COMPONENTS}
-% 2.2 CORE SELINUX COMPONENTS                                           Y
-% TODO: write intro text, check with TSN, patch the whole subsection
+\subsection{How Does SELinux Enforce a Security Policy}
 
-TODO
+\begin{figure}
+    \centering
+    \label{fig:policyenforcing}
+    \input{./figures/policy-enforcing.tex}
+    \caption{High-level process of policy enforcing}
+\end{figure}
 
-\subsubsection{How Does SELinux Enforce a Security Policy}
-The high-level process of enforcing the policy:
+The high-level process of policy enforcing (see figure~\ref{fig:policyenforcing}):
 \begin{enumerate}
     \item A \emph{subject} wants to perform an action upon an \emph{object}.
     \item An \emph{Object Manager} queries the \emph{Security Server} for a
@@ -96,39 +97,25 @@ The high-level process of enforcing the policy:
     and makes decision to allow or deny the action.
 \end{enumerate}
 
-% TODO: finish the figure
-\begin{figure}
-    \begin{tikzpicture}
-        \usetikzlibrary{calc}
-        \tikzstyle{line} = [->,>=stealth, line width=1pt]
-        \tikzstyle{rec} = [rectangle, draw=black, align=center, text width=5cm]
-
-        \node(subject) [rec] {Subject};
-        \node(objman) [rec, below of=subject, node distance=3cm] {Object
-        Manager\\ Queries the security server.};
-        \node(secser) [rec, below of=objman, node distance=3cm] {Security
-        Server\\ Makes decisions based on the SELinux policy.};
-
-        \draw[line] (subject) -- node[midway,left] {Request access} (objman);
-        \draw[line] ([xshift=-0.5cm]objman.south) -- node[midway,left] {Query
-        permissions} ([xshift=-0.5cm]secser.north);
-        \draw[line] ([xshift=0.5cm]secser.north) -- node[midway,right] {Get
-        answer} ([xshift=0.5cm]objman.south);
-    \end{tikzpicture}
-    \caption{High-level process of policy enforcing}
-\end{figure}
-
 For example, when process \texttt{httpd} wants to open the
-\texttt{/etc/httpd/conf/httpd.conf} file, the operation is allowed. It is
-desirable to allow \texttt{httpd} access its configuration files, so the SELinux
-policy contains rules that allow this operation. But if process \texttt{httpd}
-would want to write to the \texttt{/etc/passwd} file, the operation would be
-denied. Process \texttt{httpd} should not change the \texttt{/etc/passwd} file,
-so the rules which would allow this operation are not present in policy.
+\texttt{/etc/httpd/conf/httpd.conf} file, security server in kernel allows the
+operation. It is desirable to allow \texttt{httpd} access its configuration
+files, so the SELinux policy contains rules that allow this operation. But if
+process \texttt{httpd} would want to write to the \texttt{/etc/passwd} file, the
+operation would be denied. Process \texttt{httpd} should not change the
+\texttt{/etc/passwd} file, so the rules which would allow this operation are not
+present in policy.
 
-\subsubsection{SELinux Components}
+\subsection{SELinux Components}
+% 2.2 CORE SELINUX COMPONENTS                                           Y
+
 % TODO: add picture, decide what to put in it
-Figure 2: SELinux components
+\begin{figure}
+    \centering
+    \label{fig:selinuxcomponents}
+    \input{./figures/selinux-components.tex}
+    \caption{SELinux main components}
+\end{figure}
 
 SELinux \emph{security server} is embedded in the kernel and it obtains the
 security policy via userspace tools.
