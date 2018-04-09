@@ -50,9 +50,14 @@ security policy, basic overview of the Linux Audit System and how it is used by
 Security-Enhanced Linux, and the details of the audit2allow utility.
 
 % ------------------------------------------------------------------------------
-\section{Security-Enhanced Linux}
+% TOPIC: SELinux introduction and motivation
+% ----------------------------------------
 % 2.1 INTRODUCTION                                                      Y
-    % 2.1.1 Is SELinux useful                                           Y
+%     2.1.1 Is SELinux useful                                           Y
+% 1. Introduction
+%     1.1. Benefits of running SELinux
+%     1.2. Examples
+\section{Security-Enhanced Linux}
 
 % TODO: improve
 Security-Enhanced Linux (SELinux) is a mandatory access control mechanism that
@@ -79,37 +84,42 @@ function. Applications do not need to be aware of SELinux. When an action is
 denied, it is reported via ``access denied'' error code to the application
 \cite{centoshowto}.
 
-\subsection{How Does SELinux Enforce a Security Policy}
+%\subsection{How Does SELinux Enforce a Security Policy}
+%
+%\begin{figure}
+%    \centering
+%    \label{fig:policyenforcing}
+%    \input{./figures/policy-enforcing.tex}
+%    \caption{High-level process of policy enforcing}
+%\end{figure}
+%
+%The high-level process of policy enforcing (see figure~\ref{fig:policyenforcing}):
+%\begin{enumerate}
+%    \item A \emph{subject} wants to perform an action upon an \emph{object}.
+%    \item An \emph{Object Manager} queries the \emph{Security Server} for a
+%    decision.
+%    \item \emph{Security Server} consults the \emph{Security Policy}
+%    and makes decision to allow or deny the action.
+%\end{enumerate}
+%
+%For example, when process \texttt{httpd} wants to open the
+%\texttt{/etc/httpd/conf/httpd.conf} file, security server in kernel allows the
+%operation. It is desirable to allow \texttt{httpd} access its configuration
+%files, so the SELinux policy contains rules that allow this operation. But if
+%process \texttt{httpd} would want to write to the \texttt{/etc/passwd} file, the
+%operation would be denied. Process \texttt{httpd} should not change the
+%\texttt{/etc/passwd} file, so the rules which would allow this operation are not
+%present in policy.
 
-\begin{figure}
-    \centering
-    \label{fig:policyenforcing}
-    \input{./figures/policy-enforcing.tex}
-    \caption{High-level process of policy enforcing}
-\end{figure}
-
-The high-level process of policy enforcing (see figure~\ref{fig:policyenforcing}):
-\begin{enumerate}
-    \item A \emph{subject} wants to perform an action upon an \emph{object}.
-    \item An \emph{Object Manager} queries the \emph{Security Server} for a
-    decision.
-    \item \emph{Security Server} consults the \emph{Security Policy}
-    and makes decision to allow or deny the action.
-\end{enumerate}
-
-For example, when process \texttt{httpd} wants to open the
-\texttt{/etc/httpd/conf/httpd.conf} file, security server in kernel allows the
-operation. It is desirable to allow \texttt{httpd} access its configuration
-files, so the SELinux policy contains rules that allow this operation. But if
-process \texttt{httpd} would want to write to the \texttt{/etc/passwd} file, the
-operation would be denied. Process \texttt{httpd} should not change the
-\texttt{/etc/passwd} file, so the rules which would allow this operation are not
-present in policy.
-
-\subsection{SELinux Components}
+% ----------------------------------------
+% TOPIC: SELinux components
+% ----------------------------------------
 % 2.2 CORE SELINUX COMPONENTS                                           Y
+%     1.3. SELinux Architecture
+\subsection{SELinux Components}
+% TODO: describe all parts
+% TODO: introduce the image in text
 
-% TODO: add picture, decide what to put in it
 \begin{figure}
     \centering
     \label{fig:selinuxcomponents}
@@ -137,9 +147,40 @@ Maintaining SELinux requires several userspace tools. The \texttt{checkmodule},
 The \texttt{semanage} and \texttt{restorecon} command manages security labels of
 various system resources \cite[p.~389]{tsn}.
 
+% ------------------------------------------------------------------------------
+\section{Basic Concepts}
+% TODO: write intro
 
-\subsection{Mandatory Access Control}
+TODO
+
+% ----------------------------------------
+% TOPIC: Subjects and objects
+% ----------------------------------------
+\subsection{Subjects and Objects}
+% TODO: basic description of subjects and objects, improve
+
+A \emph{subject} is an entity that causes information to flow among objects or
+changes the system state. Within SELinux, a subject is an active process that
+can access objects. Note that a process can also be an object, for example when
+sending signal to another process, the receiving process is an object.
+
+An \emph{object} is a system resource such as file, socket, pipe, TCP or UDP
+port, network interface, semaphore or shared memory segment. Objects are
+accessed via subjects.
+
+% ----------------------------------------
+% TOPIC: MAC, DAC, TE, MLS, MCS, RBAC
+% ----------------------------------------
 % 2.3 MANDATORY ACCESS CONTROL (MAC)                                    Y
+% 2.4 SELINUX USERS                                                     ?
+% 2.5 ROLE-BASED ACCESS CONTROL (RBAC)                                  ?
+% 2.6 TYPE ENFORCEMENT (TE)                                             Y
+%     2.6.1 Constraints                                                 ?
+%     2.6.2 Bounds                                                      N
+\subsection{Mandatory Access Control}
+% TODO: write about SELinux users
+% TODO: write about RBAC
+% TODO: write about TE
 
 SELinux provides a mandatory access control mechanism that extends the
 discretionary access control mechanisms present in Linux kernel.
@@ -192,8 +233,25 @@ SELinux supports two types of mandatory access control:
         each other's files.
 \end{description}
 
-\subsection{SELinux Security Context}
+\subsubsection{SELinux Users}
+
+TODO
+
+\subsubsection{Role-Based Access Control}
+
+TODO
+
+\subsubsection{Type Enforcement}
+
+TODO
+
+% ----------------------------------------
+% TOPIC: SELinux context
+% ----------------------------------------
 % 2.7 SECURITY CONTEXT                                                  Y
+% 2. SELinux Contexts
+\subsection{SELinux Security Context}
+% TODO: describe parts of the context
 
 Security decisions are made based on a \emph{security context} which must be
 assigned to every subject and object. The security context is sometimes reffered
@@ -232,26 +290,22 @@ $ ls -Z /etc
 ...
 \end{lstlisting}
 
-\subsection{Subjects and Objects}
+% ----------------------------------------
+% TOPIC: subjects and objects, object classes, permissions, allow rule
+% ----------------------------------------
 % 2.8 SUBJECTS                                                          Y
 % 2.9 OBJECTS                                                           Y
-    % 2.9.1 Object Classes and Permissions                              Y
-    % 2.9.2 Allowing a Process Access to Resources                      Y
-    % 2.9.3 Labeling Objects                                            Y
-        % 2.9.3.1 Labeling Extended Attribute Filesystems               Y
-            % 2.9.3.1.1 Copying and Moving Files                        Y
-        % 2.9.3.2 Labeling Subjects                                     Y
-    % 2.9.4 Object Reuse                                                N
-
-A \emph{subject} is an entity that causes information to flow among objects or
-changes the system state. Within SELinux, a subject is an active process that
-can access objects. Note that a process can also be an object, for example when
-sending signal to another process, the receiving process is an object.
-
-An \emph{object} is a system resource such as file, socket, pipe, TCP or UDP
-port, network interface, semaphore or shared memory segment. Objects are
-accessed via subjects. Objects are divided into classes based on permission
-sets.
+%     2.9.1 Object Classes and Permissions                              Y
+%     2.9.2 Allowing a Process Access to Resources                      Y
+% 4.10 OBJECT CLASS AND PERMISSION STATEMENTS                           Y
+%     4.10.1 class                                                      Y
+%     4.10.2 Associating Permissions to a Class                         Y
+%     4.10.3 common                                                     Y
+%     4.10.4 class                                                      Y
+\subsection{Subjects and Objects}
+% TODO: rewrite
+% TODO: write about policy statements
+TODO. Objects are divided into classes based on permission sets.
 
 \subsubsection{Object Classes}
 % TODO cite reference policy
@@ -277,24 +331,39 @@ Samba). The allowed operations are \texttt{getattr}, \texttt{open}, and
 \texttt{read}. This means that the process can open and read from these files
 but it cannot modify them.
 
-\subsection{Labeling Subjects and Objects}
+\subsubsection{Object Class and Permission Statements}
+
+TODO
+
+% ----------------------------------------
+% TOPIC: labeling
+% ----------------------------------------
+%     2.9.3 Labeling Objects                                            Y
+%         2.9.3.1 Labeling Extended Attribute Filesystems               Y
+%             2.9.3.1.1 Copying and Moving Files                        Y
+%         2.9.3.2 Labeling Subjects                                     Y
+%     2.9.4 Object Reuse                                                N
 % 2.10 COMPUTING SECURITY CONTEXTS                                      Y
-    % 2.10.1 Security Context Computation for Kernel Objects            Y
-        % 2.10.1.1 Process                                              Y
-        % 2.10.1.2 Files                                                Y
-        % 2.10.1.3 File Descriptors                                     N
-        % 2.10.1.4 Filesystems                                          N
-        % 2.10.1.5 Network File System (nfsv4)                          N
-        % 2.10.1.6 INET Sockets                                         N
-        % 2.10.1.7 IPC                                                  N
-        % 2.10.1.8 Message Queues                                       N
-        % 2.10.1.9 Semaphores                                           N
-        % 2.10.1.10 Shared Memory                                       N
-        % 2.10.1.11 Keys                                                N
-    % 2.10.2 Using libselinux Functions                                 N
-        % 2.10.2.1 avc_compute_create and security_compute_create       N
-        % 2.10.2.2 avc_compute_member and security_compute_member       N
-        % 2.10.2.3 security_compute_relabel                             N
+%     2.10.1 Security Context Computation for Kernel Objects            Y
+%         2.10.1.1 Process                                              Y
+%         2.10.1.2 Files                                                Y
+%         2.10.1.3 File Descriptors                                     N
+%         2.10.1.4 Filesystems                                          N
+%         2.10.1.5 Network File System (nfsv4)                          N
+%         2.10.1.6 INET Sockets                                         N
+%         2.10.1.7 IPC                                                  N
+%         2.10.1.8 Message Queues                                       N
+%         2.10.1.9 Semaphores                                           N
+%         2.10.1.10 Shared Memory                                       N
+%         2.10.1.11 Keys                                                N
+%     2.10.2 Using libselinux Functions                                 N
+%         2.10.2.1 avc_compute_create and security_compute_create       N
+%         2.10.2.2 avc_compute_member and security_compute_member       N
+%         2.10.2.3 security_compute_relabel                             N
+%     2.2. SELinux Contexts for Processes
+%     2.3. SELinux Contexts for Users
+\subsection{Labeling Subjects and Objects}
+% TODO: write more about file contexts
 
 Security contexts are computed by the kernel security server using several
 policy statements.
@@ -319,11 +388,16 @@ Security context for files is computed as follows:
         statement.
 \end{description}
 
-\subsection{Type Transitions}
+% ----------------------------------------
+% TOPIC: type transitions
+% ----------------------------------------
 % 2.12 DOMAIN AND OBJECT TRANSITIONS                                    Y
-    % 2.12.1 Domain Transition                                          Y
-        % 2.12.1.1 Type Enforcement Rules                               Y
-    % 2.12.2 Object Transition                                          Y
+%     2.12.1 Domain Transition                                          Y
+%         2.12.1.1 Type Enforcement Rules                               Y
+%     2.12.2 Object Transition                                          Y
+%     2.1. Domain Transitions
+%     4.14. File Name Transition
+\subsection{Type Transitions}
 
 % TODO explain what is domain
 To run different processes in different domains, we need a way how to
@@ -378,20 +452,12 @@ type_transition xserver_t tmp_t:file user_tmp_t;
 The X server does not need to be aware of SELinux, the kernel handles the label
 automatically.
 
-\subsection{TODO: MLS AND MCS}
-% 2.13 MULTI-LEVEL SECURITY AND MULTI-CATEGORY SECURITY                 Y
-    % 2.13.1 Security Levels                                            N
-        % 2.13.1.1 MLS / MCS Range Format                               N
-        % 2.13.1.2 Translating Levels                                   N
-    % 2.13.2 Managing Security Levels via Dominance Rules               N
-    % 2.13.3 MLS Labeled Network and Database Support                   N
-    % 2.13.4 Common Criteria Certification                              N
-% TODO: decide if this section is needed
-
-TODO
-
-\subsection{SELinux Modes of Operation}
+% ----------------------------------------
+% TOPIC: SELinux modes
+% ----------------------------------------
 % 2.15 SELINUX PERMISSIVE AND ENFORCING MODES                           Y
+%     1.4. SELinux States and Modes
+\subsection{SELinux Modes of Operation}
 
 SELinux has three modes of operation. The default mode is \emph{enforcing}. In
 this mode, everything which is not allowed by the policy is denied. When a
@@ -399,69 +465,39 @@ process tries to perform an action which is not allowed by the policy, it is
 logged. In \emph{permissive} mode, SELinux is not enforcing the policy, it only
 logs actions. In \emph{disabled} mode, SELinux is turned off.
 
-\subsection{Linux Security Module}
-% 2.19 LINUX SECURITY MODULE AND SELINUX                                Y
-    % 2.19.1 The LSM Module                                             Y
-    % 2.19.2 The SELinux Module                                         Y
-    % 2.19.2.1 Fork System Call Walk-thorough                           N
-    % 2.19.2.2 Process Transition Walk-thorough                         N
-    % 2.19.2.3 SELinux Filesystem                                       N
-
-% TODO: write it
-
-The Linux Security Module is security framework that allows other access control
-mechanisms to be linked to the kernel.
-
-% other:
-% 2.4 SELINUX USERS                                                     ?
-% 2.5 ROLE-BASED ACCESS CONTROL (RBAC)                                  ?
-% 2.6 TYPE ENFORCEMENT (TE)                                             Y
-    % 2.6.1 Constraints                                                 ?
-    % 2.6.2 Bounds                                                      N
-% 2.11 COMPUTING ACCESS DECISIONS                                       ?
-% 2.14 TYPES OF SELINUX POLICY                                          Y
-    % 2.14.1 Example Policy                                             N
-    % 2.14.2 Reference Policy                                           Y
-    % 2.14.3 Policy Functionality Based on Name or Type                 Y
-    % 2.14.4 Custom Policy                                              N
-    % 2.14.5 Monolithic Policy                                          Y
-    % 2.14.6 Loadable Module Policy                                     Y
-        % 2.14.6.1 Optional Policy                                      N
-    % 2.14.7 Conditional Policy                                         ?
-    % 2.14.8 Binary Policy                                              Y
-    % 2.14.9 Policy Versions                                            Y
-% 2.17 POLYINSTANTIATION SUPPORT                                        N
-    % 2.17.1 Polyinstantiated Objects                                   N
-    % 2.17.2 Polyinstantiation support in PAM                           N
-        % 2.17.2.1 namespace.conf Configuration File                    N
-        % 2.17.2.2 Example Configurations                               N
-    % 2.17.3 Polyinstantiation support in X-Windows                     N
-    % 2.17.4 Polyinstantiation support in the Reference Policy          N
-% 2.18 PAM LOGIN PROCESS                                                N
-% 2.20 LIBSELINUX LIBRARY                                               N
-% 2.21 SELINUX NETWORKING SUPPORT                                       N
-    % 2.21.1 SECMARK                                                    N
-    % 2.21.2 NetLabel - Fallback Peer Labeling                          N
-    % 2.21.3 NetLabel - CIPSO                                           N
-    % 2.21.4 Labeled IPSec                                              N
-    % 2.21.4.1 Configuration Examples                                   N
-
 % ------------------------------------------------------------------------------
-\section{SELinux Policy}
+% TOPIC: Policy language
+% ----------------------------------------
 % 4.1 INTRODUCTION                                                      Y
 %     4.1.1 CIL Overview                                                Y
-% TODO: refine intro
-
-Security decisions made by the security server in kernel are resolved using
-SELinux policy.
-
-\subsection{TODO: Kernel Policy Language}
 % 4.2 KERNEL POLICY LANGUAGE                                            Y
 %     4.2.1 Policy Source Files                                         Y
 %     4.2.2 Conditional, Optional and Require Statement Rules           Y
 %     4.2.3 MLS Statements and Optional MLS Components                  N
 %     4.2.4 General Statement Information                               Y
 %     4.2.5 Section Contents                                            N
+% 2.14 TYPES OF SELINUX POLICY                                          Y
+%     2.14.1 Example Policy                                             N
+%     2.14.2 Reference Policy                                           Y
+%     2.14.3 Policy Functionality Based on Name or Type                 Y
+%     2.14.4 Custom Policy                                              N
+%     2.14.5 Monolithic Policy                                          Y
+%     2.14.6 Loadable Module Policy                                     Y
+%         2.14.6.1 Optional Policy                                      N
+%     2.14.7 Conditional Policy                                         ?
+%     2.14.8 Binary Policy                                              Y
+%     2.14.9 Policy Versions                                            Y
+% 4.17 MODULAR POLICY SUPPORT STATEMENTS                                Y
+%     4.17.1 module                                                     Y
+%     4.17.2 require                                                    Y
+%     4.17.3 optional                                                   Y
+\section{SELinux Policy}
+% TODO: refine intro
+
+Security decisions made by the security server in kernel are resolved using
+SELinux policy.
+
+\subsection{TODO: Kernel Policy Language}
 
 The policy is either monolithic (compiled from single source file) or modular.
 Modular policy, which is used in Fedora and RHEL, consists of mandatory base
@@ -479,7 +515,54 @@ Example of an allow rule:
 allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
 \end{lstlisting}
 
-\subsection{User, Role and Type Statements}
+\subsection{Policy Modules}
+
+The \texttt{module} and \texttt{require} statements are used to support policy
+modules. Every policy module must start with the \texttt{module} statement.
+Syntax:
+\begin{lstlisting}
+module module_name version;
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{module\_name}] Name of the module.
+    \item [\texttt{version}] Version number in format \texttt{X.Y.Z}.
+\end{description}
+
+The \texttt{require} statement indicates what parts of policy are required from
+other modules or base policy. Syntax:
+\begin{lstlisting}
+require { require_list }
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{require\_list}] One or more keywords followed by identifier
+        separated by semicolon. Valid keywords are: \texttt{role},
+        \texttt{type}, \texttt{attribute}, \texttt{user}, \texttt{bool},
+        \texttt{sensitivity}, \texttt{category}, \texttt{class}.
+\end{description}
+
+Example of \texttt{module} and \texttt{require} statements:
+\begin{lstlisting}
+module my_module 1.2.0;
+
+require {
+    type nscd_t, nscd_var_run_t;
+    class nscd { getserv getpwd getgrp gethost shmempwd shmemgrp
+        shmemhost shmemserv };
+}
+\end{lstlisting}
+
+% ----------------------------------------
+% TOPIC: Policy statements
+% ----------------------------------------
+% 4.3 POLICY CONFIGURATION STATEMENTS                                   ?
+%     4.3.1 policycap                                                   ?
+% 4.4 DEFAULT OBJECT RULES                                              Y
+%     4.4.1 default_user                                                ?
+%     4.4.2 default_role                                                ?
+%     4.4.3 default_type                                                ?
+%     4.4.4 default_range                                               ?
 % 4.5 USER STATEMENTS                                                   ?
 %     4.5.1 user                                                        ? 
 % 4.6 ROLE STATEMENTS                                                   ?
@@ -498,6 +581,14 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
 %     4.7.6 type_transition                                             Y
 %     4.7.7 type_change                                                 N
 %     4.7.8 type_member                                                 N
+% 4.9 ACCESS VECTOR RULES                                               Y
+%     4.9.1 allow                                                       Y
+%     4.9.2 dontaudit                                                   Y
+%     4.9.3 auditallow                                                  Y
+%     4.9.4 neverallow                                                  Y
+
+% TODO: improve
+\subsection{User, Role and Type Statements}
 
 SELinux assigns context to objects in the system. A \emph{SELinux context}
 consists of user, role, type, and optionally MLS range. In order to assign
@@ -564,23 +655,7 @@ Where:
 % TODO typealias?
 % TODO permissive?
 
-\subsection{Type Bounds}
-% 4.8 BOUNDS RULES                                                      Y
-%     4.8.1 typebounds                                                  Y
-
-The \texttt{typebounds} rule defines a relationship between two domains. It
-states that the \emph{bounded domain} cannot have more permissions than the
-\emph{bounding domain}. Syntax:
-\begin{lstlisting}
-typebounds bounding_domain bounded_domain;
-\end{lstlisting}
-
 \subsection{Access Vector Rules}
-% 4.9 ACCESS VECTOR RULES                                               Y
-%     4.9.1 allow                                                       Y
-%     4.9.2 dontaudit                                                   Y
-%     4.9.3 auditallow                                                  Y
-%     4.9.4 neverallow                                                  Y
 
 The AV rules are basic policy rules that control what access do processes get.
 The \texttt{allow} rule grants process an access to an object. Syntax:
@@ -613,20 +688,18 @@ There are three other AV rules:
         that may be unsecure.
 \end{description}
 
-\subsection{TODO: OBJECT CLASS AND PERMISSION STATEMENTS}
-% 4.10 OBJECT CLASS AND PERMISSION STATEMENTS                           Y
-%     4.10.1 class                                                      Y
-%     4.10.2 Associating Permissions to a Class                         Y
-%     4.10.3 common                                                     Y
-%     4.10.4 class                                                      Y
-% TODO: write it
-
-TODO
-
-\subsection{Conditional Policy}
+% ----------------------------------------
+% TOPIC: Conditional policy
+% ----------------------------------------
 % 4.11 CONDITIONAL POLICY STATEMENTS                                    Y
 %     4.11.1 bool                                                       Y
 %     4.11.2 if                                                         Y
+%     4.6. Booleans
+%         4.6.1. Listing Booleans
+%         4.6.2. Configuring Booleans
+%         4.6.3. Shell Auto-Completion
+\subsection{Conditional Policy}
+% TODO: improve, write more stuff
 
 SELinux policy allows turning on and off set of policy statements without the
 need for reloading policy. Conditional policy is defined using the \texttt{bool}
@@ -641,7 +714,15 @@ if (allow_execmem) {
 \end{lstlisting}
 Booleans can be turned on and off using the \texttt{semanage boolean} command.
 
-\subsection{Labeling Network Objects}
+% ----------------------------------------
+% TOPIC: Networking
+% ----------------------------------------
+% 2.21 SELINUX NETWORKING SUPPORT                                       N
+%     2.21.1 SECMARK                                                    N
+%     2.21.2 NetLabel - Fallback Peer Labeling                          N
+%     2.21.3 NetLabel - CIPSO                                           N
+%     2.21.4 Labeled IPSec                                              N
+%     2.21.4.1 Configuration Examples                                   N
 % 4.16 NETWORK LABELING STATEMENTS                                      Y
 %     4.16.1 IP Address Formats                                         Y
 %         4.16.1.1 IPv4 Address Format                                  Y
@@ -649,6 +730,7 @@ Booleans can be turned on and off using the \texttt{semanage boolean} command.
 %     4.16.2 netifcon                                                   Y
 %     4.16.3 nodecon                                                    Y
 %     4.16.4 portcon                                                    Y
+\subsection{Labeling Network Objects}
 
 SELinux policy supports labeling of the following network objects:
 \begin{description}
@@ -705,92 +787,61 @@ Example:
 portcon tcp 22 system_u:object_r:ssh_port_t:s0
 \end{lstlisting}
 
-\subsection{Policy Modules}
-% 4.17 MODULAR POLICY SUPPORT STATEMENTS                                Y
-%     4.17.1 module                                                     Y
-%     4.17.2 require                                                    Y
-%     4.17.3 optional                                                   Y
+% ----------------------------------------
+% TOPIC: File contexts
+% ----------------------------------------
+%     4.7. SELinux Contexts – Labeling Files
+%         4.7.1. Temporary Changes: chcon
+%         4.7.2. Persistent Changes: semanage fcontext
+%     4.8. The file_t and default_t Types
+%     4.9. Mounting File Systems
+%         4.9.1. Context Mounts
+%         4.9.2. Changing the Default Context
+%         4.9.3. Mounting an NFS Volume
+%         4.9.4. Multiple NFS Mounts
+%         4.9.5. Making Context Mounts Persistent
+%     4.10. Maintaining SELinux Labels
+%         4.10.1. Copying Files and Directories
+%         4.10.2. Moving Files and Directories
+%         4.10.3. Checking the Default SELinux Context
+%         4.10.4. Archiving Files with tar
+%         4.10.5. Archiving Files with star
+% TODO: chapters from selinux configuration section
+% TODO: write it
 
-The \texttt{module} and \texttt{require} statements are used to support policy
-modules. Every policy module must start with the \texttt{module} statement.
-Syntax:
-\begin{lstlisting}
-module module_name version;
-\end{lstlisting}
-Where:
-\begin{description}
-    \item [\texttt{module\_name}] Name of the module.
-    \item [\texttt{version}] Version number in format \texttt{X.Y.Z}.
-\end{description}
+TODO
 
-The \texttt{require} statement indicates what parts of policy are required from
-other modules or base policy. Syntax:
-\begin{lstlisting}
-require { require_list }
-\end{lstlisting}
-Where:
-\begin{description}
-    \item [\texttt{require\_list}] One or more keywords followed by identifier
-        separated by semicolon. Valid keywords are: \texttt{role},
-        \texttt{type}, \texttt{attribute}, \texttt{user}, \texttt{bool},
-        \texttt{sensitivity}, \texttt{category}, \texttt{class}.
-\end{description}
-
-Example of \texttt{module} and \texttt{require} statements:
-\begin{lstlisting}
-module my_module 1.2.0;
-
-require {
-    type nscd_t, nscd_var_run_t;
-    class nscd { getserv getpwd getgrp gethost shmempwd shmemgrp
-        shmemhost shmemserv };
-}
-\end{lstlisting}
-
-% others
-% 4.3 POLICY CONFIGURATION STATEMENTS                                   ?
-%     4.3.1 policycap                                                   ?
-% 4.4 DEFAULT OBJECT RULES                                              Y
-%     4.4.1 default_user                                                ?
-%     4.4.2 default_role                                                ?
-%     4.4.3 default_type                                                ?
-%     4.4.4 default_range                                               ?
-% 4.12 CONSTRAINT STATEMENTS                                            ?
-%     4.12.1 constrain                                                  ?
-%     4.12.2 validatetrans                                              ?
-%     4.12.3 mlsconstrain                                               ?
-%     4.12.4 mlsvalidatetrans                                           ?
-% 4.13 MLS STATEMENTS                                                   N
-%     4.13.1 sensitivity                                                N
-%     4.13.2 dominance                                                  N
-%     4.13.3 category                                                   N
-%     4.13.4 level                                                      N
-%     4.13.5 range_transition                                           N
-%         4.13.5.1 MLS range Definition                                 N
-%     4.13.6 mlsconstrain                                               N
-%     4.13.7 mlsvalidatetrans                                           N
-% 4.14 SECURITY ID (SID) STATEMENT                                      N
-%     4.14.1 sid                                                        N
-%     4.14.2 sid context                                                N
-% 4.15 FILE SYSTEM LABELING STATEMENTS                                  N
-%     4.15.1 fs_use_xattr                                               N
-%     4.15.2 fs_use_task                                                N
-%     4.15.3 fs_use_trans                                               N
-%     4.15.4 genfscon                                                   N
-% 4.18 XEN STATEMENTS                                                   N
-%     4.18.1 iomemcon                                                   N
-%     4.18.2 ioportcon                                                  N
-%     4.18.3 pcidevicecon                                               N
-%     4.18.4 pirqcon                                                    N
-
-% ------------------------------------------------------------------------------
-\section{Problems with SELinux}
-% TODO: decide what to do with this section
+% ----------------------------------------
+% TOPIC: Troubleshooting
+% ----------------------------------------
+% 11. Troubleshooting
+%     11.1. What Happens when Access is Denied
+%     11.2. Top Three Causes of Problems
+%         11.2.1. Labeling Problems
+%         11.2.2. How are Confined Services Running?
+%         11.2.3. Evolving Rules and Broken Applications
+%     11.3. Fixing Problems
+%         11.3.1. Linux Permissions
+%         11.3.2. Possible Causes of Silent Denials
+%         11.3.3. Manual Pages for Services
+%         11.3.4. Permissive Domains
+%         11.3.5. Searching For and Viewing Denials
+%         11.3.6. Raw Audit Messages
+%         11.3.7. sealert Messages
+%         11.3.8. Allowing Access: audit2allow
+% TODO: write about SELinux problems and troubleshooting
 
 TODO
 
 % ------------------------------------------------------------------------------
-\section{Linux Audit System}
+% TOPIC: Auditing
+% ----------------------------------------
+% 2.16 AUDITING SELINUX EVENTS                                          Y
+%     2.16.1 AVC Audit Events                                           Y
+%     2.16.2 General SELinux Audit Events                               Y
+% TODO: write intro text
+\section{Auditing Security Events}
+
 The \emph{Linux Audit system} provides an auditing system for tracking
 security-relevant system events. It is used to track file access, monitor system
 calls, record commands run by user, record failed login attempts and others
@@ -803,9 +854,6 @@ received events to log file. There are several userspace tools used for
 interacting with the audit system and for working with the log file.
 
 \subsection{Audit and SELinux}
-% 2.16 AUDITING SELINUX EVENTS                                          Y
-    % 2.16.1 AVC Audit Events                                           Y
-    % 2.16.2 General SELinux Audit Events                               Y
 
 In Fedora and RHEL, SELinux uses the Linux Audit system to log security events.
 When a process tries to perform operation without the permissions, an
@@ -1092,6 +1140,94 @@ configuration methods:
 The output of the \texttt{PolicyGenerator} is a tree-like structure containing
 generated statements. The \texttt{output} module then just prints out every
 statement.
+
+% ----------------------------------------
+% THE SELINUX NOTEBOOK
+% 2.11 COMPUTING ACCESS DECISIONS                                       ?
+% 2.17 POLYINSTANTIATION SUPPORT                                        N
+%     2.17.1 Polyinstantiated Objects                                   N
+%     2.17.2 Polyinstantiation support in PAM                           N
+%         2.17.2.1 namespace.conf Configuration File                    N
+%         2.17.2.2 Example Configurations                               N
+%     2.17.3 Polyinstantiation support in X-Windows                     N
+%     2.17.4 Polyinstantiation support in the Reference Policy          N
+% 2.18 PAM LOGIN PROCESS                                                N
+% 2.20 LIBSELINUX LIBRARY                                               N
+% 4.12 CONSTRAINT STATEMENTS                                            ?
+%     4.12.1 constrain                                                  ?
+%     4.12.2 validatetrans                                              ?
+%     4.12.3 mlsconstrain                                               ?
+%     4.12.4 mlsvalidatetrans                                           ?
+% 4.13 MLS STATEMENTS                                                   N
+%     4.13.1 sensitivity                                                N
+%     4.13.2 dominance                                                  N
+%     4.13.3 category                                                   N
+%     4.13.4 level                                                      N
+%     4.13.5 range_transition                                           N
+%         4.13.5.1 MLS range Definition                                 N
+%     4.13.6 mlsconstrain                                               N
+%     4.13.7 mlsvalidatetrans                                           N
+% 4.14 SECURITY ID (SID) STATEMENT                                      N
+%     4.14.1 sid                                                        N
+%     4.14.2 sid context                                                N
+% 4.15 FILE SYSTEM LABELING STATEMENTS                                  N
+%     4.15.1 fs_use_xattr                                               N
+%     4.15.2 fs_use_task                                                N
+%     4.15.3 fs_use_trans                                               N
+%     4.15.4 genfscon                                                   N
+% 4.18 XEN STATEMENTS                                                   N
+%     4.18.1 iomemcon                                                   N
+%     4.18.2 ioportcon                                                  N
+%     4.18.3 pcidevicecon                                               N
+%     4.18.4 pirqcon                                                    N
+%     1.5. Additional Resources
+% SELINUX GUIDE
+% 3. Targeted Policy
+%     3.1. Confined Processes
+%     3.2. Unconfined Processes
+%     3.3. Confined and Unconfined Users
+%         3.3.1. The sudo Transition and SELinux Roles
+% 4. Working with SELinux
+%     4.1. SELinux Packages
+%     4.2. Which Log File is Used
+%     4.3. Main Configuration File
+%     4.4. Permanent Changes in SELinux States and Modes
+%         4.4.1. Enabling SELinux
+%         4.4.2. Disabling SELinux
+%     4.5. Changing SELinux Modes at Boot Time
+%     4.11. Information Gathering Tools
+%     4.12. Prioritizing and Disabling SELinux Policy Modules
+%     4.13. Multi-Level Security (MLS)
+%         4.13.1. MLS and System Privileges
+%         4.13.2. Enabling MLS in SELinux
+%         4.13.3. Creating a User With a Specific MLS Range
+%         4.13.4. Setting Up Polyinstantiated Directories
+%     4.15. Disabling ptrace()
+%     4.16. Thumbnail Protection
+% 5. The sepolicy Suite
+%     5.1. The sepolicy Python Bindings
+%     5.2. Generating SELinux Policy Modules: sepolicy generate
+%     5.3. Understanding Domain Transitions: sepolicy transition
+%     5.4. Generating Manual Pages: sepolicy manpage
+% 6. Confining Users
+%     6.1. Linux and SELinux User Mappings
+%     6.2. Confining New Linux Users: useradd
+%     6.3. Confining Existing Linux Users: semanage login
+%     6.4. Changing the Default Mapping
+%     6.5. xguest: Kiosk Mode
+%     6.6. Booleans for Users Executing Applications
+% 7. Securing Programs Using Sandbox
+%     7.1. Running an Application Using Sandbox
+% 8. sVirt
+%     8.1. Security and Virtualization
+%     8.2. sVirt Labeling
+% 9. Secure Linux Containers
+% 10. SELinux systemd Access Control
+%     10.1. SELinux Access Permissions for Services
+%     10.2. SELinux and journald
+% 12. Further Information
+%     12.1. Contributors
+%     12.2. Other Resources
 
 % ==============================================================================
 \chapter{Analysis}
