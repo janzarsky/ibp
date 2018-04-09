@@ -291,8 +291,23 @@ Roles: 14
 \end{lstlisting}
 
 \subsection{Type Enforcement}
+SELinux uses a type enforcement for enforcing mandatory access control. All
+subjects and objects have a type associated. SELinux policy then contains rules
+that describe the relationship between types.
 
-TODO
+Available SELinux types can be listed using the \texttt{seinfo} command:
+\begin{lstlisting}
+$ seinfo --type
+
+Types: 4845
+   abrt_t
+   alsa_t
+   antivirus_t
+   bin_t
+   cluster_t
+   crond_t
+   ...
+\end{lstlisting}
 
 \subsection{Multi-Level and Multi-Category Security}
 
