@@ -228,28 +228,50 @@ developed by SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
 \cite{apparmor,apparmorubuntu}. There are two other security modules,
 \emph{Smack} and \emph{TOMOYO Linux}.
 
-\subsubsection{SELinux and MAC}
-SELinux supports two types of mandatory access control:
-\begin{description}
-    \item [Type Enforcement] Subjects and objects have a type identifier
-        associated which is used to enforce policy rules.
-    % TODO cite BLP
-    \item [Multi-Level Security (MLS)] It is based on the Bell-La Padula model
-        and used when different levels of access are required. There is a
-        variant called Multi-Category (MCS). MLS and MCS is used to separate
-        applications, for example to prevent two virtual machines from accessing
-        each other's files.
-\end{description}
+%\subsubsection{SELinux and MAC}
+%SELinux supports two types of mandatory access control:
+%\begin{description}
+%    \item [Type Enforcement] Subjects and objects have a type identifier
+%        associated which is used to enforce policy rules.
+%    % TODO cite BLP
+%    \item [Multi-Level Security (MLS)] It is based on the Bell-La Padula model
+%        and used when different levels of access are required. There is a
+%        variant called Multi-Category (MCS). MLS and MCS is used to separate
+%        applications, for example to prevent two virtual machines from accessing
+%        each other's files.
+%\end{description}
 
-\subsubsection{SELinux Users}
+\subsection{SELinux Users}
+SELinux uses its own user names that different than standard Linux user names.
+Every Linux user is associated to a SELinux user. For example, Linux user
+\texttt{root} is mapped to SELinux user \texttt{unconfined\_u} on Fedora 27.
+There is a special SELinux user that is not mapped to any user:
+\texttt{system\_u}.
+
+SELinux users can be shown using the \texttt{seinfo} command:
+\begin{lstlisting}
+$ seinfo --user
+
+Users: 8
+   guest_u
+   root
+   staff_u
+   sysadm_u
+   system_u
+   unconfined_u
+   user_u
+   xguest_u
+\end{lstlisting}
+
+\subsection{Role-Based Access Control}
 
 TODO
 
-\subsubsection{Role-Based Access Control}
+\subsection{Type Enforcement}
 
 TODO
 
-\subsubsection{Type Enforcement}
+\subsection{Multi-Level and Multi-Category Security}
 
 TODO
 
