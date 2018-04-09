@@ -127,25 +127,30 @@ denied, it is reported via ``access denied'' error code to the application
     \caption{SELinux main components}
 \end{figure}
 
-SELinux \emph{security server} is embedded in the kernel and it obtains the
-security policy via userspace tools.
-
-\emph{Object managers} resides mainly in kernel and make use of hooks provided
-by Linux Security Module framework. There are object managers for kernel
-services such as files, sockets, IPC etc. Userspace object managers are known as
-``SELinux-aware'' applications and adds MAC support for X-Windows, D-bus
-messaging, databases, etc.
-
-SELinux \emph{security policy} is contained in \texttt{/etc/selinux} directory.
-It consists of base policy and several policy modules. Base policy contains
-information required by other modules. Policy modules usually supports one
-particular service or application (e.g. policy module for Apache web server)
-\cite[pp.~20--22]{tsn}.
-
-Maintaining SELinux requires several userspace tools. The \texttt{checkmodule},
-\texttt{checkpolicy}, \texttt{load\_policy} commands compile and load policy.
-The \texttt{semanage} and \texttt{restorecon} command manages security labels of
-various system resources \cite[p.~389]{tsn}.
+SELinux userspace several tools and libraries:
+\begin{description}
+    \item [\texttt{libsepol} and \texttt{libsemanage}] Libraries for working
+        with SELinux binary policy and policy infrastructure.
+    \item [\texttt{libselinux}] API for implementing SELinux-aware applications.
+    \item [\texttt{checkmodule}, \texttt{semodule\_package}, \texttt{semodule}]
+        Utilities that compile the SELinux policy and loads it into the kernel.
+    \item [\texttt{semanage}] Utility for configuring various parts of policy,
+        for example setting contexts for TCP and UDP ports.
+    \item [\texttt{restorecon} and \texttt{setfiles}] Utilities for restoring
+        default context of files.
+    \item [\texttt{policycoreutils}] Various utilities for working with and
+        troubleshooting of SELinux.
+    \item [Modified Linux Commands] Standard Linux commands such as \texttt{ls}
+        or \texttt{ps} modified to support SELinux.
+    \item [SELinux and proc filesystem] Userspace tools communicate with kernel
+        security server via the \texttt{/proc} and \texttt{/sys/fs/selinux}
+        filesystem.
+    \item [Security Server] It is embedded in the kernel and it obtains the
+        security policy via userspace tools.
+    \item [Access Vector Cache] Caches security decision made by security
+        server.
+    \item [Linux Security Module Hooks] Calls SELinux Security Server.
+\end{description}
 
 % ------------------------------------------------------------------------------
 \section{Basic Concepts}
