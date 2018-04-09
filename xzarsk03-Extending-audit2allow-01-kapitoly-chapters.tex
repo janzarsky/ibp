@@ -248,7 +248,7 @@ Every Linux user is associated to a SELinux user. For example, Linux user
 There is a special SELinux user that is not mapped to any user:
 \texttt{system\_u}.
 
-SELinux users can be shown using the \texttt{seinfo} command:
+Available SELinux users can be listed using the \texttt{seinfo} command:
 \begin{lstlisting}
 $ seinfo --user
 
@@ -264,8 +264,31 @@ Users: 8
 \end{lstlisting}
 
 \subsection{Role-Based Access Control}
+SELinux uses role-based access control, where every SELinux user is associated
+to one or more roles. Each role can access only domain types that are associated
+to that role. For example, user \texttt{system\_u} is associated to roles
+\texttt{unconfined\_r} and \texttt{system\_r} on Fedora 27.
 
-TODO
+Available SELinux roles can be listed using the \texttt{seinfo} command:
+\begin{lstlisting}
+$ seinfo --role
+
+Roles: 14
+   auditadm_r
+   dbadm_r
+   guest_r
+   logadm_r
+   nx_server_r
+   object_r
+   secadm_r
+   staff_r
+   sysadm_r
+   system_r
+   unconfined_r
+   user_r
+   webadm_r
+   xguest_r
+\end{lstlisting}
 
 \subsection{Type Enforcement}
 
