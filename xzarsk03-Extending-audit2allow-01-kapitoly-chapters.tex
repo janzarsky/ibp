@@ -164,14 +164,17 @@ TODO
 \subsection{Subjects and Objects}
 % TODO: basic description of subjects and objects, improve
 
-A \emph{subject} is an entity that causes information to flow among objects or
-changes the system state. Within SELinux, a subject is an active process that
-can access objects. Note that a process can also be an object, for example when
-sending signal to another process, the receiving process is an object.
-
-An \emph{object} is a system resource such as file, socket, pipe, TCP or UDP
-port, network interface, semaphore or shared memory segment. Objects are
-accessed via subjects.
+There are two basic entities in SELinux:
+\begin{description}
+    \item [Subject] is an entity that causes information to flow among objects
+        or changes the system state. Within SELinux, a subject is an active
+        process that can access objects. Note that a process can also be an
+        object, for example when sending signal to another process, the
+        process receiving is an object.
+    \item [Object] is a system resource such as file, socket, pipe, TCP or UDP
+        port, network interface, semaphore or shared memory segment.  Objects
+        are accessed via subjects.
+\end{description}
 
 % ----------------------------------------
 % TOPIC: MAC, DAC, TE, MLS, MCS, RBAC
