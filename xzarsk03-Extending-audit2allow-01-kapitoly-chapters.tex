@@ -186,9 +186,6 @@ There are two basic entities in SELinux:
 %     2.6.1 Constraints                                                 ?
 %     2.6.2 Bounds                                                      N
 \subsection{Mandatory Access Control}
-% TODO: write about SELinux users
-% TODO: write about RBAC
-% TODO: write about TE
 
 SELinux provides a mandatory access control mechanism that extends the
 discretionary access control mechanisms present in Linux kernel.
@@ -301,9 +298,28 @@ Types: 4845
    ...
 \end{lstlisting}
 
+%     4.13. Multi-Level Security (MLS)
+%         4.13.1. MLS and System Privileges
+%         4.13.2. Enabling MLS in SELinux
+%         4.13.3. Creating a User With a Specific MLS Range
+%         4.13.4. Setting Up Polyinstantiated Directories
 \subsection{Multi-Level and Multi-Category Security}
+% TODO: improve
 
-TODO
+In addition to Type Enforcement and Role-Based Access Control, SELinux also
+supports Multi-Level Security (MLS) and Multi-Category Security (MCS). Security
+context is extended by level or range entry.
+
+Security levels conform to the Bell-LaPadula model (BLP). For processes,
+security levels describe subject's clearance, for objects, they describe
+object's classification. Process running at certain security level can:
+\begin{itemize}
+    \item read and write at their current level,
+    \item read only at lower levels,
+    \item write only at higher levels.
+\end{itemize}
+This means that processes cannot read data with higher security level and cannot
+leak sensitive information to the lower levels.
 
 % ----------------------------------------
 % TOPIC: SELinux context
@@ -1257,11 +1273,6 @@ statement.
 %     4.5. Changing SELinux Modes at Boot Time
 %     4.11. Information Gathering Tools
 %     4.12. Prioritizing and Disabling SELinux Policy Modules
-%     4.13. Multi-Level Security (MLS)
-%         4.13.1. MLS and System Privileges
-%         4.13.2. Enabling MLS in SELinux
-%         4.13.3. Creating a User With a Specific MLS Range
-%         4.13.4. Setting Up Polyinstantiated Directories
 %     4.15. Disabling ptrace()
 %     4.16. Thumbnail Protection
 % 5. The sepolicy Suite
