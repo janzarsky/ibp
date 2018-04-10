@@ -942,7 +942,7 @@ $ sesearch -T -s httpd_t -t var_run_t -c file
 type_transition httpd_t var_run_t:file httpd_var_run_t;
 \end{lstlisting}
 
-\subsection{The file\_contexts File}
+\subsection{File Context Configuration Files}
 There are situations when files get label that is different than the default
 one:
 \begin{enumerate}
@@ -967,6 +967,65 @@ default contexts for every file. Example:
 \end{lstlisting}
 The \texttt{-{}-} is means every file type, \texttt{-c} means character device.
 The \texttt{restorecon} utility is used to restore security contexts on files.
+
+\subsubsection{Building File Context Files}
+Utilities such as \texttt{restorecon} or \texttt{setfiles} uses several files to
+restore default contexts of files:
+\begin{description}
+    \item [\texttt{file\_contexts}] Contains default contexts for files.
+    \item [\texttt{file\_contexts.homedirs}] Contains default contexts for files
+        inside user home directories.
+    \item [\texttt{file\_contexts.local}] Contains local modifications of
+        default file contexts.
+    \item [\texttt{file\_contexts.subs} and \texttt{file\_contexts.subs\_dist}]
+        Contains file name substitutions. For example, these files can specify
+        that \texttt{/usr/lib64} should be treated the same way as
+        \texttt{/usr/lib}.
+\end{description}
+
+\begin{figure}
+    \centering
+    \label{fig:filecontexts}
+    \input{./figures/filecontexts.tex}
+    \caption{File Context Files}
+\end{figure}
+
+These files are created when building policy, see figure \ref{fig:filecontexts}.
+All \texttt{.fc} files from base policy and from policy modules are used to
+build the \texttt{file\_contexts.template} file. This file may contain rules
+that has special keywords, such as \texttt{HOME\_ROOT}, \texttt{HOME\_DIR}, or
+\texttt{USER}. All rules without special keyword are used to build the
+\texttt{file\_contexts} file used directly by utilities such as
+\texttt{restorecon} or \texttt{setfiles}.
+
+Rules with special keywords are used to build the \texttt{homedir\_template}
+file. These rules are asssociated with users home directories and needs to be
+expanded for individual users using the \texttt{genhomedircon} utility. For
+example the following \texttt{homedir\_template} entry:
+\begin{lstlisting}
+HOME_DIR/\.ssh(/.*)?        system_u:object_r:ssh_home_t:s0
+\end{lstlisting}
+would be expanded to the following rules:
+\begin{lstlisting}
+/home/[^/]*/\.ssh(/.*)?     system_u:object_r:ssh_home_t:s0
+/root/\.ssh(/.*)?           system_u:object_r:ssh_home_t:s0
+\end{lstlisting}
+Expanded rules are then stored in the \texttt{file\_contexts.homedirs} file and
+used by \texttt{restorecon} and \texttt{setfiles} utilities.
+
+\subsection{Changing File Context Files}
+
+The \texttt{file\_contexts} file can be changed using the \texttt{semanage
+fcontext} command. For example:
+\begin{lstlisting}
+# semanage fcontext -a -t samba_share_t /etc/myfile
+# semanage fcontext -l -C
+SELinux fcontext    type        Context
+/etc/myfile         all files   system_u:object_r:samba_share_t:s0
+\end{lstlisting}
+In this example, new file contexts entry was added. The rule states that file
+\texttt{/etc/myfile} should obtain context
+\texttt{system\_u:object\_r:samba\_share\_t:s0}.
 
 % ------------------------------------------------------------------------------
 % TOPIC: Auditing
