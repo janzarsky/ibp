@@ -231,6 +231,7 @@ call, standard file permissions are checked first. Then the Linux Security
 Module hooks calls security checks in SELinux.
 
 \subsection{SELinux Users}
+\label{selinuxuser}
 SELinux uses its own user names that different than standard Linux user names.
 Every Linux user is associated to a SELinux user. For example, Linux user
 \texttt{root} is mapped to SELinux user \texttt{unconfined\_u} on Fedora 27.
@@ -253,6 +254,7 @@ Users: 8
 \end{lstlisting}
 
 \subsection{Role-Based Access Control}
+\label{rbac}
 SELinux uses role-based access control, where every SELinux user is associated
 to one or more roles. Each role can access only domain types that are associated
 to that role. For example, user \texttt{system\_u} is associated to roles
@@ -280,6 +282,7 @@ Roles: 14
 \end{lstlisting}
 
 \subsection{Type Enforcement}
+\label{te}
 SELinux uses a type enforcement for enforcing mandatory access control. All
 subjects and objects have a type associated. SELinux policy then contains rules
 that describe the relationship between types.
@@ -304,6 +307,7 @@ Types: 4845
 %         4.13.3. Creating a User With a Specific MLS Range
 %         4.13.4. Setting Up Polyinstantiated Directories
 \subsection{Multi-Level and Multi-Category Security}
+\label{mls}
 % TODO: improve
 
 In addition to Type Enforcement and Role-Based Access Control, SELinux also
@@ -338,10 +342,10 @@ user:role:type[:range]
 \end{lstlisting}
 Where:
 \begin{description}
-    \item [\texttt{user}] The SELinux user.
-    \item [\texttt{role}] The SELinux role.
-    \item [\texttt{type}] Used by type enforcement.
-    \item [\texttt{range}] Used by MLS or MCS. It is optional.
+    \item [\texttt{user}] The SELinux user (see section \ref{selinuxuser}).
+    \item [\texttt{role}] The SELinux role (see section \ref{rbac}).
+    \item [\texttt{type}] Used by type enforcement (see section \ref{te}).
+    \item [\texttt{range}] Used by MLS or MCS (see section \ref{mls}). It is optional.
 \end{description}
 
 Example of subject security contexts:
@@ -378,34 +382,52 @@ $ ls -Z /etc
 %     4.10.2 Associating Permissions to a Class                         Y
 %     4.10.3 common                                                     Y
 %     4.10.4 class                                                      Y
-\subsection{Subjects and Objects}
+\subsection{Object Classes}
 % TODO: rewrite
-% TODO: write about policy statements
-TODO. Objects are divided into classes based on permission sets.
+% TODO: write about policy statements or move them to selinux policy section
+% TODO: cite reference policy
 
-\subsubsection{Object Classes}
-% TODO cite reference policy
 Each object is assigned class identifier which specifies set of permissions that
-describe what operations can object handle. For example, in Reference Policy
-version 2.20180114, class \texttt{shm} provides the following permissions:
+describe what operations can object handle. For example, on Fedora 27, there are
+the following classes:
 \begin{lstlisting}
-create, destroy, getattr, setattr, read, write, associate, unix_read,
-unix_write, lock
+$ seinfo --class
+
+Classes: 97
+   blk_file
+   chr_file
+   dbus
+   dir
+   fd
+   file
+   filesystem
+   ipc
+   ...
+\end{lstlisting}
+
+Each class is associated a set of permissions. For example, on Fedora 27, class
+\texttt{node} provides the following permissions:
+\begin{lstlisting}
+$ seinfo --class node -x
+
+Classes: 1
+   class node
+{
+	dccp_send
+	enforce_dest
+	tcp_recv
+	rawip_send
+	tcp_send
+	udp_recv
+	dccp_recv
+	sendto
+	udp_send
+	recvfrom
+	rawip_recv
+}
 \end{lstlisting}
 SELinux object classes maps to the kernel object classes (files, sockets, etc.)
 and userspace objects (for X-Windows or D-Bus).
-
-\subsubsection{Allowing a Subject to Access an Object}
-Subjects are given access to objects via \texttt{allow} rules in the security
-policy. Example of an \texttt{allow} rule:
-\begin{lstlisting}
-allow httpd_t samba_share_t:file { getattr open read };
-\end{lstlisting}
-Here the process running with context \texttt{httpd\_t} (Apache HTTP Server) is
-given access to file labeled as \texttt{samba\_share\_t} (files shared via
-Samba). The allowed operations are \texttt{getattr}, \texttt{open}, and
-\texttt{read}. This means that the process can open and read from these files
-but it cannot modify them.
 
 \subsubsection{Object Class and Permission Statements}
 
@@ -445,11 +467,12 @@ Security contexts are computed by the kernel security server using several
 policy statements.
 
 \subsubsection{Labeling Processes}
-The first init process usually transitions to its own unique process, for
-example \texttt{init\_t}. On fork, a process inherits the security context of
-its parent. On exec, a process may transition to different security context.
-This is achieved by various transition policy statements. SELinux-aware
-processes may change context by calling \texttt{setcon} or \texttt{setexeccon}.
+The first init process usually transitions to its own unique domain, for example
+\texttt{init\_t}. On fork, the child process inherits the security context of
+its parent. On exec, the child process may transition to different security
+context. This is achieved by type transition policy statements. SELinux-aware
+processes may change context by calling \texttt{setcon} or \texttt{setexeccon}
+function from \texttt{libselinux}.
 
 \subsubsection{Labeling Files}
 Security context for files is computed as follows:
