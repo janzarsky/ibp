@@ -1088,10 +1088,36 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 %         11.3.6. Raw Audit Messages
 %         11.3.7. sealert Messages
 %         11.3.8. Allowing Access: audit2allow
-% TODO: write about SELinux problems and troubleshooting
 \section{Troubleshooting SELinux}
+% TODO: write about SELinux problems and troubleshooting
+% SELinux denial - what happens, logs
+% auditd
+% setroubleshootd
+% labeling problems
+% services running with wrong context
+% ports
+% linux perms
+% silent denials - dontaudit rules
+% permissive domains
+% viewing denials
+% sealert
+% audit2allow
 
-TODO
+When SELinux denies access that is requested by a process, the process may fail
+to function normally and reports error or crashes. Determining if the failure is
+related to SELinux is done by switching whole SELinux or just one domain into
+permissive mode. For example, for debugging \texttt{httpd} it is advised to set
+the \texttt{httpd\_t} domain into permissive mode:
+\begin{lstlisting}
+# semanage permissive -a httpd_t
+\end{lstlisting}
+SELinux denials caused by the \texttt{httpd\_t} domain would still be logged but
+not enforced.
+
+SELinux denials are logged using the Linux Audit System (the default option in
+Fedora and RHEL) or using the system log at \texttt{/var/log/messages}. The
+\texttt{setroubleshootd} daemon (if running) analyzes SELinux denials and
+provides suggestions for resolving the problem using various plugins.
 
 % ------------------------------------------------------------------------------
 \section{The audit2allow Utility}
