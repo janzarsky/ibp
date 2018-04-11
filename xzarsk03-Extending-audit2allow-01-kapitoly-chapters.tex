@@ -755,6 +755,7 @@ Where:
 % TODO permissive?
 
 \subsection{Access Vector Rules}
+\label{avrules}
 
 The AV rules are basic policy rules that control what access do processes get.
 The \texttt{allow} rule grants process an access to an object. Syntax:
@@ -1126,47 +1127,50 @@ The \emph{audit2allow} is a userspace tool that scans the AVC messages and
 generates SELinux policy snippets based on them.
 
 \subsection{Purpose of audit2allow}
-% TODO: write
+The audit2allow is tool designed both for system administrators and SELinux
+policy developers. System administrators use audit2allow to analyze SELinux
+denials and to add policy new policy modules. The audit2allow utility also
+suggests other options to resolve denials, such as turning on a boolean.
 
-The audit2allow tool is designed to help administrators troubleshoot SELinux
-denials.
+Policy developers can use audit2allow for creating basis for new policy module.
+When writing policy for their program, they can run the program's test suite in
+permissive mode, collect SELinux denials, create policy module, and then
+manually finish the policy module. Policy developers can use the
+\texttt{-{}-reference} option to generate policy using macros.
 
-TODO: basic mode - generating rules, admin can decide whether they could be
-allowed, for development - devels can use permissive domain, run tests, collect
-AVC, create basis for policy module, additional useful info - booleans,
-interfaces, ...
-
-\subsection{TODO: What It Does}
-% TODO: write
-In default mode, it scans the AVC denial messages and generates policy rules
-which allows the operations that were denied.
-
-For example, when the \texttt{httpd} process tries to perform \texttt{getattr}
-action on the \texttt{/var/www/html/file1} file, the following AVC message is
-generated:
+\subsection{Basic Mode of Operation}
+In default mode, audit2allow scans the AVC denial messages and generates policy
+rules which allows the operations that were denied. For example, when the
+\texttt{httpd} process tries to perform \texttt{getattr} operation on the
+\texttt{/var/www/html/file1} file, the following AVC message is generated:
 \begin{lstlisting}
 type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
 for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
 ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
 tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 \end{lstlisting}
-The audit2allow would generate the following policy rule:
+The audit2allow utility would generate the following policy rule:
 \begin{lstlisting}
 allow httpd_t samba_share_t:file getattr;
 \end{lstlisting}
+The audit2allow utility is able process multiple AVC denial messages, deal with
+duplicates, and output all rules based on fields in AVC denial messages.
 
-The audit2allow is able to read AVC messages from stdin, dmesg, audit log, or
-arbitrary file. There is \texttt{-{}-boot} option which loads only messages
-generated since last boot and \texttt{-{}-lastreload} option which loads only
-messages since last policy reload.
+\subsection{Command-Line Options}
+The audit2allow utility is able to read AVC messages from stdin, dmesg, audit
+log, or arbitrary file (see \texttt{-{}-dmesg}, \texttt{-{}-all}, and
+\texttt{-{}-input} options). There is \texttt{-{}-boot} option which loads only
+messages generated since last boot and \texttt{-{}-lastreload} option which
+loads only messages since last policy reload.
 
-The audit2allow can output the policy rules directly to stdout or file, or
-create a policy module which can be loaded directly into the policy.
+The audit2allow utility can output the policy rules directly to stdout or file,
+or create a policy module which can be loaded directly into the policy (see
+\texttt{-{}-module}, \texttt{-M}, and \texttt{-{}-output} options).
 
-The audit2allow is using currently loaded policy (or any other policy specified
-in the \texttt{-{}-policy} option) to get more information about the denials.
-For example, audit2allow suggests turning on a boolean that would allow the
-denied operations.
+The audit2allow utility is using currently loaded policy (or any other policy
+specified in the \texttt{-{}-policy} option) to get more information about the
+denials.  For example, audit2allow suggests turning on a boolean that would
+allow the denied operations.
 
 When run with the \texttt{-{}-reference} option, audit2allow tries to match the
 denials against defined interfaces. Example of audit2allow output without the
@@ -1188,8 +1192,24 @@ The audit2allow found an interface which contained the same allow
 rule. Interfaces creates more readable code but can contain more rules that are
 necessary.
 
-% TODO: write it
-TODO: dontaudit rules
+The \texttt{-{}-why} option does not output any policy rules but provides a text
+description of why the access was denied. Example of \texttt{audit2allow
+-{}-why} output:
+\begin{lstlisting}
+type=AVC msg=audit(1223024155.684:49): avc: denied { getattr }
+for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
+ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
+tcontext=system_u:object_r:samba_share_t:s0 tclass=file
+
+    Was caused by:
+        Missing type enforcement (TE) allow rule.
+
+        You can use audit2allow to generate a loadable module
+        to allow this access.
+\end{lstlisting}
+
+The \texttt{-{}-dontaudit} option generates \texttt{dontaudit} rules instead of
+\texttt{allow} rules (see section~\ref{avrules}).
 
 \subsection{TODO: How Does audit2allow Work}
 The audit2allow first collects audit messages from various sources and then
