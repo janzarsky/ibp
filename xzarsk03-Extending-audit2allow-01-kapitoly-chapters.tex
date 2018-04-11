@@ -790,6 +790,68 @@ There are three other AV rules:
         that may be unsecure.
 \end{description}
 
+\subsection{Extended Permission Access Vector Rules}
+\label{extavrules}
+
+Since policy version 30, there are extended permission access vector (AV) rules
+that expand the permission sets. Standard access vector rules operates with
+32~bit permission sets, extended permission AV rules adds arbitrary number of
+256~bit increments. Extended permission AV rules are currently (as of policy
+version 31) used only for ioctl whitelisting, but they provide generic tool that
+can be used in future for more granular control over an operation
+\cite{selinuxmailxperms}.
+
+The format of extended permission AV rules is \cite{xpermrules}:
+\begin{lstlisting}
+rule_name source_type target_type : class operation xperm_set;
+\end{lstlisting}
+where:
+\begin{description}
+    \item [\texttt{rule\_name}] is one of the following: \texttt{allowxperm},
+        \texttt{dontauditxperm}, \texttt{auditallowxperm}, or
+        \texttt{neverallowxperm}. The meaning is same as standard AV rules. The
+        \texttt{allowxperm} rule allows the access, the \texttt{dontauditxperm}
+        rule denies and logs the access, the \texttt{auditallowxperm} allows and
+        logs the access, and the \texttt{neverallowxperm} rules is a compiler
+        statement to prevent unsecure rules from appearing in policy.
+    \item [\texttt{source\_type}, \texttt{target\_type}, \texttt{class}] are
+        source type, target type, and object class, same as with standard AV
+        rule.
+    \item [\texttt{operation}] is a single keyword defining the operation to be
+        implemented by the rule. As of policy version 31, only the
+        \texttt{ioctl} operation is supported. In contrast to permissions in
+        standard access vector rules, each extended permission AV rule has only
+        one operation (standard AV rules can have many permissions).
+    \item [\texttt{xperm\_set}] are extended permissions represented by numeric
+        values. The meaning of values depends on the operation. Values can be
+        written in decimal or hexadecimal form, for example \texttt{42} or
+        \texttt{0x2a}. Multiple values must be separated by space and enclosed
+        in braces, for example \texttt{\{ 1 2 3 \}}. Value ranges are supported,
+        for example \texttt{50-60}. To allow all values except for those
+        explicitly listed, the complement operator can be used, for example
+        \texttt{\textasciitilde \{ 1 2 3 \}}.
+\end{description}
+
+Example of an extended permission AV rule:
+\begin{lstlisting}
+allowxperm my_app_t my_socket_t : tcp_socket ioctl { 20 30 0x40 50-60 };
+\end{lstlisting}
+This rule allows a process running as \texttt{my\_app\_t} to call \texttt{ioctl}
+on a TCP socket labeled \texttt{my\_socket\_t} with parameters 20, 30, 64, or
+any number from 50 to 60.
+
+\subsubsection{Filtering the ioctl Syscall}
+Filtering ioctl calls is as of policy version 31 the only implementation of
+extended permission AV rules. For ioctl calls, the operation keyword is
+\texttt{ioctl}.
+
+When there is only \texttt{allow} rule for particular source and target context
+and object class, all ioctl calls are allowed. With additional
+\texttt{allowxperm} rule, only ioctl calls with parameters allowed by the
+\texttt{allowxperm} rules are allowed. The \texttt{allowxperm} rule alone has
+no effect, for ioctl filtering, both \texttt{allow} and \texttt{allowxperm}
+rules must be present.
+
 % ----------------------------------------
 % TOPIC: Conditional policy
 % ----------------------------------------
@@ -1656,45 +1718,7 @@ does not work on files that are not indexed in the database created by
 
 % ------------------------------------------------------------------------------
 \section{Extended Permission Access Vector Rules}
-Since policy version 30, there are extended permission access vector (AV) rules
-that expand the permission sets. Access vector rules operates with 32~bit
-permission sets, extended permission AV rules adds arbitrary number of 256~bit
-increments. Extended permission AV rules are currently (policy version 31) used
-only for ioctl whitelisting, but they provide generic tool that can be used in
-future for more granular control over an operation \cite{selinuxmailxperms}.
-
-\subsection{Syntax and Usage of Extended Permission AV Rules}
-The format of extended permission AV rules is \cite{xpermrules}:
-\begin{lstlisting}
-rule_name source_type target_type : class operation xperm_set;
-\end{lstlisting}
-where:
-\begin{description}
-    \item [\texttt{rule\_name}] is one of the following: \texttt{allowxperm},
-        \texttt{dontauditxperm}, \texttt{auditallowxperm}, or
-        \texttt{neverallowxperm}. The meaning is similar to standard AV rules.
-    \item [\texttt{source\_type}, \texttt{target\_type}, \texttt{class}] are
-        source type, target type, and object class, same as with standard AV
-        rule.
-    \item [\texttt{operation}] is a single keyword defining the operation to be
-        implemented by the rule. As of policy version 31, only \texttt{ioctl}
-        operation is supported.
-    \item [\texttt{xperm\_set}] are extended permissions represented by numeric
-        values.
-\end{description}
-
-Example of an extended permission AV rule:
-\begin{lstlisting}
-allowxperm my_app_t my_socket_t : tcp_socket ioctl { 20 30 0x40 50-60 };
-\end{lstlisting}
-
-Process running as \texttt{my\_app\_t} can call ioctl on a TCP socket labeled
-\texttt{my\_socket\_t} with parameters 20, 30, 64, or any number from 50 to 60.
-
-In order for ioctl whitelisting to work, standard \texttt{allow} rule must be
-present in the policy. With \texttt{allow} rule for ioctl, all ioctl syscalls
-are allowed. With additional \texttt{allowxperm} rule, only specified values are
-allowed.
+TODO
 
 \subsection{AVC Denials Caused by Extended Permission AV Rules}
 Suppose there are following rules present in the policy:
