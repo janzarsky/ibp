@@ -1370,8 +1370,29 @@ would be converted into the following access vector:
 
 Multiple access vectors are aggregated in access vector sets. Access vectors
 that share the same source and target type and object class are merged together
-so that there are no duplicates. Access vector sets serves as a basis for
-generating policy access vector rules in \texttt{policygen} module.
+so that there are no duplicates. For example, if we add the following access
+vector:
+\begin{lstlisting}
+{
+    source_context: 'unconfined_u:system_r:httpd_t:s0',
+    target_context: 'system_u:object_r:samba_share_t:s0',
+    object_class: 'file',
+    permissions: [ 'open', 'read' ]
+}
+\end{lstlisting}
+to the access vector above, they would be merged into the following access
+vector (they share source and target context and object class):
+\begin{lstlisting}
+{
+    source_context: 'unconfined_u:system_r:httpd_t:s0',
+    target_context: 'system_u:object_r:samba_share_t:s0',
+    object_class: 'file',
+    permissions: [ 'getattr', 'open', 'read' ]
+}
+\end{lstlisting}
+
+Access vector sets serves as a basis for generating policy access vector rules
+in \texttt{policygen} module.
 
 \subsubsection{The policygen Module}
 % PolicyGenerator
