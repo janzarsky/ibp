@@ -1211,14 +1211,16 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 The \texttt{-{}-dontaudit} option generates \texttt{dontaudit} rules instead of
 \texttt{allow} rules (see section~\ref{avrules}).
 
-\subsection{TODO: How Does audit2allow Work}
-The audit2allow first collects audit messages from various sources and then
-filters out AVC messages and other useful messages. From every AVC message,
-source context, target context, object class, and permissions are extracted and
-converted into \emph{access vector sets}. Each access vector has unique source
-context, target context, and object class combination. Permissions from multiple
-AVC messages are merged into one access vector. Example of an access vector set:
-% TODO: improve the listing
+\subsection{How Does audit2allow Work}
+The audit2allow first collects audit messages from various sources. Messages are
+stored based on their type and then parsed. Every AVC denial message is analyzed
+together with binary policy file to find out the reason of denial.
+
+From AVC denial messages, source contexts, target contexts, object classes, and
+permissions are extracted and converted into \emph{access vector sets}. Each
+access vector has unique source context, target context, and object class
+combination. Permissions from multiple AVC messages are merged into one access
+vector. Example of an access vector set:
 \begin{lstlisting}
 {
     ('unconfined_u:system_r:httpd_t:s0',
@@ -1230,21 +1232,26 @@ AVC messages are merged into one access vector. Example of an access vector set:
 }
 \end{lstlisting}
 
-Each access vector is then converted into an allow rule. Example:
+Each access vector is then converted into an allow rule. All rules are then
+printed to the output, optionally with \texttt{require} section. Example:
 \begin{lstlisting}
 allow httpd_t samba_share_t:file { getattr, open };
 allow httpd_t sssd_conf_t:file getattr;
 \end{lstlisting}
 
-% TODO: write more
 Various other information is stored during processing. The audit2allow prints
 comments with helpful messages.
 
 \subsection{Implementation of audit2allow}
-The audit2allow utility is written mostly in Python with several parts written
-in C. Main script, \texttt{audit2allow}, parses command-line options, retrieves
-audit messages, and prints the output.  Main logic of converting AVC denial
-messages to access vector rules is implemented in package \texttt{sepolgen}.
+% TODO: link to upstream repo on github
+The audit2allow utility is part of SELinux userspace. It is written mostly in
+Python with several parts written in C. It uses \texttt{sepolgen} and
+\texttt{sepolicy} Python modules and \texttt{libselinux} and \texttt{libsepol}
+libraries.
+
+Main script, \texttt{audit2allow}, parses command-line options, retrieves audit
+messages, and prints the output.  Main logic of converting AVC denial messages
+to access vector rules is implemented in package \texttt{sepolgen}.
 
 The \texttt{sepolgen} package contains the following modules:
 \begin{description}
@@ -1309,17 +1316,26 @@ The main script does the following steps:
 % AVCTypeFilter
 % ComputeSidTypeFilter
 
-The \texttt{audit} module is used for parsing audit messages. The
-\texttt{AuditParser} class reads strings and creates objects of appropriate type
-for each message. The \texttt{AuditMessage} class is the base class for all
+The \texttt{audit} module is used for parsing audit messages. It is not a
+general purpose audit parsing library, it is meant to parse mainly AVC messages
+and policy load messages.
+
+The \texttt{AuditParser} class reads strings and creates objects of appropriate
+type for each message. The \texttt{AuditMessage} class is the base class for all
 message types. The \texttt{AVCMessage} class represents AVC denials and is used
 for generating access vectors.
 
 After parsing of AVC message, the denial is analyzed in \texttt{audit2why}
-module. The \texttt{audit2why} module tries to find out the reason of the denial
-by analyzing the policy. The module is written in C and uses the
-\texttt{libsepol} library. Each message is then converted to an access vector
-from the \texttt{access} module.
+module (from \texttt{libselinux} library). The \texttt{audit2why} module tries
+to find out the reason of the denial by analyzing the policy. The module is
+written in C and uses the \texttt{libsepol} library. Each message is then
+converted to an access vector from the \texttt{access} module. AVC denial
+messages can be filtered using regular expressions via the
+\texttt{AVCTypeFilter} class. Only messages that match are processed.
+
+Policy load messsages are important with the \texttt{-{}-lastreload}
+command-line option. The \texttt{AuditParser} then processes only messages after
+last policy load message.
 
 \subsubsection{The access Module}
 % AccessVector
