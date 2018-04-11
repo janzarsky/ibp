@@ -591,6 +591,7 @@ logs actions. In \emph{disabled} mode, SELinux is turned off.
 %     4.17.2 require                                                    Y
 %     4.17.3 optional                                                   Y
 \section{SELinux Policy}
+\label{policy}
 % TODO: refine intro
 
 Security decisions made by the security server in kernel are resolved using
@@ -615,6 +616,7 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
 \end{lstlisting}
 
 \subsection{Policy Modules}
+\label{modules}
 
 The \texttt{module} and \texttt{require} statements are used to support policy
 modules. Every policy module must start with the \texttt{module} statement.
@@ -886,6 +888,13 @@ Example:
 \begin{lstlisting}
 portcon tcp 22 system_u:object_r:ssh_port_t:s0
 \end{lstlisting}
+
+% ----------------------------------------
+% TOPIC: Interfaces
+% ----------------------------------------
+\subsection{TODO: Interfaces}
+\label{interfaces}
+TODO
 
 % ----------------------------------------
 % TOPIC: File contexts
@@ -1420,7 +1429,7 @@ access vector:
     permissions: [ 'getattr', 'open', 'read' ]
 }
 \end{lstlisting}
-would be converted into this policy statement:
+would be converted into the following policy statement:
 \begin{lstlisting}
 allow httpd_t samba_share_t:file { getattr open read };
 \end{lstlisting}
@@ -1429,17 +1438,77 @@ The \texttt{PolicyGenerator} uses objects from the \texttt{refpolicy} module to
 represent policy statements. The \texttt{PolicyGenerator} provides several
 configuration methods:
 \begin{description}
-    \item [\texttt{set\_gen\_refpol()}] Turn on interface generation.
-    \item [\texttt{set\_gen\_requires()}] Add module requires (neccessary for
-        creating a standalone policy module).
+    \item [\texttt{set\_gen\_refpol()}] Turn on interface generation (see
+        section \ref{interfaces}).
+    \item [\texttt{set\_gen\_requires()}] Add module requires that are
+        neccessary for creating a standalone policy module (see section
+        \ref{modules}).
     \item [\texttt{set\_gen\_explain()}] Add comments explaining why were the
         policy statements generated.
     \item [\texttt{set\_gen\_dontaudit()}] Generate \texttt{dontaudit} rules
-        instead of \texttt{allow} rules.
+        instead of \texttt{allow} rules (see section \ref{avrules}).
 \end{description}
 The output of the \texttt{PolicyGenerator} is a tree-like structure containing
 generated statements. The \texttt{output} module then just prints out every
 statement.
+
+\subsubsection{The refpolicy Module}
+% PolicyBase
+% Node
+% Leaf
+% walktree, walknode, list_to_space_str, list_to_comma_str
+% IdSet
+% SecurityContext
+% ObjectClass
+% TypeAttribute, RoleAttribute
+% Role, Type, TypeAlias
+% Attribute, AttributeRole
+% AVRule
+% TypeRule, TypeBound
+% RoleAllow, RoleType
+% ModuleDeclaration
+% Conditional, Bool
+% InitialSid, GenfsCon, FilesystemUse
+% PortCon, NodeCon, NetifCon, PirqCon, IomemCon, IoportCon
+% print_tree
+% Headers
+% Module
+% Interface, TunablePolicy, Template, IfDef, InterfaceCall, OptionalPolicy,
+% SupportMacros, Require
+% ObjPermSet, ClassMap
+% Comment
+This module contains classes that represent SELinux policy statements. The
+\texttt{Node} and \texttt{Leaf} classes are base classes for all policy
+statements. Every statement is either a node that is a parent of other
+statements (for example the \texttt{Module} class), or a leaf (for example the
+\texttt{AVRule} class). The \texttt{refpolicy} module contains functions for
+traversing trees made of nodes and leaves. These functions are used when
+printing statements in the \texttt{output} module.
+
+The \texttt{IdSet} class represents set of arbitrary identifiers and is used by
+many statements for storing permissions and other sets. The
+\texttt{SecurityContext} class represents a SELinux security context. Classes
+such as \texttt{TypeAttribute}, \texttt{RoleAttribute}, \texttt{Role},
+\texttt{Type}, and others represent policy statements as described in section
+\ref{policy} and are used mainly for interface generation.
+
+For basic operation mode, the following classes are used: \texttt{AVRule},
+\texttt{ModuleDeclaration}, \texttt{Module}, and \texttt{Require}. The
+\texttt{AVRule} class contains the following attributes:
+\begin{description}
+    \item [\texttt{src\_types}] \texttt{IdSet()} of source types.
+    \item [\texttt{tgt\_types}] \texttt{IdSet()} of source types.
+    \item [\texttt{obj\_classes}] \texttt{IdSet()} of object classes.
+    \item [\texttt{perms}] \texttt{IdSet()} of permissions.
+    \item [\texttt{rule\_type}] One of the following: \texttt{ALLOW},
+        \texttt{DONTAUDIT}, \texttt{AUDITALLOW}, or \texttt{NEVERALLOW}.
+\end{description}
+Class \texttt{Module} serves only as a node that is parent to all statements
+inside a module. Class \texttt{ModuleDeclaration} represents the
+\texttt{module} statement and is generated with the \texttt{-{}-module} option.
+Class \texttt{Require} represent the \texttt{require} statement inside policy
+modules and is generated with either \texttt{-{}-module} or \texttt{-{}-require}
+options.
 
 % ----------------------------------------
 % THE SELINUX NOTEBOOK
