@@ -1935,7 +1935,59 @@ convert the fields to extended permissions.
 % TODO: write
 
 In this module, classes \texttt{AccessVector} and \texttt{AccessVectorSet} were
-extended.
+extended. Tests are implemented in the \texttt{test\_access.py} module.
+
+\subsubsection{Testing \texttt{AccessVector.\_\_init\_\_()}}
+Tests are implemented in the \texttt{TestAccessVector} class.
+
+\begin{description}
+    \item [\texttt{test\_init()}] Test that
+        \texttt{AccessVector.xperms} is a dictionary.
+\end{description}
+
+\subsubsection{Testing \texttt{AccessVector.merge()}}
+Tests are implemented in the \texttt{TestAccessVector} class. Method inputs:
+\begin{description}
+    \item [\texttt{self.perms}, \texttt{av.perms}] Lists of permissions.
+    \item [\texttt{self.xperms}, \texttt{av.xperms}] Dictionaries, keys are
+        strings, values are \texttt{XpermSet} objects.
+\end{description}
+
+Test cases:
+\begin{description}
+    \item [\texttt{test\_merge\_noxperm()}] Test merging two AVs without
+        extended permissions.
+    \item [\texttt{test\_merge\_xperm1()}] Test merging AV that contains
+        extended permissions with AV that does not.
+    \item [\texttt{test\_merge\_xperm2()}] Test merging AV that does not contain
+        extended permissions with AV that does.
+    \item [\texttt{test\_merge\_xperm\_diff\_op()}] Test merging two AVs both
+        containing extended permissions, but with different operations.
+    \item [\texttt{test\_merge\_xperm\_same\_op()}] Test merging two AVs both
+        containing extended permissions with the same operation.
+\end{description}
+
+\subsubsection{Testing \texttt{AccessVector.add\_av()}}
+Tests are implemented in the \texttt{TestAccessVectorSet} class. Method inputs:
+\begin{description}
+    \item [\texttt{self.src}] Already added access vectors.
+    \item [\texttt{av}] An \texttt{AccessVector} instance.
+    \item [\texttt{audit\_msg}] Audit message to be attached to the access
+        vector.
+\end{description}
+
+Test cases:
+\begin{description}
+    \item [\texttt{test\_add\_av\_first()}] Test adding first access vector to
+        the access vector set.
+    \item [\texttt{test\_add\_av\_second()}] Test adding second AV to the set
+        with same source and target context and class.
+    \item [\texttt{test\_add\_av\_with\_msg()}] Test adding audit message.
+\end{description}
+
+\subsubsection{Testing \texttt{AccessVector.add()}}
+
+TODO
 
 \subsection{Testing policygen Module}
 % TODO: write
