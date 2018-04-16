@@ -77,7 +77,7 @@ Linux distributions.
 \subsection{What Problems Does SELinux Solve}
 Without SELinux, operating system relies on traditinal access control methods
 such as file permissions. Users can grant insecure file permissions to others or
-gain access to files that they do not need:
+gain access to files that they do not need \cite{selinuxguide}:
 \begin{itemize}
     \item Users can reveal sensitive information by setting world readable
         permissions on files. For example, they can set read permission for
@@ -138,7 +138,7 @@ denied, it is reported via ``access denied'' error code to the application
     \caption{SELinux main components}
 \end{figure}
 
-SELinux userspace several tools and libraries:
+SELinux userspace several tools and libraries \cite[pp.~19--22]{tsn}:
 \begin{description}
     \item [\texttt{libsepol} and \texttt{libsemanage}] Libraries for working
         with SELinux binary policy and policy infrastructure.
@@ -178,7 +178,7 @@ explains how are these mechanisms enforced.
 \subsection{Subjects and Objects}
 % TODO: basic description of subjects and objects, improve
 
-There are two basic entities in SELinux:
+There are two basic entities in SELinux \cite[p.~29]{tsn}:
 \begin{description}
     \item [Subject] is an entity that causes information to flow among objects
         or changes the system state. Within SELinux, a subject is an active
@@ -201,6 +201,7 @@ SELinux provides a mandatory access control mechanism that extends the
 discretionary access control mechanisms present in Linux kernel.
 
 \subsubsection{Discretionary Access Control}
+% TODO: cite something
 Discretionary access control is defined by TCSES standard. System with DAC must
 enable users to protect their data by controlling access to that data, e.g. by
 setting permissions for other users or user groups.
@@ -248,11 +249,11 @@ Module hooks calls security checks in SELinux.
 % 2.4 SELINUX USERS                                                     ?
 \subsection{SELinux Users}
 \label{selinuxuser}
-SELinux uses its own user names that different than standard Linux user names.
-Every Linux user is associated to a SELinux user. For example, Linux user
-\texttt{root} is mapped to SELinux user \texttt{unconfined\_u} on Fedora 27.
-There is a special SELinux user that is not mapped to any user:
-\texttt{system\_u}.
+SELinux uses its own user names that different than standard Linux user names
+\cite[p.~24]{tsn}. Every Linux user is associated to a SELinux user. For
+example, Linux user \texttt{root} is mapped to SELinux user
+\texttt{unconfined\_u} on Fedora 27.  There is a special SELinux user that is
+not mapped to any user: \texttt{system\_u}.
 
 Available SELinux users can be listed using the \texttt{seinfo} command:
 \begin{lstlisting}
@@ -277,9 +278,9 @@ Users: 8
 \subsection{Role-Based Access Control}
 \label{rbac}
 SELinux uses role-based access control, where every SELinux user is associated
-to one or more roles. Each role can access only domain types that are associated
-to that role. For example, user \texttt{system\_u} is associated to roles
-\texttt{unconfined\_r} and \texttt{system\_r} on Fedora 27.
+to one or more roles \cite[p.~24]{tsn}. Each role can access only domain types
+that are associated to that role. For example, user \texttt{system\_u} is
+associated to roles \texttt{unconfined\_r} and \texttt{system\_r} on Fedora 27.
 
 Available SELinux roles can be listed using the \texttt{seinfo} command:
 \begin{lstlisting}
@@ -311,9 +312,9 @@ Roles: 14
 %     2.6.2 Bounds                                                      N
 \subsection{Type Enforcement}
 \label{te}
-SELinux uses a type enforcement for enforcing mandatory access control. All
-subjects and objects have a type associated. SELinux policy then contains rules
-that describe the relationship between types.
+SELinux uses a type enforcement for enforcing mandatory access control
+\cite[pp.~25--26]{tsn}. All subjects and objects have a type associated. SELinux
+policy then contains rules that describe the relationship between types.
 
 Available SELinux types can be listed using the \texttt{seinfo} command:
 \begin{lstlisting}
@@ -343,8 +344,8 @@ Types: 4845
 % TODO: improve
 
 In addition to Type Enforcement and Role-Based Access Control, SELinux also
-supports Multi-Level Security (MLS) and Multi-Category Security (MCS). Security
-context is extended by level or range entry.
+supports Multi-Level Security (MLS) and Multi-Category Security (MCS)
+\cite[pp.~48--53]{tsn}. Security context is extended by level or range entry.
 
 Security levels conform to the Bell-LaPadula model (BLP). For processes,
 security levels describe subject's clearance, for objects, they describe
@@ -367,9 +368,9 @@ leak sensitive information to the lower levels.
 % TODO: describe parts of the context
 
 Security decisions are made based on a \emph{security context} which must be
-assigned to every subject and object. The security context is sometimes reffered
-to as \emph{security label} or just \emph{label}. The security context is a
-string in the following form:
+assigned to every subject and object \cite[pp.~27--28]{tsn}. The security
+context is sometimes reffered to as \emph{security label} or just \emph{label}.
+The security context is a string in the following form:
 \begin{lstlisting}
 user:role:type[:range]
 \end{lstlisting}
@@ -421,8 +422,8 @@ $ ls -Z /etc
 % TODO: cite reference policy
 
 Each object is assigned class identifier which specifies set of permissions that
-describe what operations can object handle. For example, on Fedora 27, there are
-the following classes:
+describe what operations can object handle \cite[pp.~29--30]{tsn}. For example,
+on Fedora 27, there are the following classes:
 \begin{lstlisting}
 $ seinfo --class
 
@@ -494,7 +495,7 @@ and userspace objects (for X-Windows or D-Bus).
 % TODO: write more about file contexts
 
 Security contexts are computed by the kernel security server using several
-policy statements.
+policy statements \cite[pp.~31--33]{tsn}.
 
 \subsubsection{Labeling Processes}
 The first init process usually transitions to its own unique domain, for example
@@ -537,10 +538,10 @@ to another. Both can be achieved using the \texttt{type\_transition} statement.
 
 \subsubsection{Domain Transition}
 
-Starting new process with different security context is called domain
-transition. For example, \texttt{systemd} running as \texttt{init\_t} needs to
-start the Apache HTTP Server as \texttt{httpd\_t}. Apache executables are
-labeled \texttt{httpd\_exec\_t}. The following policy rule allows the
+Starting new process with different security context is called domain transition
+\cite[pp.~43--47]{tsn}. For example, \texttt{systemd} running as \texttt{init\_t}
+needs to start the Apache HTTP Server as \texttt{httpd\_t}. Apache executables
+are labeled \texttt{httpd\_exec\_t}. The following policy rule allows the
 transition:
 \begin{lstlisting}
 type_transition init_t httpd_exec_t:process httpd_t;
@@ -570,10 +571,10 @@ allow httpd_t httpd_exec_t:file entrypoint;
 \subsubsection{Object Transition}
 When a new object is created it inherits the security context of its parent.
 When it is required that the object has different context, an object transition
-is required.
-For example when an X server creates a file in the \texttt{/tmp} directory
-(which has context \texttt{tmp\_t}), it gets context \texttt{user\_tmp\_t}. This
-is achieved by the following \texttt{type\_transition} rule:
+is required \cite[pp.~47--48]{tsn}. For example when an X server creates a file
+in the \texttt{/tmp} directory (which has context \texttt{tmp\_t}), it gets
+context \texttt{user\_tmp\_t}. This is achieved by the following
+\texttt{type\_transition} rule:
 \begin{lstlisting}
 type_transition xserver_t tmp_t:file user_tmp_t;
 \end{lstlisting}
@@ -589,11 +590,11 @@ automatically.
 % TODO: write about permissive domains
 \subsection{SELinux Modes of Operation}
 
-SELinux has three modes of operation. The default mode is \emph{enforcing}. In
-this mode, everything which is not allowed by the policy is denied. When a
-process tries to perform an action which is not allowed by the policy, it is
-logged. In \emph{permissive} mode, SELinux is not enforcing the policy, it only
-logs actions. In \emph{disabled} mode, SELinux is turned off.
+SELinux has three modes of operation \cite{selinuxguide}. The default mode is
+\emph{enforcing}. In this mode, everything which is not allowed by the policy is
+denied. When a process tries to perform an action which is not allowed by the
+policy, it is logged. In \emph{permissive} mode, SELinux is not enforcing the
+policy, it only logs actions. In \emph{disabled} mode, SELinux is turned off.
 
 % ------------------------------------------------------------------------------
 % TOPIC: Policy language
@@ -1044,9 +1045,10 @@ security.selinux="unconfined_u:object_r:user_home_t:s0"
 \end{lstlisting}
 
 \subsection{Temporary Changes}
-The \texttt{chcon} command changes the SELinux context of files. User must have
-the permissions to relabel files. The changes made by \texttt{chcon} are
-overwritten by a file system relabel or running of \texttt{restorecon}.
+The \texttt{chcon} command changes the SELinux context of files
+\cite{selinuxguide}. User must have the permissions to relabel files. The
+changes made by \texttt{chcon} are overwritten by a file system relabel or
+running of \texttt{restorecon}.
 
 \subsection{Type Transition}
 There are rules in policy that specifies the context of files created by
@@ -1060,6 +1062,7 @@ type_transition httpd_t var_run_t:file httpd_var_run_t;
 \end{lstlisting}
 
 \subsection{File Context Configuration Files}
+% TODO: cite something
 There are situations when files get label that is different than the default
 one:
 \begin{enumerate}
@@ -1087,7 +1090,7 @@ The \texttt{restorecon} utility is used to restore security contexts on files.
 
 \subsubsection{Building File Context Files}
 Utilities such as \texttt{restorecon} or \texttt{setfiles} uses several files to
-restore default contexts of files:
+restore default contexts of files \cite[pp.~165--167]{tsn}:
 \begin{description}
     \item [\texttt{file\_contexts}] Contains default contexts for files.
     \item [\texttt{file\_contexts.homedirs}] Contains default contexts for files
@@ -1128,12 +1131,13 @@ would be expanded to the following rules:
 /root/\.ssh(/.*)?           system_u:object_r:ssh_home_t:s0
 \end{lstlisting}
 Expanded rules are then stored in the \texttt{file\_contexts.homedirs} file and
-used by \texttt{restorecon} and \texttt{setfiles} utilities.
+used by \texttt{restorecon} and \texttt{setfiles} utilities
+\cite[pp.~134--140]{tsn}.
 
 \subsection{Changing File Context Files}
 
 The \texttt{file\_contexts} file can be changed using the \texttt{semanage
-fcontext} command. For example:
+fcontext} command \cite{selinuxguide}. For example:
 \begin{lstlisting}
 # semanage fcontext -a -t samba_share_t /etc/myfile
 # semanage fcontext -l -C
