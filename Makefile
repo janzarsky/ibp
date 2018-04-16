@@ -56,3 +56,6 @@ normostrany:
 
 status:
 	grep "STATUS" $(CO)-[01]*.tex | cut -d' ' -f 3 | awk '{ total += $$1; count++ } END { print total/count }'
+
+overview:
+	grep "STATUS" $(CO)-[01]*.tex -B 2 | grep -v '% --' | grep -v '% ==' | grep -vE '^$$'
