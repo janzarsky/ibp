@@ -1890,13 +1890,20 @@ audit2allow should suggest using the \texttt{semanage port} command when
 appropriate.
 
 \subsection{Network Nodes}
-% STATUS: 0
-% TODO: write
-TODO
+% STATUS: 1
+SELinux is capable of labeling network nodes. For example, there can be rules
+that allow process to communicate only on private LAN or even only on local
+host. Attempts to violate these rules would then produce AVC denial messages
+that contain IP address of the node.
+
+% TODO: rewrite
+Proper solution would be to modify label of certain subnet on the network. AVC
+denial messages provides only the IP addresses. As IP addresses can change
+often, labeling single network node would not be useful.
 
 \subsection{Network Interfaces}
 % STATUS: 0
-% TODO: write
+% TODO: write or remove?
 TODO
 
 % ==============================================================================
