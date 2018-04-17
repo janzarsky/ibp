@@ -619,10 +619,6 @@ policy, it only logs actions. In \emph{disabled} mode, SELinux is turned off.
 %     2.14.7 Conditional Policy                                         ?
 %     2.14.8 Binary Policy                                              Y
 %     2.14.9 Policy Versions                                            Y
-% 4.17 MODULAR POLICY SUPPORT STATEMENTS                                Y
-%     4.17.1 module                                                     Y
-%     4.17.2 require                                                    Y
-%     4.17.3 optional                                                   Y
 \section{SELinux Policy}
 \label{policy}
 
@@ -645,53 +641,6 @@ Example of an allow rule:
 # This is an allow rule
 allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
 \end{lstlisting}
-
-\subsection{Policy Modules}
-\label{modules}
-
-The \texttt{module} and \texttt{require} statements are used to support policy
-modules. Every policy module must start with the \texttt{module} statement.
-Syntax:
-\begin{lstlisting}
-module module_name version;
-\end{lstlisting}
-Where:
-\begin{description}
-    \item [\texttt{module\_name}] Name of the module.
-    \item [\texttt{version}] Version number in format \texttt{X.Y.Z}.
-\end{description}
-This name is used to refer to the module when using userspace utilities. For
-example this command is used to remove module from policy:
-\begin{lstlisting}
-$ semodule -r module_name
-\end{lstlisting}
-
-The \texttt{require} statement indicates what parts of policy are imported from
-other modules or base policy. Syntax:
-\begin{lstlisting}
-require { require_list }
-\end{lstlisting}
-Where:
-\begin{description}
-    \item [\texttt{require\_list}] One or more keywords followed by identifier
-        separated by semicolon. Valid keywords are: \texttt{role},
-        \texttt{type}, \texttt{attribute}, \texttt{user}, \texttt{bool},
-        \texttt{sensitivity}, \texttt{category}, \texttt{class}.
-\end{description}
-
-Example of \texttt{module} and \texttt{require} statements:
-\begin{lstlisting}
-module my_module 1.2.0;
-
-require {
-    type nscd_t, nscd_var_run_t;
-    class nscd { getserv getpwd getgrp gethost shmempwd shmemgrp
-        shmemhost shmemserv };
-}
-\end{lstlisting}
-When loading this module, some other module or base policy must define types
-\texttt{nscd\_t} and \texttt{nscd\_var\_run\_t}, and class \texttt{nscd} with
-specified permissions.
 
 % ----------------------------------------
 % TOPIC: user, role and type statements
@@ -722,14 +671,33 @@ specified permissions.
 %     4.7.6 type_transition                                             Y
 %     4.7.7 type_change                                                 N
 %     4.7.8 type_member                                                 N
+% user role attribute_role roleattribute allow role_transition type
+% attribute typeattribute
+% user -- role -- type
+% role - group: attribute_role, rule: roleattribute
+% type - group: attribute, typeattribute
 
 % TODO: improve
 \subsection{User, Role and Type Statements}
 
-SELinux assigns context to objects in the system. A \emph{SELinux context}
-consists of user, role, type, and optionally MLS range. In order to assign
-objects security contexts, all parts of the context must be declared in policy
-using user, role, and type statements.
+To support mechanisms such as Type Enforcement, Role-Based Access Control, and
+Multi-Level Security, SELinux assigns subjects and objects user, role, and type
+identifiers. SELinux users are defined using the \texttt{user} statement. Users
+are assigned one or more roles. SELinux roles are defined using the
+\texttt{role} statement. Roles are assigned types that they can access. SELinux
+types are declared using the \texttt{type} statement.
+
+\begin{figure}
+    \centering
+    \label{fig:userroletype}
+    \input{./figures/user-role-type.tex}
+    \caption{Relationship of user, role, and type statements}
+\end{figure}
+
+Roles can be grouped together using the \texttt{attribute\_role} and
+\texttt{roleattribute} statements. Types can also be grouped together using the
+\texttt{attribute} and \texttt{typeattribute} statements. Type aliases can be
+defined using \texttt{typealias} statements.
 
 \subsubsection{User Statements}
 The \texttt{user} statement declares an identifier for an SELinux user. Syntax:
@@ -899,6 +867,61 @@ and object class, all ioctl calls are allowed. With additional
 \texttt{allowxperm} rules are allowed. The \texttt{allowxperm} rule alone has
 no effect, for ioctl filtering, both \texttt{allow} and \texttt{allowxperm}
 rules must be present.
+
+% ----------------------------------------
+% TOPIC: Policy modules
+% ----------------------------------------
+% STATUS: 3
+% 4.17 MODULAR POLICY SUPPORT STATEMENTS                                Y
+%     4.17.1 module                                                     Y
+%     4.17.2 require                                                    Y
+%     4.17.3 optional                                                   Y
+\subsection{Policy Modules}
+\label{modules}
+
+The \texttt{module} and \texttt{require} statements are used to support policy
+modules. Every policy module must start with the \texttt{module} statement.
+Syntax:
+\begin{lstlisting}
+module module_name version;
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{module\_name}] Name of the module.
+    \item [\texttt{version}] Version number in format \texttt{X.Y.Z}.
+\end{description}
+This name is used to refer to the module when using userspace utilities. For
+example this command is used to remove module from policy:
+\begin{lstlisting}
+$ semodule -r module_name
+\end{lstlisting}
+
+The \texttt{require} statement indicates what parts of policy are imported from
+other modules or base policy. Syntax:
+\begin{lstlisting}
+require { require_list }
+\end{lstlisting}
+Where:
+\begin{description}
+    \item [\texttt{require\_list}] One or more keywords followed by identifier
+        separated by semicolon. Valid keywords are: \texttt{role},
+        \texttt{type}, \texttt{attribute}, \texttt{user}, \texttt{bool},
+        \texttt{sensitivity}, \texttt{category}, \texttt{class}.
+\end{description}
+
+Example of \texttt{module} and \texttt{require} statements:
+\begin{lstlisting}
+module my_module 1.2.0;
+
+require {
+    type nscd_t, nscd_var_run_t;
+    class nscd { getserv getpwd getgrp gethost shmempwd shmemgrp
+        shmemhost shmemserv };
+}
+\end{lstlisting}
+When loading this module, some other module or base policy must define types
+\texttt{nscd\_t} and \texttt{nscd\_var\_run\_t}, and class \texttt{nscd} with
+specified permissions.
 
 % ----------------------------------------
 % TOPIC: Conditional policy
