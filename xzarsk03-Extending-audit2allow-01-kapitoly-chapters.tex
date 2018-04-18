@@ -2155,16 +2155,42 @@ rules for every operation in access vector. New configuration method was added,
 \texttt{set\_gen\_xperms()}, to specify whether the extended permission AV rules
 should be generated.
 
+% ------------------------------------------------------------------------------
+\section{Mislabeled Files}
+The audit2allow utility was extended to check the default context of file if the
+\texttt{path} field is present in the AVC denial message. The \texttt{audit} and
+\texttt{policygen} modules were modified.
+
+\subsection{Parsing Path}
+The \texttt{audit} module was modified to parse the \texttt{path} field in AVC
+denial messages. Only paths found directly in AVC denial messages will be
+analyzed later by matchpathcon.
+
+\subsection{Checking Default Context}
+In \texttt{policygen} module, new option was added to the
+\texttt{PolicyGenerator} to turn on or off checking of mislabeled files.
+Checking is turned on by default. Every AVC message from every access vector is
+checked whether it contains the path. Default context of the path is then obtain
+via \texttt{selinux.matchpathcon()} function. Target context of the access
+vector is then compared with default context. In case of difference, comment is
+added to warn user about mislabeled file. For example:
+\begin{lstlisting}
+#============= src_t ==============
+
+#!!!! The '/etc/myfile' file has other than default context
+allow src_t tgt_t:file getattr;
+\end{lstlisting}
+
 % ==============================================================================
 \chapter{Functional Testing}
 % STATUS: 3
 % TODO: write about tests, chosen coverage
 The functionality of implemented features to audit2allow was tested by extending
-existing unit tests and writing integration tests that are focused on operation
-with SELinux and Linux Audit system.
+existing unit tests and writing integration tests that are focused on
+interoperation between audit2allow, SELinux, and Linux Audit system.
 
 % ------------------------------------------------------------------------------
-\section{Unit Tests}
+\section{Unit Tests of Extended Permissions}
 % STATUS: 1
 % TODO: write more stuff
 
@@ -2273,11 +2299,40 @@ The \texttt{XpermSet} and \texttt{AVExtRule} classes were added to represent
 extended permission access vector rules.
 
 % ------------------------------------------------------------------------------
-\section{Integration Tests}
-% STATUS: 0
+\section{Integration Tests of Extended Permissions}
+% STATUS: 2
 % TODO: write
 
-TODO
+Integration tests were written to check audit2allow functionality in real world
+situation. First, SELinux policy module with extended permission AV rules is
+loaded. Testing program then tries to call ioctl on a file with different
+parameters. AVC denials are collected and sent to audit2allow with different
+command-line options.
+
+% ------------------------------------------------------------------------------
+\section{Unit Tests of Mislabeled Files}
+% STATUS: 2
+% TODO: write more stuff
+
+New unit tests were written to cover new functionality.
+
+\subsection{Testing \texttt{audit} Module}
+In this module, the \texttt{AVCMessage.from\_split\_string()} method was
+extended to parse path field. Test cases:
+\begin{description}
+    \item [\texttt{test\_path()}] Test that the \texttt{path} field is parsed.
+    \item [\texttt{test\_path\_without()}] Test message without the \texttt{path}
+        field.
+\end{description}
+
+\subsection{Testing \texttt{policygen} Module}
+In this module, new configuration option was added to the
+\texttt{PolicyGenerator}.
+\begin{description}
+    \item [\texttt{test\_check\_mislabeled\_nothing()}] Test no mislabeled
+        files.
+    \item [\texttt{test\_check\_mislabeled\_one()}] Test one mislabeled file.
+\end{description}
 
 \chapter{Conclusion}
 % STATUS: 0
