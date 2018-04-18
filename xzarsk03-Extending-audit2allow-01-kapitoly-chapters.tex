@@ -1821,85 +1821,6 @@ Several improvements to audit2allow were proposed:
 \end{enumerate}
 
 % ------------------------------------------------------------------------------
-\section{Mislabeled Files}
-% STATUS: 3
-SELinux relies on files that are correctly labeled. Sometimes, files get
-mislabeled, processes cannot access these files and causes AVC denials. When
-used for troubleshooting, audit2allow suggests adding new rules to the policy
-instead of changing label of the file.
-
-\subsection{AVC Denial Messages Caused by Mislabeled Files}
-% STATUS: 3
-When a process is trying to access file that is mislabeled, the operation is
-usually denied (unless the process has access also to the new label). For
-example, when user moves content from \texttt{/root} directory to the
-\texttt{/var/www/html/} directory, files retain their original label:
-\begin{lstlisting}
-$ ls /var/www/html
-unconfined_u:object_r:httpd_sys_content_t:s0 index.html
-       unconfined_u:object_r:admin_home_t:s0 my_file.html
-\end{lstlisting}
-File \texttt{index.html} has correct label, but file \texttt{my\_file.html} has
-incorrect label. The \texttt{httpd} process cannot access files labeled
-\texttt{admin\_home\_t}, because there are no allow rules in the policy for this
-operation:
-\begin{lstlisting}
-$ sesearch -A -s httpd_t -t admin_home_t -c file -p read
-(nothing)
-\end{lstlisting}
-
-As a result, when trying to view \texttt{my\_file.html}, similar AVC denial
-message is generated:
-\begin{lstlisting}
-type=AVC msg=audit(1226270358.848:238): avc:  denied  { read }
-for  pid=13349 comm="httpd" ino=8390105 name="my_file.html"
-dev=dm-0 ino=218171 scontext=system_u:system_r:httpd_t:s0
-tcontext=system_u:object_r:admin_home_t:s0 tclass=file
-\end{lstlisting}
-In this case, there is the \texttt{ino} field, which contains inode number
-associated with the denial, and the \texttt{name} field, which contains name of
-the file (but not the full path). In cases of \texttt{getattr} denial, the
-\texttt{path} field is present. AVC denial may also happen because a process
-cannot access list of files in directory.
-
-\subsection{Solving Problems With Mislabeled Files}
-The restorecon utility uses file contexts files to get default security contexts
-of files (see section \ref{filecontexts}). For example, when file
-\texttt{/var/www/html/my\_file.html} is mislabeled, the denial should be fixed
-by running restorecon on the file:
-\begin{lstlisting}
-# restorecon -v /var/www/html/my_file.html
-Relabeled /var/www/html/my_file.html from unconfined_u:object_r:admin_home_t:s0
-to unconfined_u:object_r:httpd_sys_content_t:s0
-\end{lstlisting}
-
-When using audit2allow, the following rules are generated:
-\begin{lstlisting}
-allow httpd_t admin_home_t:file getattr;
-\end{lstlisting}
-This means that the \texttt{httpd} process would gain access to all root's
-files. This solution is not secure because it is adding unnecessary rules to the
-policy and it does not solve the real problem.
-
-\subsection{Improvement to audit2allow}
-% STATUS: 2
-The audit2allow utility should detect when the AVC message is caused by
-mislabeled file and suggest solution using the restorecon utility.
-
-There are three fields in the AVC message that can be used to detect if the file
-was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
-\texttt{path} field is present, audit2allow can run \texttt{matchpathcon} to get
-the default context of the file and compare it with actual file context.
-
-In many cases, the \texttt{path} field is not present, only inode number and
-name of the file (without full path). In this case it is difficult to find the
-full path of the file. Ryan Hallisey created solution \cite{restoreconpullreq}
-that is using \texttt{locate} utility to get all files matching the name and
-then stat these files to get the inode number. This solution is only partial, it
-does not work on files that are not indexed in the database created by
-\texttt{updatedb}.
-
-% ------------------------------------------------------------------------------
 \section{Extended Permission Access Vector Rules}
 % STATUS: 3
 Since policy version 30, SELinux policy supports extended permission access
@@ -1987,6 +1908,85 @@ contains the \texttt{ioctlcmd} field. For example:
 #!!!! This av rule may have been overriden by extended permission av rule
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
+
+% ------------------------------------------------------------------------------
+\section{Mislabeled Files}
+% STATUS: 3
+SELinux relies on files that are correctly labeled. Sometimes, files get
+mislabeled, processes cannot access these files and causes AVC denials. When
+used for troubleshooting, audit2allow suggests adding new rules to the policy
+instead of changing label of the file.
+
+\subsection{AVC Denial Messages Caused by Mislabeled Files}
+% STATUS: 3
+When a process is trying to access file that is mislabeled, the operation is
+usually denied (unless the process has access also to the new label). For
+example, when user moves content from \texttt{/root} directory to the
+\texttt{/var/www/html/} directory, files retain their original label:
+\begin{lstlisting}
+$ ls /var/www/html
+unconfined_u:object_r:httpd_sys_content_t:s0 index.html
+       unconfined_u:object_r:admin_home_t:s0 my_file.html
+\end{lstlisting}
+File \texttt{index.html} has correct label, but file \texttt{my\_file.html} has
+incorrect label. The \texttt{httpd} process cannot access files labeled
+\texttt{admin\_home\_t}, because there are no allow rules in the policy for this
+operation:
+\begin{lstlisting}
+$ sesearch -A -s httpd_t -t admin_home_t -c file -p read
+(nothing)
+\end{lstlisting}
+
+As a result, when trying to view \texttt{my\_file.html}, similar AVC denial
+message is generated:
+\begin{lstlisting}
+type=AVC msg=audit(1226270358.848:238): avc:  denied  { read }
+for  pid=13349 comm="httpd" ino=8390105 name="my_file.html"
+dev=dm-0 ino=218171 scontext=system_u:system_r:httpd_t:s0
+tcontext=system_u:object_r:admin_home_t:s0 tclass=file
+\end{lstlisting}
+In this case, there is the \texttt{ino} field, which contains inode number
+associated with the denial, and the \texttt{name} field, which contains name of
+the file (but not the full path). In cases of \texttt{getattr} denial, the
+\texttt{path} field is present. AVC denial may also happen because a process
+cannot access list of files in directory.
+
+\subsection{Solving Problems With Mislabeled Files}
+The restorecon utility uses file contexts files to get default security contexts
+of files (see section \ref{filecontexts}). For example, when file
+\texttt{/var/www/html/my\_file.html} is mislabeled, the denial should be fixed
+by running restorecon on the file:
+\begin{lstlisting}
+# restorecon -v /var/www/html/my_file.html
+Relabeled /var/www/html/my_file.html from unconfined_u:object_r:admin_home_t:s0
+to unconfined_u:object_r:httpd_sys_content_t:s0
+\end{lstlisting}
+
+When using audit2allow, the following rules are generated:
+\begin{lstlisting}
+allow httpd_t admin_home_t:file getattr;
+\end{lstlisting}
+This means that the \texttt{httpd} process would gain access to all root's
+files. This solution is not secure because it is adding unnecessary rules to the
+policy and it does not solve the real problem.
+
+\subsection{Improvement to audit2allow}
+% STATUS: 2
+The audit2allow utility should detect when the AVC message is caused by
+mislabeled file and suggest solution using the restorecon utility.
+
+There are three fields in the AVC message that can be used to detect if the file
+was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
+\texttt{path} field is present, audit2allow can run \texttt{matchpathcon} to get
+the default context of the file and compare it with actual file context.
+
+In many cases, the \texttt{path} field is not present, only inode number and
+name of the file (without full path). In this case it is difficult to find the
+full path of the file. Ryan Hallisey created solution \cite{restoreconpullreq}
+that is using \texttt{locate} utility to get all files matching the name and
+then stat these files to get the inode number. This solution is only partial, it
+does not work on files that are not indexed in the database created by
+\texttt{updatedb}.
 
 % ------------------------------------------------------------------------------
 \section{Labeling Network Ports, Nodes and Interfaces}
