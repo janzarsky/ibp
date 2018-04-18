@@ -999,7 +999,7 @@ the policy (either in base policy or in another policy module).
 SELinux policy allows turning on and off set of policy statements without the
 need for reloading policy. Conditional policy is defined using the \texttt{bool}
 statement that defines a condition. Then a \texttt{if}/\texttt{else} construct
-is used. Example:
+is used to mark statements that depends on the condition. Example:
 \begin{lstlisting}[language=te]
 bool allow_execmem false;
 
@@ -1031,11 +1031,12 @@ Booleans can be turned on and off using the \texttt{semanage boolean} command.
 SELinux policy supports labeling of the following network objects:
 \begin{description}
     \item [Network ports] TCP or UDP port numbers.
-    \item [Network nodes] Represented by IP addresses and subnet masks.
+    \item [Network nodes] Nodes represented by IP addresses and subnet masks.
     \item [Network interfaces] Interfaces managed by \texttt{ifconfig} (e.g.
         \texttt{eth0}).
 \end{description}
 
+\subsubsection{Network Interfaces}
 The \texttt{netifcon} statement labels network interface statements. Syntax:
 \begin{lstlisting}[language=te]
 netifcon netif_id netif_context packet_context
@@ -1046,13 +1047,15 @@ Where:
         \texttt{eth0}).
     \item [\texttt{netif\_context}] Security context of the interface.
     \item [\texttt{packet\_context}] Security context of the packets. This is
-        not currently used.
+        context is not currently used (kernel does not support labeling of
+        packets).
 \end{description}
 Example:
 \begin{lstlisting}[language=te]
 netifcon eth0 system_u:object_r:netif_t:s0 system_u:object_r:netif_t:s0
 \end{lstlisting}
 
+\subsubsection{Network Nodes}
 The \texttt{nodecon} statement labels network addresses. Syntax:
 \begin{lstlisting}[language=te]
 nodecon subnet netmask node_context
@@ -1068,6 +1071,7 @@ Example:
 nodecon ff00:: ff00:: system_u:object_r:multicast_node_t:s0
 \end{lstlisting}
 
+\subsubsection{Network Ports}
 The \texttt{portcon} statement labels TCP and UDP ports. Syntax:
 \begin{lstlisting}[language=te]
 portcon protocol port_number port_context
@@ -1125,8 +1129,9 @@ $ ls -Z
 unconfined_u:object_r:user_home_t:s0    testdir
 unconfined_u:object_r:user_home_t:s0    testfile
 \end{lstlisting}
-Labels are stored in extended attributes in the security namespace
-\cite{xattrman}:
+Labels are stored in \emph{extended attributes} in the security namespace
+\cite{xattrman}. Extended attributes associated with a file can be viewed using
+the getfattr command.
 \begin{lstlisting}
 $ getfattr -n security.selinux testfile
 # file: testfile
@@ -1134,19 +1139,17 @@ security.selinux="unconfined_u:object_r:user_home_t:s0"
 \end{lstlisting}
 
 \subsection{Temporary Changes}
-The \texttt{chcon} command changes the SELinux context of files
-\cite{selinuxguide}. User must have the permissions to relabel files. The
-changes made by \texttt{chcon} are overwritten by a file system relabel or
-running of \texttt{restorecon}.
+The chcon command changes the SELinux context of files \cite{selinuxguide}. User
+must have the permission to relabel files. The changes made by chcon are
+overwritten by a file system relabel or running of restorecon.
 
 \subsection{Type Transition}
 There are rules in policy that specifies the context of files created by
-processes. For example, when process running with \texttt{httpd\_t} context
-creates a file in directory with \texttt{var\_run\_t} context, the file will get
-context \texttt{httpd\_var\_run\_t}:
+processes. For example, when process running with the \texttt{httpd\_t} context
+creates a file in directory with the \texttt{var\_run\_t} context, the file will
+get context \texttt{httpd\_var\_run\_t}:
 % TODO explain
-\begin{lstlisting}
-$ sesearch -T -s httpd_t -t var_run_t -c file
+\begin{lstlisting}[language=te]
 type_transition httpd_t var_run_t:file httpd_var_run_t;
 \end{lstlisting}
 
@@ -1155,7 +1158,6 @@ type_transition httpd_t var_run_t:file httpd_var_run_t;
 There are situations when files get label that is different than the default
 one:
 \begin{enumerate}
-    % TODO fix
     \item When moving files, label is preserved. This does not happen when
         copying files because new file is always created.
     \item When SELinux is disabled, labels are not assigned to files.
@@ -1163,7 +1165,7 @@ one:
         may be some files left with type that is no longer defined in policy.
 \end{enumerate}
 For these situations, there is a \texttt{file\_contexts} file which specifies
-default contexts for every file. Example:
+default contexts for every file based on its path. For example:
 \begin{lstlisting}
 /run/.*         --  system_u:object_r:var_run_t:s0
 /var/.*	        --  system_u:object_r:var_t:s0
@@ -1174,11 +1176,14 @@ default contexts for every file. Example:
 /dev/[0-9].*    -c  system_u:object_r:usb_device_t:s0
 /dev/.*tty[^/]* -c  system_u:object_r:tty_device_t:s0
 \end{lstlisting}
-The \texttt{-{}-} is means every file type, \texttt{-c} means character device.
-The \texttt{restorecon} utility is used to restore security contexts on files.
+The \texttt{-{}-} means that the context should be applied to all file types
+(e.g., files, directories, sockets). The \texttt{-c} means that the context
+should be applied only when the file is a character device. Utilities such as
+restorecon and setfiles uses the \texttt{file\_contexts} configuration file to
+relabel files on the filesystem.
 
-\subsubsection{Building File Context Files}
-Utilities such as \texttt{restorecon} or \texttt{setfiles} uses several files to
+\subsubsection{Building File Context Configuration Files}
+Utilities such as restorecon and setfiles uses several files to
 restore default contexts of files \cite[pp.~165--167]{tsn}:
 \begin{description}
     \item [\texttt{file\_contexts}] Contains default contexts for files.
@@ -1202,13 +1207,13 @@ restore default contexts of files \cite[pp.~165--167]{tsn}:
 These files are created when building policy, see figure \ref{fig:filecontexts}.
 All \texttt{.fc} files from base policy and from policy modules are used to
 build the \texttt{file\_contexts.template} file. This file may contain rules
-that has special keywords, such as \texttt{HOME\_ROOT}, \texttt{HOME\_DIR}, or
-\texttt{USER}. All rules without special keyword are used to build the
-\texttt{file\_contexts} file used directly by utilities such as
-\texttt{restorecon} or \texttt{setfiles}.
+that has special keywords inside their path, such as \texttt{HOME\_ROOT},
+\texttt{HOME\_DIR}, or \texttt{USER}. All rules without special keywords are
+used to build the \texttt{file\_contexts} file used directly by utilities such
+as restorecon or setfiles.
 
 Rules with special keywords are used to build the \texttt{homedir\_template}
-file. These rules are asssociated with users home directories and needs to be
+file. These rules are asssociated with user home directories and need to be
 expanded for individual users using the \texttt{genhomedircon} utility. For
 example the following \texttt{homedir\_template} entry:
 \begin{lstlisting}
@@ -1220,12 +1225,10 @@ would be expanded to the following rules:
 /root/\.ssh(/.*)?           system_u:object_r:ssh_home_t:s0
 \end{lstlisting}
 Expanded rules are then stored in the \texttt{file\_contexts.homedirs} file and
-used by \texttt{restorecon} and \texttt{setfiles} utilities
-\cite[pp.~134--140]{tsn}.
+used by restorecon and setfiles utilities \cite[pp.~134--140]{tsn}.
 
 \subsection{Changing File Context Files}
-
-The \texttt{file\_contexts} file can be changed using the \texttt{semanage
+The \texttt{file\_contexts.local} file can be changed using the \texttt{semanage
 fcontext} command \cite{selinuxguide}. For example:
 \begin{lstlisting}
 # semanage fcontext -a -t samba_share_t /etc/myfile
@@ -1860,10 +1863,10 @@ the file (but not the full path). In cases of \texttt{getattr} denial, the
 cannot access list of files in directory.
 
 \subsection{Solving Problems With Mislabeled Files}
-The \texttt{restorecon} utility uses file contexts files to get default security
-contexts of files (see section \ref{filecontexts}). For example, when file
+The restorecon utility uses file contexts files to get default security contexts
+of files (see section \ref{filecontexts}). For example, when file
 \texttt{/var/www/html/my\_file.html} is mislabeled, the denial should be fixed
-by running \texttt{restorecon} on the file:
+by running restorecon on the file:
 \begin{lstlisting}
 # restorecon -v /var/www/html/my_file.html
 Relabeled /var/www/html/my_file.html from unconfined_u:object_r:admin_home_t:s0
@@ -1881,7 +1884,7 @@ policy and it does not solve the real problem.
 \subsection{Improvement to audit2allow}
 % STATUS: 2
 The audit2allow utility should detect when the AVC message is caused by
-mislabeled file and suggest solution using the \texttt{restorecon} utility.
+mislabeled file and suggest solution using the restorecon utility.
 
 There are three fields in the AVC message that can be used to detect if the file
 was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
