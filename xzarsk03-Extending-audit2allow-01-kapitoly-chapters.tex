@@ -2074,8 +2074,17 @@ TODO
 % ==============================================================================
 \chapter{Implementation}
 % STATUS: 2
-From the list of possible improvements to audit2allow, extended permissions were
-implemented.
+From the list of possible improvements to audit2allow, the following
+improvements were implemented:
+\begin{itemize}
+    \item Support for extended permissions. The audit2allow utility can now
+        detect denials that may be caused by extended permission AV rules. With
+        the \texttt{-{}-xperms} option, audit2allow generates extended AV rules.
+    \item Checking mislabeled files. The audit2allow utility now parses the
+        \texttt{path} field in AVC denial messages and checks if files have
+        default context. When the context in AVC denial message is different
+        than the default one, audit2allow produces warning.
+\end{itemize}
 
 % ------------------------------------------------------------------------------
 \section{Extended permissions}
@@ -2198,6 +2207,7 @@ Unit tests were extended to ensure that the new functionality does not break
 existing code. New test cases were added to test the new features.
 
 \subsection{Testing \texttt{audit} Module}
+% STATUS: 3
 In this module, audit message parser was modified to recognize new fields and to
 convert the fields to extended permissions.
 
@@ -2224,6 +2234,7 @@ Test cases:
 \end{description}
 
 \subsection{Testing \texttt{access} Module}
+% STATUS: 3
 In this module, classes \texttt{AccessVector} and \texttt{AccessVectorSet} were
 extended. Tests are implemented in the \texttt{test\_access.py} module.
 
@@ -2301,7 +2312,6 @@ extended permission access vector rules.
 % ------------------------------------------------------------------------------
 \section{Integration Tests of Extended Permissions}
 % STATUS: 2
-% TODO: write
 
 Integration tests were written to check audit2allow functionality in real world
 situation. First, SELinux policy module with extended permission AV rules is
@@ -2317,6 +2327,7 @@ command-line options.
 New unit tests were written to cover new functionality.
 
 \subsection{Testing \texttt{audit} Module}
+% STATUS: 2
 In this module, the \texttt{AVCMessage.from\_split\_string()} method was
 extended to parse path field. Test cases:
 \begin{description}
@@ -2326,6 +2337,7 @@ extended to parse path field. Test cases:
 \end{description}
 
 \subsection{Testing \texttt{policygen} Module}
+% STATUS: 2
 In this module, new configuration option was added to the
 \texttt{PolicyGenerator}.
 \begin{description}
