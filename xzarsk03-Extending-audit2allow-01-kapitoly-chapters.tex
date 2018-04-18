@@ -239,7 +239,7 @@ Smack and TOMOYO Linux.
 
 \subsubsection{SELinux and MAC}
 % TODO: image with MAC hooks
-When running a SELinux-enabled system, when a userspace process makes a system
+When running an SELinux-enabled system, when a userspace process makes a system
 call, standard file permissions are checked first. Then the Linux Security
 Module hooks calls security checks in SELinux.
 
@@ -251,7 +251,7 @@ Module hooks calls security checks in SELinux.
 \subsection{SELinux Users}
 \label{selinuxuser}
 SELinux uses its own user names that are different from standard Linux user
-names \cite[p.~24]{tsn}. Every Linux user is associated to a SELinux user. For
+names \cite[p.~24]{tsn}. Every Linux user is associated to an SELinux user. For
 example, Linux user \texttt{root} is mapped to SELinux user
 \texttt{unconfined\_u} on Fedora 27. There is a special SELinux user that is
 not mapped to any user: \texttt{system\_u}.
@@ -1702,7 +1702,7 @@ printing statements in the \texttt{output} module.
 
 The \texttt{IdSet} class represents set of arbitrary identifiers and is used by
 many statements for storing permissions and other sets. The
-\texttt{SecurityContext} class represents a SELinux security context. Classes
+\texttt{SecurityContext} class represents an SELinux security context. Classes
 such as \texttt{TypeAttribute}, \texttt{RoleAttribute}, \texttt{Role},
 \texttt{Type}, and others represent policy statements as described in section
 \ref{policy} and are used mainly for interface generation.
