@@ -813,8 +813,8 @@ typealias type_id alias alias_id;
 %     4.9.4 neverallow                                                  Y
 \subsection{Access Vector Rules}
 \label{avrules}
-The AV rules supports type enforcement within SELinux. They control what access
-do processes get. The \texttt{allow} rule grants process an access to an object.
+The AV rules support type enforcement within SELinux. They control what access
+do processes get. The \texttt{allow} rule grants an access to an object.
 Syntax:
 \begin{lstlisting}[language=te]
 allow source_type target_type:obj_class perm_set;
@@ -841,11 +841,11 @@ In this example, processes running as \texttt{httpd\_t} are allowed to
 \texttt{getattr}, \texttt{open}, and \texttt{read} files labeled as
 \texttt{samba\_share\_t}.
 
-There are three other AV rules that follow the same syntax as the \texttt{allow}
-rule:
+There are three other AV rules that follow the same syntax pattern of the
+\texttt{allow} rule:
 \begin{description}
-    \item [\texttt{dontaudit}] Stops auditing of denials. It is used when the
-        denial is expected to happen and does not cause any issues. The
+    \item [\texttt{dontaudit}] Stops auditing (logging) of denials. It is used
+        when the denial is expected to happen and does not cause any issues. The
         \texttt{dontaudit} rules help to keep audit logs clean.
     \item [\texttt{auditallow}] Audits the event. The \texttt{auditallow} rule
         itself does not allow the operation, so the rule must appear together
@@ -854,6 +854,10 @@ rule:
         this rule is found somewhere in policy. It is used for marking rules
         that may be unsecure.
 \end{description}
+Internally, lists of permissions defined by AV rules are stored in memory as
+bit arrays that are 32~bits long. Because of this limitation, object classses
+cannot have more than 32 different permissions. Extended permission AV rules
+were introduced to overcome this issue.
 
 % ----------------------------------------
 % TOPIC: Extended permission AV rules
@@ -862,29 +866,28 @@ rule:
 \subsection{Extended Permission Access Vector Rules}
 \label{extavrules}
 
-Since policy version 30, there are extended permission access vector (AV) rules
-that expand the permission sets. Standard access vector rules operates with
-32~bit permission sets, extended permission AV rules adds arbitrary number of
-256~bit increments. Extended permission AV rules are currently (as of policy
-version 31) used only for ioctl whitelisting, but they provide generic tool that
-can be used in future for more granular control over an operation
-\cite{selinuxmailxperms}.
+Since policy version 30, there are extended permission access vector rules that
+expand the permission sets. Standard access vector rules operates with 32~bit
+permission sets, extended permission AV rules adds arbitrary number of 256~bit
+increments. Extended permission AV rules are currently (as of policy version 31)
+used only for ioctl whitelisting, but they provide generic tool that can be used
+in future for more granular control over an operation \cite{selinuxmailxperms}.
 
-The format of extended permission AV rules is \cite{xpermrules}:
+Syntax of extended permission AV rules\cite{xpermrules}:
 \begin{lstlisting}[language=te]
-rule_name source_type target_type : class operation xperm_set;
+rule_name source_type target_type : obj_class operation xperm_set;
 \end{lstlisting}
-where:
+Where:
 \begin{description}
     \item [\texttt{rule\_name}] is one of the following: \texttt{allowxperm},
         \texttt{dontauditxperm}, \texttt{auditallowxperm}, or
         \texttt{neverallowxperm}. The meaning is same as standard AV rules. The
         \texttt{allowxperm} rule allows the access, the \texttt{dontauditxperm}
-        rule denies and logs the access, the \texttt{auditallowxperm} allows and
-        logs the access, and the \texttt{neverallowxperm} rules is a compiler
+        rule denies and logs the access, the \texttt{auditallowxperm} rule logs
+        the access, and the \texttt{neverallowxperm} rules is a compiler
         statement to prevent unsecure rules from appearing in policy.
-    \item [\texttt{source\_type}, \texttt{target\_type}, \texttt{class}] are
-        source type, target type, and object class, same as with standard AV
+    \item [\texttt{source\_type}, \texttt{target\_type}, \texttt{obj\_class}]
+        are source type, target type, and object class, same as with standard AV
         rule.
     \item [\texttt{operation}] is a single keyword defining the operation to be
         implemented by the rule. As of policy version 31, only the
@@ -896,9 +899,9 @@ where:
         written in decimal or hexadecimal form, for example \texttt{42} or
         \texttt{0x2a}. Multiple values must be separated by space and enclosed
         in braces, for example \texttt{\{ 1 2 3 \}}. Value ranges are supported,
-        for example \texttt{50-60}. To allow all values except for those
-        explicitly listed, the complement operator can be used, for example
-        \texttt{\textasciitilde \{ 1 2 3 \}}.
+        for example \texttt{50-60} (both 50 and 60 are included in the range).
+        To allow all values except for those explicitly listed, the complement
+        operator can be used, for example \texttt{\textasciitilde \{ 1 2 3 \}}.
 \end{description}
 
 Example of an extended permission AV rule:
@@ -911,8 +914,11 @@ any number from 50 to 60.
 
 \subsubsection{Filtering \texttt{ioctl} System Call}
 Filtering ioctl calls is as of policy version 31 the only implementation of
-extended permission AV rules. For ioctl calls, the operation keyword is
-\texttt{ioctl}.
+extended permission AV rules. The ioctl system call accepts three parameters:
+file descriptor, request number, and a pointer \cite{ioctl}. Extended permission
+AV rules allows filtering based on the request number. For ioctl calls, the
+\texttt{operation} keyword is \texttt{ioctl} and numbers in the
+\texttt{xperm\_set} represents request numbers.
 
 When there is only \texttt{allow} rule for particular source and target context
 and object class, all ioctl calls are allowed. With additional
@@ -972,9 +978,9 @@ require {
         shmemhost shmemserv };
 }
 \end{lstlisting}
-When loading this module, some other module or base policy must define types
-\texttt{nscd\_t} and \texttt{nscd\_var\_run\_t}, and class \texttt{nscd} with
-specified permissions.
+When loading this module, types \texttt{nscd\_t} and \texttt{nscd\_var\_run\_t},
+and class \texttt{nscd} with specified permissions must be defined somewhere in
+the policy (either in base policy or in another policy module).
 
 % ----------------------------------------
 % TOPIC: Conditional policy
