@@ -912,7 +912,7 @@ This rule allows a process running as \texttt{my\_app\_t} to call \texttt{ioctl}
 on a TCP socket labeled \texttt{my\_socket\_t} with parameters 20, 30, 64, or
 any number from 50 to 60.
 
-\subsubsection{Filtering \texttt{ioctl} System Call}
+\subsubsection{Filtering the ioctl System Call}
 Filtering ioctl calls is as of policy version 31 the only implementation of
 extended permission AV rules. The ioctl system call accepts three parameters:
 file descriptor, request number, and a pointer \cite{ioctl}. Extended permission
@@ -1091,7 +1091,7 @@ portcon tcp 22 system_u:object_r:ssh_port_t:s0
 % TOPIC: Interfaces
 % ----------------------------------------
 % STATUS: 0
-\subsection{TODO: Interfaces}
+\subsection{Interfaces}
 \label{interfaces}
 TODO
 
@@ -1970,7 +1970,7 @@ This means that the \texttt{httpd} process would gain access to all root's
 files. This solution is not secure because it is adding unnecessary rules to the
 policy and it does not solve the real problem.
 
-\subsection{Improvement to audit2allow}
+\subsection{Improving audit2allow}
 % STATUS: 2
 The audit2allow utility should detect when the AVC message is caused by
 mislabeled file and suggest solution using the restorecon utility.
@@ -1989,7 +1989,7 @@ does not work on files that are not indexed in the database created by
 \texttt{updatedb}.
 
 % ------------------------------------------------------------------------------
-\section{Labeling Network Ports, Nodes and Interfaces}
+\section{Labeling Network Ports, Nodes, and Interfaces}
 SELinux policy supports labeling of TCP and UDP ports, network nodes
 (represented by IP addresses and subnet masks), and network interfaces (e.g.
 \texttt{eth0}).
@@ -2087,7 +2087,7 @@ improvements were implemented:
 \end{itemize}
 
 % ------------------------------------------------------------------------------
-\section{Extended permissions}
+\section{Extended Permissions}
 % STATUS: 3
 Modules \texttt{audit}, \texttt{access}, \texttt{policygen}, \texttt{refpolicy}
 were modified to support extended permissions. New command-line option
@@ -2206,7 +2206,7 @@ interoperation between audit2allow, SELinux, and Linux Audit system.
 Unit tests were extended to ensure that the new functionality does not break
 existing code. New test cases were added to test the new features.
 
-\subsection{Testing \texttt{audit} Module}
+\subsection{Testing audit Module}
 % STATUS: 3
 In this module, audit message parser was modified to recognize new fields and to
 convert the fields to extended permissions.
@@ -2233,7 +2233,7 @@ Test cases:
         \texttt{ioctlcmd} field.
 \end{description}
 
-\subsection{Testing \texttt{access} Module}
+\subsection{Testing access Module}
 % STATUS: 3
 In this module, classes \texttt{AccessVector} and \texttt{AccessVectorSet} were
 extended. Tests are implemented in the \texttt{test\_access.py} module.
@@ -2295,14 +2295,14 @@ Test cases:
     \item [\texttt{test\_add()}] Test adding access vector to the set.
 \end{description}
 
-\subsection{Testing \texttt{policygen} Module}
+\subsection{Testing policygen Module}
 % STATUS: 1
 % TODO: write
 
 In this module, \texttt{PolicyGenerator} was extended to generate extended
 permission access vector modules.
 
-\subsection{Testing \texttt{refpolicy} Module}
+\subsection{Testing refpolicy Module}
 % STATUS: 1
 % TODO: write
 
@@ -2326,7 +2326,7 @@ command-line options.
 
 New unit tests were written to cover new functionality.
 
-\subsection{Testing \texttt{audit} Module}
+\subsection{Testing audit Module}
 % STATUS: 2
 In this module, the \texttt{AVCMessage.from\_split\_string()} method was
 extended to parse path field. Test cases:
@@ -2336,7 +2336,7 @@ extended to parse path field. Test cases:
         field.
 \end{description}
 
-\subsection{Testing \texttt{policygen} Module}
+\subsection{Testing policygen Module}
 % STATUS: 2
 In this module, new configuration option was added to the
 \texttt{PolicyGenerator}.
