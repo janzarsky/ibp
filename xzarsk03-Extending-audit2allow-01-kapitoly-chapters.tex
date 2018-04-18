@@ -543,7 +543,7 @@ Starting new process with different security context is called domain transition
 needs to start the Apache HTTP Server as \texttt{httpd\_t}. Apache executables
 are labeled \texttt{httpd\_exec\_t}. The following policy rule allows the
 transition:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 type_transition init_t httpd_exec_t:process httpd_t;
 \end{lstlisting}
 The \texttt{systemd} process does not need to be aware of SELinux. Because of
@@ -553,17 +553,17 @@ domain transition can happen:
 \begin{enumerate}
     \item The source domain has permission to transition into the target domain.
         For example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 allow init_t httpd_t:process transition;
 \end{lstlisting}
     \item The source domain has permission to read and execute the binary. For
         example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 allow init_t httpd_exec_t:file { execute read getattr };
 \end{lstlisting}
     \item The context of the executable needs to be set as an entry point into
         the target domain. For example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 allow httpd_t httpd_exec_t:file entrypoint;
 \end{lstlisting}
 \end{enumerate}
@@ -575,7 +575,7 @@ is required \cite[pp.~47--48]{tsn}. For example when an X server creates a file
 in the \texttt{/tmp} directory (which has context \texttt{tmp\_t}), it gets
 context \texttt{user\_tmp\_t}. This is achieved by the following
 \texttt{type\_transition} rule:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 type_transition xserver_t tmp_t:file user_tmp_t;
 \end{lstlisting}
 The X server does not need to be aware of SELinux, the kernel handles the label
@@ -637,9 +637,9 @@ SELinux policy statements starts with a statement keyword usually followed by
 several identifiers and semicolon at the end. Comments starts with a ``\#''.
 Example of an allow rule:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 # This is an allow rule
-allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
+allow httpd_t httpd_exec_t: file { ioctl read getattr lock execute open };
 \end{lstlisting}
 
 % ----------------------------------------
@@ -679,7 +679,6 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock map execute open };
 
 % TODO: improve
 \subsection{User, Role and Type Statements}
-
 To support mechanisms such as Type Enforcement, Role-Based Access Control, and
 Multi-Level Security, SELinux assigns subjects and objects user, role, and type
 identifiers. SELinux users are defined using the \texttt{user} statement. Users
@@ -701,7 +700,7 @@ defined using \texttt{typealias} statements.
 
 \subsubsection{User Statements}
 The \texttt{user} statement declares an identifier for an SELinux user. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 user seuser_id roles role_id;
 \end{lstlisting}
 Where:
@@ -709,13 +708,15 @@ Where:
     \item [\texttt{seuser\_id}] SELinux user identifier.
     \item [\texttt{role\_id}] One or more role identifiers.
 \end{description}
-
-% TODO example?
+Example:
+\begin{lstlisting}[language=te]
+user staff_u roles { system_r unconfined_r sysadm_r staff_r };
+\end{lstlisting}
 
 \subsubsection{Role Statements}
 The \texttt{role} statement either declares an identifier for an SELinux role or
 associates a role to one or more types. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 role role_id;
 role role_id types type_id;
 \end{lstlisting}
@@ -731,7 +732,7 @@ Where:
 The \texttt{type} statement declares an identifier for an SELinux type. Type
 identifiers usually ends with '\texttt{\_t}' to distinguish them from attribute
 identifiers. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 type type_id [alias alias_id] [, attribute_id];
 \end{lstlisting}
 Where:
@@ -745,7 +746,7 @@ Where:
 
 The \texttt{attribute} statement declares an identifier for a group of type
 identifiers. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 attribute attribute_id;
 \end{lstlisting}
 Where:
@@ -773,7 +774,7 @@ Where:
 
 The AV rules are basic policy rules that control what access do processes get.
 The \texttt{allow} rule grants process an access to an object. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 allow source_type target_type:class perm_set;
 \end{lstlisting}
 Where:
@@ -786,7 +787,7 @@ Where:
     \item [\texttt{perm\_set}] One or more permissions.
 \end{description}
 Example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 allow httpd_t samba_share_t:file { getattr open read };
 \end{lstlisting}
 
@@ -818,7 +819,7 @@ can be used in future for more granular control over an operation
 \cite{selinuxmailxperms}.
 
 The format of extended permission AV rules is \cite{xpermrules}:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 rule_name source_type target_type : class operation xperm_set;
 \end{lstlisting}
 where:
@@ -849,7 +850,7 @@ where:
 \end{description}
 
 Example of an extended permission AV rule:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 allowxperm my_app_t my_socket_t : tcp_socket ioctl { 20 30 0x40 50-60 };
 \end{lstlisting}
 This rule allows a process running as \texttt{my\_app\_t} to call \texttt{ioctl}
@@ -882,7 +883,7 @@ rules must be present.
 The \texttt{module} and \texttt{require} statements are used to support policy
 modules. Every policy module must start with the \texttt{module} statement.
 Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 module module_name version;
 \end{lstlisting}
 Where:
@@ -898,7 +899,7 @@ $ semodule -r module_name
 
 The \texttt{require} statement indicates what parts of policy are imported from
 other modules or base policy. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 require { require_list }
 \end{lstlisting}
 Where:
@@ -910,7 +911,7 @@ Where:
 \end{description}
 
 Example of \texttt{module} and \texttt{require} statements:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 module my_module 1.2.0;
 
 require {
@@ -941,7 +942,7 @@ SELinux policy allows turning on and off set of policy statements without the
 need for reloading policy. Conditional policy is defined using the \texttt{bool}
 statement that defines a condition. Then a \texttt{if}/\texttt{else} construct
 is used. Example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 bool allow_execmem false;
 
 if (allow_execmem) {
@@ -978,7 +979,7 @@ SELinux policy supports labeling of the following network objects:
 \end{description}
 
 The \texttt{netifcon} statement labels network interface statements. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 netifcon netif_id netif_context packet_context
 \end{lstlisting}
 Where:
@@ -990,12 +991,12 @@ Where:
         not currently used.
 \end{description}
 Example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 netifcon eth0 system_u:object_r:netif_t:s0 system_u:object_r:netif_t:s0
 \end{lstlisting}
 
 The \texttt{nodecon} statement labels network addresses. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 nodecon subnet netmask node_context
 \end{lstlisting}
 Where:
@@ -1005,12 +1006,12 @@ Where:
     \item [\texttt{node\_context}] Security context of the node.
 \end{description}
 Example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 nodecon ff00:: ff00:: system_u:object_r:multicast_node_t:s0
 \end{lstlisting}
 
 The \texttt{portcon} statement labels TCP and UDP ports. Syntax:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 portcon protocol port_number port_context
 \end{lstlisting}
 Where:
@@ -1020,7 +1021,7 @@ Where:
     \item [\texttt{port\_context}] Security context of the port.
 \end{description}
 Example:
-\begin{lstlisting}
+\begin{lstlisting}[language=te]
 portcon tcp 22 system_u:object_r:ssh_port_t:s0
 \end{lstlisting}
 
