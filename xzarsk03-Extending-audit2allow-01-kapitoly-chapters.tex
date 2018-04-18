@@ -696,7 +696,8 @@ types are declared using the \texttt{type} statement.
 Roles can be grouped together using the \texttt{attribute\_role} and
 \texttt{roleattribute} statements. Types can also be grouped together using the
 \texttt{attribute} and \texttt{typeattribute} statements. Type aliases can be
-defined using \texttt{typealias} statements.
+defined using \texttt{typealias} statements. The relationship between various
+statements is shown in figure \ref{fig:userroletype}.
 
 \subsubsection{User Statements}
 The \texttt{user} statement declares an identifier for an SELinux user. Syntax:
@@ -708,7 +709,7 @@ Where:
     \item [\texttt{seuser\_id}] SELinux user identifier.
     \item [\texttt{role\_id}] One or more role identifiers.
 \end{description}
-Example:
+Example from Fedora 27:
 \begin{lstlisting}[language=te]
 user staff_u roles { system_r unconfined_r sysadm_r staff_r };
 \end{lstlisting}
@@ -725,40 +726,70 @@ Where:
     \item [\texttt{role\_id}] SELinux role identifier.
     \item [\texttt{type\_id}] One or more type identifiers.
 \end{description}
-
-% TODO example?
+Example from Fedora 27:
+\begin{lstlisting}[language=te]
+role auditadm_r types { auditadm_t auditadm_screen_t auditadm_su_t
+    auditadm_sudo_t chkpwd_t updpwd_t exim_t auditctl_t auditd_t
+    mailman_mail_t user_mail_t postfix_postdrop_t postfix_postqueue_t
+    qmail_inject_t qmail_queue_t run_init_t user_tmp_t vlock_t };
+\end{lstlisting}
 
 \subsubsection{Type Statements}
 The \texttt{type} statement declares an identifier for an SELinux type. Type
 identifiers usually ends with '\texttt{\_t}' to distinguish them from attribute
 identifiers. Syntax:
 \begin{lstlisting}[language=te]
-type type_id [alias alias_id] [, attribute_id];
+type type_id;
+type type_id, attribute_id;
+type type_id alias alias_id;
+type type_id alias alias_id, attribute_id;
 \end{lstlisting}
 Where:
 \begin{description}
     \item [\texttt{type\_id}] SELinux type identifier.
     \item [\texttt{alias\_id}] One or more optional aliases declared by the
-        \texttt{typealias} statement.
+        \texttt{typealias} statement. Multiple aliases must be enclosed in
+        braces.
     \item [\texttt{attribute\_id}] One or more optional attributes declared by
-        the \texttt{attribute} statement.
+        the \texttt{attribute} statement. Multiple attributes must be separated
+        by comma.
 \end{description}
+Example from Fedora 27:
+\begin{lstlisting}[language=te]
+type httpd_sys_content_t alias { httpd_fastcgi_content_t
+    httpd_httpd_sys_script_ro_t httpd_fastcgi_script_ro_t },
+    httpdcontent, httpd_content_type, entry_type, exec_type, file_type,
+    non_auth_file_type, non_security_file_type;
+\end{lstlisting}
+
+\subsubsection{Other Statements}
+The \texttt{attribute\_role} statement declares an identifier for a group of
+role identifiers. Syntax:
+\begin{lstlisting}[language=te]
+attribute_role attribute_id;
+\end{lstlisting}
+
+The \texttt{roleattribute} statement associates roles to role attributes.
+Syntax:
+\begin{lstlisting}[language=te]
+roleattribute role_id attribute_id;
+\end{lstlisting}
 
 The \texttt{attribute} statement declares an identifier for a group of type
 identifiers. Syntax:
 \begin{lstlisting}[language=te]
 attribute attribute_id;
 \end{lstlisting}
-Where:
-\begin{description}
-    \item [\texttt{attribute\_id}] SELinux attribute identifier.
-\end{description}
 
-% TODO example?
+The \texttt{typeattribute} statement associates types to attributes. Syntax:
+\begin{lstlisting}[language=te]
+typeattribute type_id attribute_id;
+\end{lstlisting}
 
-% TODO typeattribute?
-% TODO typealias?
-% TODO permissive?
+The \texttt{typealias} statement declares type aliases. Syntax:
+\begin{lstlisting}[language=te]
+typealias type_id alias alias_id;
+\end{lstlisting}
 
 % ----------------------------------------
 % TOPIC: AV rules
