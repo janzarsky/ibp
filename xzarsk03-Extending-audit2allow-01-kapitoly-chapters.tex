@@ -80,19 +80,19 @@ such as file permissions. Users can grant insecure file permissions to others or
 gain access to files that they do not need \cite{selinuxguide}:
 \begin{itemize}
     \item Users can reveal sensitive information by setting world readable
-        permissions on files. For example, they can set read permission for
-        everyone on ssh keys in \texttt{\textasciitilde/.ssh/} directory.
-    \item Processes can change security properties: mail client can make user's
-        mail readable by other users.
+        permissions on their files. For example, they can set read permission
+        for everyone on SSH keys in the \texttt{\textasciitilde/.ssh/}
+        directory.
+    \item Processes can change security properties. For example, mail client can
+        make user's mail readable by other users.
     \item Processes inherit user's rights. For example, every application, even
         though it may be compromised, is able to read all user's files.
 \end{itemize}
 
-With enabled SELinux, every action is denied by default. A security policy is
-written which allows individual applications to perform actions required to
-function. Applications do not need to be aware of SELinux. When an action is
-denied, it is reported via ``access denied'' error code to the application
-\cite{centoshowto}.
+With SELinux, every action is denied by default. A security policy is written
+which allows individual applications to perform actions required to function.
+Applications do not need to be aware of SELinux. When an action is denied, it is
+reported via ``access denied'' error code to the application \cite{centoshowto}.
 
 %\subsection{How Does SELinux Enforce a Security Policy}
 %
@@ -130,43 +130,45 @@ denied, it is reported via ``access denied'' error code to the application
 \subsection{SELinux Components}
 % TODO: describe all parts
 % TODO: introduce the image in text
+SELinux is composed of kernel and userspace part \cite[pp.~19--22]{tsn}. Main
+components of SELinux, as shown in figure \ref{fig:selinuxcomponents}, are:
+\begin{description}
+    \item [libsepol and libsemanage] Libraries for working with SELinux binary
+        policy and policy infrastructure.
+    % TODO: improve
+    \item [libselinux] API for implementing SELinux-aware applications.
+    \item [checkmodule, semodule\_package, semodule] Utilities that compile
+        SELinux policy and load it into the kernel.
+    \item [semanage] Utility for configuring various parts of policy, for
+        example setting contexts for TCP and UDP ports.
+    \item [restorecon and setfiles] Utilities for restoring default context of
+        files.
+    % TODO: check
+    \item [policycoreutils] Various utilities for working with and
+        troubleshooting of SELinux.
+    \item [Modified Linux Commands] Standard Linux commands such as ls or ps,
+        modified to support SELinux.
+    \item [SELinux and proc filesystem] Userspace tools communicate with kernel
+        security server via the \texttt{/proc} and \texttt{/sys/fs/selinux}
+        filesystem.
+    \item [Security Server] Makes security decisions. It is embedded in the
+        kernel and it obtains the security policy via userspace tools.
+    \item [Access Vector Cache] Caches security decision made by security
+        server.
+    \item [Linux Security Module Hooks] Call SELinux Security Server.
+\end{description}
 
 \begin{figure}
     \centering
     \label{fig:selinuxcomponents}
     \input{./figures/selinux-components.tex}
-    \caption{SELinux main components}
+    % TODO: add "adapted from"?
+    \caption{Main SELinux components.}
 \end{figure}
-
-SELinux userspace several tools and libraries \cite[pp.~19--22]{tsn}:
-\begin{description}
-    \item [\texttt{libsepol} and \texttt{libsemanage}] Libraries for working
-        with SELinux binary policy and policy infrastructure.
-    \item [\texttt{libselinux}] API for implementing SELinux-aware applications.
-    \item [\texttt{checkmodule}, \texttt{semodule\_package}, \texttt{semodule}]
-        Utilities that compile the SELinux policy and loads it into the kernel.
-    \item [\texttt{semanage}] Utility for configuring various parts of policy,
-        for example setting contexts for TCP and UDP ports.
-    \item [\texttt{restorecon} and \texttt{setfiles}] Utilities for restoring
-        default context of files.
-    \item [\texttt{policycoreutils}] Various utilities for working with and
-        troubleshooting of SELinux.
-    \item [Modified Linux Commands] Standard Linux commands such as \texttt{ls}
-        or \texttt{ps} modified to support SELinux.
-    \item [SELinux and proc filesystem] Userspace tools communicate with kernel
-        security server via the \texttt{/proc} and \texttt{/sys/fs/selinux}
-        filesystem.
-    \item [Security Server] It is embedded in the kernel and it obtains the
-        security policy via userspace tools.
-    \item [Access Vector Cache] Caches security decision made by security
-        server.
-    \item [Linux Security Module Hooks] Calls SELinux Security Server.
-\end{description}
 
 % ------------------------------------------------------------------------------
 \section{Basic Concepts}
 % STATUS: 2
-% TODO: write intro
 
 This section describes basic access control mechanisms used in SELinux and
 explains how are these mechanisms enforced.
@@ -182,11 +184,11 @@ There are two basic entities in SELinux \cite[p.~29]{tsn}:
 \begin{description}
     \item [Subject] is an entity that causes information to flow among objects
         or changes the system state. Within SELinux, a subject is an active
-        process that can access objects. Note that a process can also be an
-        object, for example when sending signal to another process, the
-        process receiving is an object.
+        process that can access objects. A~process can also be an object, for
+        example when sending signal to another process, the process receiving
+        the signal is treated as an object.
     \item [Object] is a system resource such as file, socket, pipe, TCP or UDP
-        port, network interface, semaphore or shared memory segment.  Objects
+        port, network interface, semaphore or shared memory segment. Objects
         are accessed via subjects.
 \end{description}
 
@@ -197,44 +199,43 @@ There are two basic entities in SELinux \cite[p.~29]{tsn}:
 % 2.3 MANDATORY ACCESS CONTROL (MAC)                                    Y
 \subsection{Mandatory Access Control}
 
-SELinux provides a mandatory access control mechanism that extends the
+SELinux provides mandatory access control mechanism that extends the
 discretionary access control mechanisms present in Linux kernel.
 
 \subsubsection{Discretionary Access Control}
 % TODO: cite something
-Discretionary access control is defined by TCSES standard. System with DAC must
-enable users to protect their data by controlling access to that data, e.g. by
-setting permissions for other users or user groups.
-
-In DAC, users make security decisions by specifying who can access their data.
-The problem is that users can propagate sensitive information.
+\emph{Discretionary access control} (DAC) is defined by \emph{Trusted Computer
+System Evaluation Criteria} (TCSES) standard \cite{orangebook}. System with DAC
+must enable users to protect their data by controlling access to their data,
+e.g. by setting permissions for other users or user groups. In DAC, users make
+security decisions by specifying who can access their data. The problem is that
+users can propagate sensitive information.
 
 Linux implements discretionary access control. Every object has an owner that
 controls access to that object. Permissions are set in three scopes: user,
-group, and others. For each scope, permissions to read, write and execute can be
-set.
+group, and others. For each scope, permissions to read, write, and execute can
+be set.
 
 \subsubsection{Mandatory Access Control}
-Mandatory access control (MAC), defined by \emph{Trusted Computer System
-Evaluation Criteria} (TCSEC) standard \cite{orangebook}, provides more
+\emph{Mandatory access control} (MAC), defined by TCSEC standard, provides more
 restrictions than DAC. In this type of access control, operating system can
 prevent subjects from performing operations on objects. This is achieved by
 attaching subjects and objects set of security attributes. When a subject
 (usually a process) wants to perform an operation on an object (file, directory,
-socket, etc.), operating system first examines these attributes. Security policy
-is then used to determine whether this operation should be allowed or not. When
-using MAC, users do not have the ability to override the security policy and
-for example propagate sensitive information.
+socket, etc.), operating system first examines these attributes. Security
+policy is then used to determine whether this operation should be allowed or
+not. When using MAC, users do not have the ability to override the security
+policy and, for example, propagate sensitive information.
 
 There are several implementations of MAC. Linux kernel currently contains
 several security modules implemented using \emph{Linux Security Modules} (LSM)
-framework \cite{lsmusage}. \emph{Security-Enhanced Linux} (SELinux), developed
-by National Security Agency and Red Hat \cite{selinuxcontr}, is used in Red Hat
-Enterprise Linux (RHEL), CentOS, Fedora and Android
-\cite{selinuxguide,selinuxguidefedora,selinuxandroid}. \emph{AppArmor},
-developed by SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
-\cite{apparmor,apparmorubuntu}. There are two other security modules,
-\emph{Smack} and \emph{TOMOYO Linux}.
+framework \cite{lsmusage}. Security-Enhanced Linux, developed by National
+Security Agency and Red Hat \cite{selinuxcontr}, is used in Red Hat Enterprise
+Linux (RHEL), CentOS, Fedora, and Android
+\cite{selinuxguide,selinuxguidefedora,selinuxandroid}. AppArmor developed by
+SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
+\cite{apparmor,apparmorubuntu}. There are two other Linux security modules,
+Smack and TOMOYO Linux.
 
 \subsubsection{SELinux and MAC}
 % TODO: image with MAC hooks
@@ -249,10 +250,10 @@ Module hooks calls security checks in SELinux.
 % 2.4 SELINUX USERS                                                     ?
 \subsection{SELinux Users}
 \label{selinuxuser}
-SELinux uses its own user names that different than standard Linux user names
-\cite[p.~24]{tsn}. Every Linux user is associated to a SELinux user. For
+SELinux uses its own user names that are different from standard Linux user
+names \cite[p.~24]{tsn}. Every Linux user is associated to a SELinux user. For
 example, Linux user \texttt{root} is mapped to SELinux user
-\texttt{unconfined\_u} on Fedora 27.  There is a special SELinux user that is
+\texttt{unconfined\_u} on Fedora 27. There is a special SELinux user that is
 not mapped to any user: \texttt{system\_u}.
 
 Available SELinux users can be listed using the \texttt{seinfo} command:
@@ -278,7 +279,7 @@ Users: 8
 \subsection{Role-Based Access Control}
 \label{rbac}
 SELinux uses role-based access control, where every SELinux user is associated
-to one or more roles \cite[p.~24]{tsn}. Each role can access only domain types
+to one or more roles \cite[p.~24]{tsn}. Each role can access only types
 that are associated to that role. For example, user \texttt{system\_u} is
 associated to roles \texttt{unconfined\_r} and \texttt{system\_r} on Fedora 27.
 
@@ -312,7 +313,7 @@ Roles: 14
 %     2.6.2 Bounds                                                      N
 \subsection{Type Enforcement}
 \label{te}
-SELinux uses a type enforcement for enforcing mandatory access control
+SELinux uses type enforcement for enforcing mandatory access control
 \cite[pp.~25--26]{tsn}. All subjects and objects have a type associated. SELinux
 policy then contains rules that describe the relationship between types.
 
@@ -343,20 +344,21 @@ Types: 4845
 \label{mls}
 % TODO: improve
 
-In addition to Type Enforcement and Role-Based Access Control, SELinux also
-supports Multi-Level Security (MLS) and Multi-Category Security (MCS)
-\cite[pp.~48--53]{tsn}. Security context is extended by level or range entry.
+In addition to type enforcement and role-based access control, SELinux also
+supports multi-level security (MLS) and multi-category security (MCS)
+\cite[pp.~48--53]{tsn}. For the purposes of MLS and MCS, security context is
+extended by level or range entry.
 
-Security levels conform to the Bell-LaPadula model (BLP). For processes,
-security levels describe subject's clearance, for objects, they describe
-object's classification. Process running at certain security level can:
+Security levels conform to the Bell-LaPadula model. For processes, security
+levels describe subjects clearance, for objects, they describe objects
+classification. Process running at certain security level can:
 \begin{itemize}
     \item read and write at their current level,
     \item read only at lower levels,
     \item write only at higher levels.
 \end{itemize}
-This means that processes cannot read data with higher security level and cannot
-leak sensitive information to the lower levels.
+This means that processes cannot read data with higher security level and
+cannot leak sensitive information to the lower levels.
 
 % ----------------------------------------
 % TOPIC: SELinux context
@@ -367,18 +369,20 @@ leak sensitive information to the lower levels.
 \subsection{SELinux Security Context}
 % TODO: describe parts of the context
 
-Security decisions are made based on a \emph{security context} which must be
-assigned to every subject and object \cite[pp.~27--28]{tsn}. The security
-context is sometimes reffered to as \emph{security label} or just \emph{label}.
-The security context is a string in the following form:
+Security decisions are based on a \emph{security context} that must be assigned
+to every subject and object \cite[pp.~27--28]{tsn}. The security context is
+sometimes reffered to as \emph{security label} or just \emph{label}.  The
+security context is a string in the following form:
 \begin{lstlisting}
 user:role:type[:range]
 \end{lstlisting}
 Where:
 \begin{description}
     \item [\texttt{user}] The SELinux user (see section \ref{selinuxuser}).
-    \item [\texttt{role}] The SELinux role (see section \ref{rbac}).
-    \item [\texttt{type}] Used by type enforcement (see section \ref{te}).
+    \item [\texttt{role}] The SELinux role used by role-based access control
+        (see section \ref{rbac}).
+    \item [\texttt{type}] The SELinux type used by type enforcement (see section
+        \ref{te}).
     \item [\texttt{range}] Used by MLS or MCS (see section \ref{mls}). It is optional.
 \end{description}
 
@@ -494,8 +498,8 @@ and userspace objects (for X-Windows or D-Bus).
 \subsection{Labeling Subjects and Objects}
 % TODO: write more about file contexts
 
-Security contexts are computed by the kernel security server using several
-policy statements \cite[pp.~31--33]{tsn}.
+Security contexts for subjects and objects are computed by the kernel security
+server using several policy statements \cite[pp.~31--33]{tsn}.
 
 \subsubsection{Labeling Processes}
 The first init process usually transitions to its own unique domain, for example
@@ -503,7 +507,7 @@ The first init process usually transitions to its own unique domain, for example
 its parent. On exec, the child process may transition to different security
 context. This is achieved by type transition policy statements. SELinux-aware
 processes may change context by calling \texttt{setcon} or \texttt{setexeccon}
-function from \texttt{libselinux}.
+functions from the libselinux library.
 
 \subsubsection{Labeling Files}
 Security context for files is computed as follows:
@@ -513,6 +517,7 @@ Security context for files is computed as follows:
         \texttt{role\_transition} statement.
     \item [\texttt{type}] Type defaults to the type of the parent directory
         unless modified by \texttt{type\_transition} statement.
+        % TODO: make it clear, low or current?
     \item [\texttt{range}/\texttt{level}] Defaults to the low/current level of
         the creating process unless modified by \texttt{range\_transition}
         statement.
@@ -532,23 +537,24 @@ Security context for files is computed as follows:
 
 % TODO explain what is domain
 To run different processes in different domains, we need a way how to
-\emph{transition} a process from one domain to another. To attach file a label
+\emph{transition} a process from one domain to another. To attach file label
 different than its parent's label, we need to transition an object from one type
-to another. Both can be achieved using the \texttt{type\_transition} statement.
+to another. Both transitions can be achieved using the \texttt{type\_transition}
+statement.
 
 \subsubsection{Domain Transition}
 
 Starting new process with different security context is called domain transition
-\cite[pp.~43--47]{tsn}. For example, \texttt{systemd} running as \texttt{init\_t}
-needs to start the Apache HTTP Server as \texttt{httpd\_t}. Apache executables
-are labeled \texttt{httpd\_exec\_t}. The following policy rule allows the
-transition:
+\cite[pp.~43--47]{tsn}. For example, \texttt{systemd} process running as
+\texttt{init\_t} needs to start the Apache HTTP Server as \texttt{httpd\_t}.
+Apache executables are labeled \texttt{httpd\_exec\_t}. The following policy
+rule allows the transition:
 \begin{lstlisting}[language=te]
 type_transition init_t httpd_exec_t:process httpd_t;
 \end{lstlisting}
 The \texttt{systemd} process does not need to be aware of SELinux. Because of
 the \texttt{type\_transition} rule, the \texttt{exec} call will automatically
-perform a transition. There are conditions that needs to be met before the
+perform the transition. There are conditions that needs to be met before a
 domain transition can happen:
 \begin{enumerate}
     \item The source domain has permission to transition into the target domain.
@@ -571,7 +577,7 @@ allow httpd_t httpd_exec_t:file entrypoint;
 \subsubsection{Object Transition}
 When a new object is created it inherits the security context of its parent.
 When it is required that the object has different context, an object transition
-is required \cite[pp.~47--48]{tsn}. For example when an X server creates a file
+must be used \cite[pp.~47--48]{tsn}. For example when an X server creates a file
 in the \texttt{/tmp} directory (which has context \texttt{tmp\_t}), it gets
 context \texttt{user\_tmp\_t}. This is achieved by the following
 \texttt{type\_transition} rule:
@@ -679,7 +685,7 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock execute open };
 
 % TODO: improve
 \subsection{User, Role and Type Statements}
-To support mechanisms such as Type Enforcement, Role-Based Access Control, and
+To support mechanisms such as Type Enforcement, role-based access control, and
 Multi-Level Security, SELinux assigns subjects and objects user, role, and type
 identifiers. SELinux users are defined using the \texttt{user} statement. Users
 are assigned one or more roles. SELinux roles are defined using the

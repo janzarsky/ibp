@@ -22,39 +22,39 @@
         {\textbf{Policy Sources}};
     \node(compiling) [rec, text width=4cm, minimum width=4.5cm]
         at (0.5,-0.5) [anchor=north west]
-        {\textbf{\texttt{checkmodule}\\ \texttt{semodule\_package}\\
-        \texttt{semodule}}\\ Compiling and loading policy modules.};
+        {\textbf{checkmodule\\ semodule\_package\\
+        semodule}\\ Compiling and loading policy modules.};
     \node(libsepol) [rec, text width=8cm, minimum width=8.5cm, minimum
         height=1cm]
         at (14,0.5) [anchor=north east]
-        {\textbf{\texttt{libsepol}\\ \texttt{libsemanage}}};
+        {\textbf{libsepol\;and\:libsemanage}};
     \node(policy) [rec, text width=2cm, minimum width=2.5cm]
         at (11,1) [anchor=south east]
         {\textbf{SELinux Policy}};
     \node(semanage) [rec]
         at (5,-4) [anchor=north west]
-        {\textbf{\texttt{semanage}}\\ Configuring parts of policy.};
+        {\textbf{semanage}\\ Configuring parts of policy.};
     \node(policycoreutils) [rec, right of=semanage, node distance=5cm]
-        {\textbf{\texttt{policycoreutils}}\\ Various utils such as
-        \texttt{audit2allow}.};
+        {\textbf{policycoreutils}\\ Various utils such as
+        audit2allow.};
     \node(restorecon) [rec]
         at (2.5,-6.5) [anchor=north west]
-        {\textbf{\texttt{restorecon}\\ \texttt{setfiles}}\\ File labeling
+        {\textbf{restorecon\\ setfiles}\\ File labeling
         utilities.};
     \node(linuxcmd) [rec, right of=restorecon, node distance=5cm]
         {\textbf{Linux commands}\\ With SELinux support.};
     \node(libselinux) [rec, text width=13cm, minimum width=13.5cm, minimum
         height=1cm]
         at (0.5,-10) [anchor=south west]
-        {\textbf{\texttt{libselinux}}};
+        {\textbf{libselinux}};
     \node(selinuxfs) [rec, text width=9cm, minimum width=9.5cm, minimum
         height=1cm]
         at (4.5,-10.5) [anchor=north west]
-        {\textbf{SELinux Filesystem}};
+        {\textbf{SELinux\:Filesystem}};
     \node(procfs) [rec, text width=3.5cm, minimum width=4cm, minimum
         height=1cm]
         at (0.5,-10.5) [anchor=north west]
-        {\textbf{Proc Filesystem}};
+        {\textbf{Proc\:Filesystem}};
     \node(kernelservices) [rec, text width=2.5cm, minimum width=3cm]
         at (0.5,-12) [anchor=north west]
         {\textbf{Linux Kernel Services}};
