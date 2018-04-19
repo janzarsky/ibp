@@ -1624,7 +1624,7 @@ vector (they share source and target context and object class):
 Access vector sets serve as a basis for generating policy access vector rules
 in the \texttt{policygen.py} module.
 
-\subsubsection{The policygen Module}
+\subsubsection{The policygen.py Module}
 % STATUS: 4
 % PolicyGenerator
     % generates policy module from access vectors
@@ -1638,11 +1638,10 @@ in the \texttt{policygen.py} module.
 % call_interface()
 % InterfaceGenerator
 % gen_requires()
-
-The \texttt{policygen} module defines \texttt{PolicyGenerator} class that
-generates policy module from access vectors. The \texttt{PolicyGenerator}
-converts access vector set into SELinux policy statements. For example, this
-access vector:
+The \texttt{policygen.py} module defines the \texttt{PolicyGenerator} class that
+generates policy module from access vectors. \texttt{PolicyGenerator} converts
+access vector set into SELinux policy statements. For example, this access
+vector:
 \begin{lstlisting}
 {
     source_context: 'unconfined_u:system_r:httpd_t:s0',
@@ -1656,22 +1655,22 @@ would be converted into the following policy statement:
 allow httpd_t samba_share_t:file { getattr open read };
 \end{lstlisting}
 
-The \texttt{PolicyGenerator} uses objects from the \texttt{refpolicy} module to
-represent policy statements. The \texttt{PolicyGenerator} provides several
+\texttt{PolicyGenerator} uses objects from the \texttt{refpolicy.py} module
+to represent policy statements. \texttt{PolicyGenerator} provides several
 configuration methods:
 \begin{description}
     \item [\texttt{set\_gen\_refpol()}] Turn on interface generation.
-    \item [\texttt{set\_gen\_requires()}] Add module requires that are
-        neccessary for creating a standalone policy module (see section
+    \item [\texttt{set\_gen\_requires()}] Generate \texttt{require} statements
+        that are neccessary for creating a standalone policy module (see section
         \ref{modules}).
     \item [\texttt{set\_gen\_explain()}] Add comments explaining why were the
         policy statements generated.
     \item [\texttt{set\_gen\_dontaudit()}] Generate \texttt{dontaudit} rules
         instead of \texttt{allow} rules (see section \ref{avrules}).
 \end{description}
-The output of the \texttt{PolicyGenerator} is a tree-like structure containing
-generated statements. The \texttt{output} module then just prints out every
-statement.
+The output of \texttt{PolicyGenerator} is a tree-like structure containing
+generated policy statements. The \texttt{output.py} module then just prints out
+every statement.
 
 \subsubsection{The refpolicy Module}
 % STATUS: 3
