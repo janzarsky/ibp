@@ -1245,7 +1245,7 @@ In this example, new file contexts entry was added. The rule states that file
 % ------------------------------------------------------------------------------
 % TOPIC: Auditing
 % ----------------------------------------
-% STATUS: 2
+% STATUS: 3
 % 2.16 AUDITING SELINUX EVENTS                                          Y
 %     2.16.1 AVC Audit Events                                           Y
 %     2.16.2 General SELinux Audit Events                               Y
@@ -1338,10 +1338,9 @@ provides suggestions for resolving the problem using various plugins.
 
 % ------------------------------------------------------------------------------
 \section{The audit2allow Utility}
-% STATUS: 3
-% TODO: improve the structure
-The \emph{audit2allow} is a userspace tool that scans the AVC messages and
-generates SELinux policy snippets based on them.
+% STATUS: 4
+The audit2allow is a userspace tool that scans the AVC messages and generates
+SELinux policy snippets based on them.
 
 \subsection{Purpose of audit2allow}
 The audit2allow is tool designed both for system administrators and SELinux
@@ -1467,8 +1466,7 @@ comments with helpful messages.
 % TODO: link to upstream repo on github
 The audit2allow utility is part of SELinux userspace. It is written mostly in
 Python with several parts written in C. It uses \texttt{sepolgen} and
-\texttt{sepolicy} Python modules and \texttt{libselinux} and \texttt{libsepol}
-libraries.
+\texttt{sepolicy} Python modules and libselinux and libsepol libraries.
 
 Main script, \texttt{audit2allow}, parses command-line options, retrieves audit
 messages, and prints the output.  Main logic of converting AVC denial messages
