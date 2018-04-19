@@ -1471,25 +1471,25 @@ during processing. The audit2allow prints comments with helpful messages.
 % STATUS: 4
 % TODO: link to upstream repo on github
 The audit2allow utility is part of SELinux userspace. It is written mostly in
-Python with several parts written in C. It uses \texttt{sepolgen} and
-\texttt{sepolicy} Python modules and libselinux and libsepol libraries.
+Python with several parts written in C. It uses sepolgen and sepolicy Python
+packages and libselinux and libsepol libraries.
 
 Main script, \texttt{audit2allow}, parses command-line options, retrieves audit
 messages, and prints the output.  Main logic of converting AVC denial messages
-to access vector rules is implemented in package \texttt{sepolgen}.
+to access vector rules is implemented in package sepolgen.
 
-The \texttt{sepolgen} package contains the following modules:
+The sepolgen package contains the following modules:
 \begin{description}
-    \item [\texttt{audit}] Defines classes for various audit messages, contains
-        audit message parser.
-    \item [\texttt{access}] Defines access vectors and access vector sets.
-    \item [\texttt{policygen}] Creates policy rules based on access vectors.
-    \item [\texttt{refpolicy}] Contains classes that represent the policy
+    \item [\texttt{audit.py}] Defines classes for various audit messages,
+        contains audit message parser.
+    \item [\texttt{access.py}] Defines access vectors and access vector sets.
+    \item [\texttt{policygen.py}] Creates policy rules based on access vectors.
+    \item [\texttt{refpolicy.py}] Contains classes that represent the policy
         statements.
-    \item [\texttt{output}] Outputs the generated rules.
+    \item [\texttt{output.py}] Outputs the generated rules.
     \item [Other modules] There are several other modules which are either not
-        significant (e.g. the \texttt{utils} package) or used only for
-        generating policy using interfaces (e.g. the \texttt{interfaces}
+        significant (e.g. the \texttt{utils.py} module) or used only for
+        generating policy using interfaces (e.g. the \texttt{interfaces.py}
         package).
 \end{description}
 
@@ -1524,7 +1524,7 @@ The main script does the following steps:
     \item Write the output.
 \end{enumerate}
 
-\subsubsection{The audit Module}
+\subsubsection{The audit.py Module}
 % STATUS: 4
 % convenience functions
 % AuditMessage class
@@ -1543,7 +1543,7 @@ The main script does the following steps:
 % AVCTypeFilter
 % ComputeSidTypeFilter
 
-The \texttt{audit} module is used for parsing audit messages. It is not a
+The \texttt{audit.py} module is used for parsing audit messages. It is not a
 general purpose audit parsing library, it is meant to parse mainly AVC messages
 and policy load messages.
 
@@ -1552,19 +1552,21 @@ type for each message. The \texttt{AuditMessage} class is the base class for all
 message types. The \texttt{AVCMessage} class represents AVC denials and is used
 for generating access vectors.
 
-After parsing of AVC message, the denial is analyzed in \texttt{audit2why}
-module (from \texttt{libselinux} library). The \texttt{audit2why} module tries
-to find out the reason of the denial by analyzing the policy. The module is
-written in C and uses the \texttt{libsepol} library. Each message is then
-converted to an access vector from the \texttt{access} module. AVC denial
-messages can be filtered using regular expressions via the
-\texttt{AVCTypeFilter} class. Only messages that match are processed.
+After parsing of AVC message, the denial is analyzed in \texttt{audit2why.c}
+module (from libselinux library). The \texttt{audit2why.c} module tries to find
+out the reason of the denial by analyzing the policy. The module is written in C
+and uses the libsepol library.
 
-Policy load messsages are important with the \texttt{-{}-lastreload}
-command-line option. The \texttt{AuditParser} then processes only messages after
-last policy load message.
+Each message is then converted to an access vector from the \texttt{access}
+module. AVC denial messages can be filtered using regular expressions via the
+\texttt{AVCTypeFilter} class. Only messages that match the regular expression
+are processed.
 
-\subsubsection{The access Module}
+Policy load messsages are important for the \texttt{-{}-lastreload} command-line
+option. The \texttt{AuditParser} then processes only messages after last policy
+load message.
+
+\subsubsection{The access.py Module}
 % STATUS: 4
 % AccessVector
     % basic representation of access
@@ -1575,16 +1577,16 @@ last policy load message.
     % add() adds AV to the set
 % RoleTypeSet
 
-The \texttt{access} module defines the \texttt{AccessVector} and
+The \texttt{access.py} module defines the \texttt{AccessVector} and
 \texttt{AccessVectorSet} classes. Access vector is a basic representation of an
 access in SELinux. It contains single source and target type, single object
-class, and set of permissions. Every AVC denial message can be converted into an
-access vector. For example this AVC denial message:
-\begin{lstlisting}
-type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
+class, and a set of permissions. Every AVC denial message can be converted into
+an access vector. For example this AVC denial message:
+\begin{lstlisting}[escapechar=\%]
+type=AVC msg=audit(1223024155.684:49): avc:  denied  { %\textbf{getattr}% }
 for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
-ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
-tcontext=system_u:object_r:samba_share_t:s0 tclass=file
+ino=399185 scontext=%\textbf{unconfined\_u:system\_r:httpd\_t:s0}%
+tcontext=%\textbf{system\_u:object\_r:samba\_share\_t:s0}% tclass=%\textbf{file}%
 \end{lstlisting}
 would be converted into the following access vector:
 \begin{lstlisting}
@@ -1619,8 +1621,8 @@ vector (they share source and target context and object class):
 }
 \end{lstlisting}
 
-Access vector sets serves as a basis for generating policy access vector rules
-in \texttt{policygen} module.
+Access vector sets serve as a basis for generating policy access vector rules
+in the \texttt{policygen.py} module.
 
 \subsubsection{The policygen Module}
 % STATUS: 4
