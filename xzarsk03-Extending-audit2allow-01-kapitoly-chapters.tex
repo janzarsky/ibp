@@ -161,7 +161,9 @@ components of SELinux, as shown in figure \ref{fig:selinuxcomponents}, are:
         security server via the \texttt{/proc} and \texttt{/sys/fs/selinux}
         filesystem.
     \item [Security Server] Makes security decisions. It is embedded in the
-        kernel and it obtains the security policy via userspace tools.
+        kernel and it obtains the security policy via userspace tools. Security
+        server does not enforce the decision, it only states whether the
+        operation is allowed or not.
     \item [Access Vector Cache] Caches security decision made by security
         server.
     \item [Linux Security Module Hooks] Call SELinux Security Server.
@@ -862,7 +864,7 @@ introduced to overcome this issue.
 % ----------------------------------------
 % TOPIC: Extended permission AV rules
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 \subsection{Extended Permission Access Vector Rules}
 \label{extavrules}
 
@@ -871,9 +873,9 @@ expand the permission sets. Standard access vector rules operates with 32~bit
 permission sets, extended permission AV rules adds arbitrary number of 256~bit
 increments. Extended permission AV rules are currently (as of policy version 31)
 used only for ioctl whitelisting, but they provide generic tool that can be used
-in future for more granular control over an operation \cite{selinuxmailxperms}.
+in future for more granular control over an operation~\cite{selinuxmailxperms}.
 
-Syntax of extended permission AV rules\cite{xpermrules}:
+Syntax of extended permission AV rules \cite{xpermrules}:
 \begin{lstlisting}[language=te]
 rule_name source_type target_type : obj_class operation xperm_set;
 \end{lstlisting}
@@ -881,11 +883,12 @@ Where:
 \begin{description}
     \item [\texttt{rule\_name}] is one of the following: \texttt{allowxperm},
         \texttt{dontauditxperm}, \texttt{auditallowxperm}, or
-        \texttt{neverallowxperm}. The meaning is same as standard AV rules. The
-        \texttt{allowxperm} rule allows the access, the \texttt{dontauditxperm}
-        rule denies and logs the access, the \texttt{auditallowxperm} rule logs
-        the access, and the \texttt{neverallowxperm} rules is a compiler
-        statement to prevent unsecure rules from appearing in policy.
+        \texttt{neverallowxperm}. The meaning is same as with standard AV rules.
+        The \texttt{allowxperm} rule allows the access, the
+        \texttt{dontauditxperm} rule denies and logs the access, the
+        \texttt{auditallowxperm} rule logs the access, and the
+        \texttt{neverallowxperm} rules is a compiler statement to prevent
+        unsecure rules from appearing in policy.
     \item [\texttt{source\_type}, \texttt{target\_type}, \texttt{obj\_class}]
         are source type, target type, and object class, same as with standard AV
         rule.
@@ -930,7 +933,7 @@ rules must be present.
 % ----------------------------------------
 % TOPIC: Policy modules
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 4.17 MODULAR POLICY SUPPORT STATEMENTS                                Y
 %     4.17.1 module                                                     Y
 %     4.17.2 require                                                    Y
@@ -985,7 +988,7 @@ the policy (either in base policy or in another policy module).
 % ----------------------------------------
 % TOPIC: Conditional policy
 % ----------------------------------------
-% STATUS: 2
+% STATUS: 3
 % 4.11 CONDITIONAL POLICY STATEMENTS                                    Y
 %     4.11.1 bool                                                       Y
 %     4.11.2 if                                                         Y
@@ -994,7 +997,7 @@ the policy (either in base policy or in another policy module).
 %         4.6.2. Configuring Booleans
 %         4.6.3. Shell Auto-Completion
 \subsection{Conditional Policy}
-% TODO: improve, write more stuff
+% TODO: write about audit2allow?
 
 SELinux policy allows turning on and off set of policy statements without the
 need for reloading policy. Conditional policy is defined using the \texttt{bool}
@@ -1012,7 +1015,7 @@ Booleans can be turned on and off using the \texttt{semanage boolean} command.
 % ----------------------------------------
 % TOPIC: Networking
 % ----------------------------------------
-% STATUS: 2
+% STATUS: 4
 % 2.21 SELINUX NETWORKING SUPPORT                                       N
 %     2.21.1 SECMARK                                                    N
 %     2.21.2 NetLabel - Fallback Peer Labeling                          N
