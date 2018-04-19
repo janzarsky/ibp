@@ -1672,7 +1672,7 @@ The output of \texttt{PolicyGenerator} is a tree-like structure containing
 generated policy statements. The \texttt{output.py} module then just prints out
 every statement.
 
-\subsubsection{The refpolicy Module}
+\subsubsection{The refpolicy.py Module}
 % STATUS: 3
 % PolicyBase
 % Node
@@ -1702,9 +1702,9 @@ This module contains classes that represent SELinux policy statements. The
 \texttt{Node} and \texttt{Leaf} classes are base classes for all policy
 statements. Every statement is either a node that is a parent of other
 statements (for example the \texttt{Module} class), or a leaf (for example the
-\texttt{AVRule} class). The \texttt{refpolicy} module contains functions for
-traversing trees made of nodes and leaves. These functions are used when
-printing statements in the \texttt{output} module.
+\texttt{AVRule} class). The \texttt{refpolicy.py} module contains functions for
+traversing trees made out of nodes and leaves. These functions are used when
+printing statements in the \texttt{output.py} module.
 
 The \texttt{IdSet} class represents set of arbitrary identifiers and is used by
 many statements for storing permissions and other sets. The
@@ -1718,7 +1718,7 @@ For basic operation mode, the following classes are used: \texttt{AVRule},
 \texttt{AVRule} class contains the following attributes:
 \begin{description}
     \item [\texttt{src\_types}] \texttt{IdSet()} of source types.
-    \item [\texttt{tgt\_types}] \texttt{IdSet()} of source types.
+    \item [\texttt{tgt\_types}] \texttt{IdSet()} of target types.
     \item [\texttt{obj\_classes}] \texttt{IdSet()} of object classes.
     \item [\texttt{perms}] \texttt{IdSet()} of permissions.
     \item [\texttt{rule\_type}] One of the following: \texttt{ALLOW},
