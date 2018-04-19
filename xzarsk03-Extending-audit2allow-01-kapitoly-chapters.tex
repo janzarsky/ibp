@@ -2366,16 +2366,25 @@ In this module, new configuration option was added to the
 
 % TODO: write
 
-TODO
-
 % 1. Conclusions: concise statements about your main findings, related to your
 %       aims/objectives/hypothesis.
+% situations were identified 
+% causes investigated
+Several situations where audit2allow provides too permissive or insecure
+solutions were identified. Extended permission access vector rules that provide
+more granular control were not supported by audit2allow. The audit2allow utility
+provided solutions that assumed that the context of object is correct.
 
 % 2. Contributions to your field of research, stating/restating the significance
 %       of what you have discovered. Can include limitations.
 %Support for extended permissions was added to audit2allow.
+% implemented stuff
+Improvement of audit2allow were implemented.
 
 % 3. Future research:
 %       where to go from here (can include where NOT to go, if your research
 %       demonstrated that a particular approach or avenue was not useful).
 %Other improvements can be implemented.
+% network stuff is no-go
+The audit2allow can be further improved to detect situations where the correct
+solution is to use different tool.
