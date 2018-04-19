@@ -546,6 +546,7 @@ File contexts are covered in depth in section \ref{filecontexts}.
 %     2.1. Domain Transitions
 %     4.14. File Name Transition
 \subsection{Type Transitions}
+\label{typetransitions}
 To run different processes in different domains, we need a way how to
 \emph{transition} a process from one domain to another. To attach file label
 different than its parent's label, we need to transition an object from one type
@@ -1100,7 +1101,7 @@ portcon tcp 22 system_u:object_r:ssh_port_t:s0
 % ----------------------------------------
 % TOPIC: File contexts
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 %     4.7. SELinux Contexts – Labeling Files
 %         4.7.1. Temporary Changes: chcon
 %         4.7.2. Persistent Changes: semanage fcontext
@@ -1118,11 +1119,8 @@ portcon tcp 22 system_u:object_r:ssh_port_t:s0
 %         4.10.4. Archiving Files with tar
 %         4.10.5. Archiving Files with star
 % TODO: chapters from selinux configuration section
-% TODO: write it
-
 \section{File Contexts}
 \label{filecontexts}
-
 When accessing files, SELinux relies on labels stored with those files to make a
 security decision. SELinux labels can be viewed using the \texttt{ls -Z}
 command:
@@ -1133,7 +1131,7 @@ unconfined_u:object_r:user_home_t:s0    testfile
 \end{lstlisting}
 Labels are stored in \emph{extended attributes} in the security namespace
 \cite{xattrman}. Extended attributes associated with a file can be viewed using
-the getfattr command.
+the getfattr command:
 \begin{lstlisting}
 $ getfattr -n security.selinux testfile
 # file: testfile
@@ -1141,6 +1139,7 @@ security.selinux="unconfined_u:object_r:user_home_t:s0"
 \end{lstlisting}
 
 \subsection{Temporary Changes}
+% TODO: example?
 The chcon command changes the SELinux context of files \cite{selinuxguide}. User
 must have the permission to relabel files. The changes made by chcon are
 overwritten by a file system relabel or running of restorecon.
@@ -1154,6 +1153,7 @@ get context \texttt{httpd\_var\_run\_t}:
 \begin{lstlisting}[language=te]
 type_transition httpd_t var_run_t:file httpd_var_run_t;
 \end{lstlisting}
+Type transitions are explained in section \ref{typetransitions}.
 
 \subsection{File Context Configuration Files}
 % TODO: cite something
@@ -1184,7 +1184,7 @@ should be applied only when the file is a character device. Utilities such as
 restorecon and setfiles uses the \texttt{file\_contexts} configuration file to
 relabel files on the filesystem.
 
-\subsubsection{Building File Context Configuration Files}
+\subsection{Building File Context Configuration Files}
 Utilities such as restorecon and setfiles uses several files to
 restore default contexts of files \cite[pp.~165--167]{tsn}:
 \begin{description}
@@ -1229,7 +1229,7 @@ would be expanded to the following rules:
 Expanded rules are then stored in the \texttt{file\_contexts.homedirs} file and
 used by restorecon and setfiles utilities \cite[pp.~134--140]{tsn}.
 
-\subsection{Changing File Context Files}
+\subsection{Changing File Context Configuration Files}
 The \texttt{file\_contexts.local} file can be changed using the \texttt{semanage
 fcontext} command \cite{selinuxguide}. For example:
 \begin{lstlisting}
@@ -1269,15 +1269,15 @@ In Fedora and RHEL, SELinux uses the Linux Audit system to log security events.
 When a process tries to perform operation without the permissions, an
 \emph{Access Vector Cache} (AVC) denial message is logged using the audit daemon
 \cite{selinuxguide}. This message can be then processed by tools such as
-\texttt{setroubleshoot} or \texttt{audit2allow}.
+setroubleshoot or audit2allow.
 
-Every AVC message contains information about \emph{source context} (the context
-of the process), \emph{object class} (for example file), and \emph{target
-context} (the context of the object). For example, when a process \texttt{httpd}
-running in context \texttt{unconfined\_u:system\_r:httpd\_t:s0} is trying to
-perform the \texttt{getattr} operation on file \texttt{/var/www/html/file1} with
-context \texttt{system\_u:object\_r:samba\_share\_t:s0} and fails, the following
-AVC message is generated:
+Every AVC message contains information about source context (the context of the
+process), object class (for example file), and target context (the context of
+the object). For example, when a process \texttt{httpd} running in context
+\texttt{unconfined\_u:system\_r:httpd\_t:s0} is trying to perform the
+\texttt{getattr} operation on file \texttt{/var/www/html/file1} with context
+\texttt{system\_u:object\_r:samba\_share\_t:s0} and fails, the following AVC
+message is generated:
 
 \begin{lstlisting}
 type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
