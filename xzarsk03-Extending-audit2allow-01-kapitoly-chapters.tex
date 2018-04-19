@@ -7,7 +7,7 @@
 % 5 - done
 % ==============================================================================
 \chapter{Introduction}
-% STATUS: 1
+% STATUS: 2
 % TODO: improve
 % motivation - longer
 % how I solved it, avoid first person
@@ -323,8 +323,9 @@ Roles: 14
 \subsection{Type Enforcement}
 \label{te}
 SELinux uses type enforcement for enforcing mandatory access control
-\cite[pp.~25--26]{tsn}. All subjects and objects have a type associated. SELinux
-policy then contains rules that describe the relationship between types.
+\cite[pp.~25--26]{tsn}. All subjects and objects have a type associated.
+Processes running with the same type are called a \emph{domain}. SELinux
+policy then contains rules that allow domains access types.
 
 Available SELinux types can be listed using the \texttt{seinfo} command:
 \begin{lstlisting}
@@ -480,7 +481,7 @@ and userspace objects (for X-Windows or D-Bus).
 % ----------------------------------------
 % TOPIC: labeling
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 %     2.9.3 Labeling Objects                                            Y
 %         2.9.3.1 Labeling Extended Attribute Filesystems               Y
 %             2.9.3.1.1 Copying and Moving Files                        Y
@@ -506,8 +507,6 @@ and userspace objects (for X-Windows or D-Bus).
 %     2.2. SELinux Contexts for Processes
 %     2.3. SELinux Contexts for Users
 \subsection{Labeling Subjects and Objects}
-% TODO: write more about file contexts
-
 Security contexts for subjects and objects are computed by the kernel security
 server using several policy statements \cite[pp.~31--33]{tsn}.
 
@@ -532,6 +531,7 @@ Security context for files is computed as follows:
         the creating process unless modified by \texttt{range\_transition}
         statement.
 \end{description}
+File contexts are covered in depth in section \ref{filecontexts}.
 
 % ----------------------------------------
 % TOPIC: type transitions
@@ -544,8 +544,6 @@ Security context for files is computed as follows:
 %     2.1. Domain Transitions
 %     4.14. File Name Transition
 \subsection{Type Transitions}
-
-% TODO explain what is domain
 To run different processes in different domains, we need a way how to
 \emph{transition} a process from one domain to another. To attach file label
 different than its parent's label, we need to transition an object from one type
@@ -553,7 +551,6 @@ to another. Both transitions can be achieved using the \texttt{type\_transition}
 statement.
 
 \subsubsection{Domain Transition}
-
 Starting new process with different security context is called domain transition
 \cite[pp.~43--47]{tsn}. For example, \texttt{systemd} process running as
 \texttt{init\_t} needs to start the Apache HTTP Server as \texttt{httpd\_t}.
@@ -600,10 +597,9 @@ automatically.
 % ----------------------------------------
 % TOPIC: SELinux modes
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 2.15 SELINUX PERMISSIVE AND ENFORCING MODES                           Y
 %     1.4. SELinux States and Modes
-% TODO: write about permissive domains
 \subsection{SELinux Modes of Operation}
 
 SELinux has three modes of operation \cite{selinuxguide}. The default mode is
@@ -660,7 +656,7 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock execute open };
 % ----------------------------------------
 % TOPIC: user, role and type statements
 % ----------------------------------------
-% STATUS: 2
+% STATUS: 4
 % 4.3 POLICY CONFIGURATION STATEMENTS                                   ?
 %     4.3.1 policycap                                                   ?
 % 4.4 DEFAULT OBJECT RULES                                              Y
@@ -692,7 +688,6 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock execute open };
 % role - group: attribute_role, rule: roleattribute
 % type - group: attribute, typeattribute
 
-% TODO: improve
 \subsection{User, Role and Type Statements}
 \label{userroletype}
 To support mechanisms such as type enforcement, role-based access control, and
@@ -735,8 +730,8 @@ user staff_u roles { system_r unconfined_r sysadm_r staff_r };
 \end{lstlisting}
 
 \subsubsection{Role Statements}
-The \texttt{role} statement either declares an identifier for an SELinux role or
-associates a role to one or more types. Syntax:
+The \texttt{role} statement either declares an identifier for an SELinux role
+and optionally associates a role to one or more types. Syntax:
 \begin{lstlisting}[language=te]
 role role_id;
 role role_id types type_id;
@@ -788,24 +783,20 @@ role identifiers. Syntax:
 \begin{lstlisting}[language=te]
 attribute_role attribute_id;
 \end{lstlisting}
-
 The \texttt{roleattribute} statement associates roles to role attributes.
 Syntax:
 \begin{lstlisting}[language=te]
 roleattribute role_id attribute_id;
 \end{lstlisting}
-
 The \texttt{attribute} statement declares an identifier for a group of type
 identifiers. Syntax:
 \begin{lstlisting}[language=te]
 attribute attribute_id;
 \end{lstlisting}
-
 The \texttt{typeattribute} statement associates types to attributes. Syntax:
 \begin{lstlisting}[language=te]
 typeattribute type_id attribute_id;
 \end{lstlisting}
-
 The \texttt{typealias} statement declares type aliases. Syntax:
 \begin{lstlisting}[language=te]
 typealias type_id alias alias_id;
@@ -814,7 +805,7 @@ typealias type_id alias alias_id;
 % ----------------------------------------
 % TOPIC: AV rules
 % ----------------------------------------
-% STATUS: 2
+% STATUS: 4
 % 4.9 ACCESS VECTOR RULES                                               Y
 %     4.9.1 allow                                                       Y
 %     4.9.2 dontaudit                                                   Y
@@ -822,9 +813,9 @@ typealias type_id alias alias_id;
 %     4.9.4 neverallow                                                  Y
 \subsection{Access Vector Rules}
 \label{avrules}
-The AV rules support type enforcement within SELinux. They control what access
-do processes get. The \texttt{allow} rule grants an access to an object.
-Syntax:
+The access vector rules support type enforcement within SELinux. They control
+what access do processes get. The \texttt{allow} rule grants an access to an
+object. Syntax:
 \begin{lstlisting}[language=te]
 allow source_type target_type:obj_class perm_set;
 \end{lstlisting}
@@ -850,7 +841,7 @@ In this example, processes running as \texttt{httpd\_t} are allowed to
 \texttt{getattr}, \texttt{open}, and \texttt{read} files labeled as
 \texttt{samba\_share\_t}.
 
-There are three other AV rules that follow the same syntax pattern of the
+There are three other AV rules that follow the syntax pattern of the
 \texttt{allow} rule:
 \begin{description}
     \item [\texttt{dontaudit}] Stops auditing (logging) of denials. It is used
@@ -863,10 +854,10 @@ There are three other AV rules that follow the same syntax pattern of the
         this rule is found somewhere in policy. It is used for marking rules
         that may be unsecure.
 \end{description}
-Internally, lists of permissions defined by AV rules are stored in memory as
-bit arrays that are 32~bits long. Because of this limitation, object classses
-cannot have more than 32 different permissions. Extended permission AV rules
-were introduced to overcome this issue.
+Internally, access vectors defined by AV rules are stored in memory as bit
+arrays that are 32~bits long. Because of this limitation, object classses cannot
+have more than 32 different permissions. Extended permission AV rules were
+introduced to overcome this issue.
 
 % ----------------------------------------
 % TOPIC: Extended permission AV rules
@@ -1099,10 +1090,9 @@ portcon tcp 22 system_u:object_r:ssh_port_t:s0
 % ----------------------------------------
 % TOPIC: Interfaces
 % ----------------------------------------
-% STATUS: 0
-\subsection{Interfaces}
-\label{interfaces}
-TODO
+%\subsection{Interfaces}
+%\label{interfaces}
+%TODO
 
 % ----------------------------------------
 % TOPIC: File contexts
@@ -1661,8 +1651,7 @@ The \texttt{PolicyGenerator} uses objects from the \texttt{refpolicy} module to
 represent policy statements. The \texttt{PolicyGenerator} provides several
 configuration methods:
 \begin{description}
-    \item [\texttt{set\_gen\_refpol()}] Turn on interface generation (see
-        section \ref{interfaces}).
+    \item [\texttt{set\_gen\_refpol()}] Turn on interface generation.
     \item [\texttt{set\_gen\_requires()}] Add module requires that are
         neccessary for creating a standalone policy module (see section
         \ref{modules}).
@@ -2356,7 +2345,7 @@ In this module, new configuration option was added to the
 \end{description}
 
 \chapter{Conclusion}
-% STATUS: 0
+% STATUS: 1
 % Závěrečná kapitola obsahuje zhodnocení dosažených výsledků se zvlášť
 % vyznačeným vlastním přínosem studenta. Povinně se zde objeví i zhodnocení z
 % pohledu dalšího vývoje projektu, student uvede náměty vycházející ze
