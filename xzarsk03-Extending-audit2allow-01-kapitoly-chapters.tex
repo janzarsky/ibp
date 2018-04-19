@@ -15,36 +15,45 @@
 
 % establish your territory
 %   state the general topic and give some background
-\emph{Security-Enhanced Linux} is a mandatory access control mechanism used in
-Linux distributions. The \emph{audit2allow} utility is used for analyzing
-security denials and creating snippets of security policy.
 %   provide a review of the literature related to the topic
 %   define the terms and scope of the topic
+\emph{Security-Enhanced Linux} is a mandatory access control mechanism used in
+Linux distributions. It extends the traditional Unix file permissions using
+security policies that cannot be overridden by users. The \emph{audit2allow}
+utility is one of several tools used by system administrators to troubleshoot
+SELinux denials. SELinux security policy developers use audit2allow to create a
+basis for security policy modules for their products.  The audit2allow utility
+analyzes SELinux denials and creates snippets of security policy that can be
+loaded into the security policy to allow the operations that were denied.
 
 % establish a niche
 %   outline the current situation
 %   evaluate the current situation (advantages/ disadvantages) and identify the gap
-The audit2allow utility fails to provide an effective and secure solution in
-certain situations. It relies on objects having correct labels, and it does not
-recognize certain security policy statements.
+In certain situations, the audit2allow utility fails to provide an effective and
+secure solution. There are several reasons for that. Users often try to use
+audit2allow to solve problems that does not require new rules in policy. Some
+solutions are not effective because audit2allow does not recognize new types of
+statements in SELinux policy. The audit2allow utility cannot handle denials
+caused by mislabeled objects on the system.
 
 % introduce the current research
 %   identify the importance of the proposed research
-Because of audit2allow, users often end up with policy rules that are too
-permissive and thus unsecure.
+Users that are not familiar with SELinux cannot recognize limitations of
+audit2allow and end up with insecure policy modules on their system.
 %   state the research problem/ questions
 %   state the research aims and/or research objectives
-Improvements to audit2allow aim to suggest policy rules that are more
-restrictive or to suggest more suitable solutions than adding new rules to the
-policy.
-
+This thesis aims to analyze different causes of SELinux denials and evaluate the
+quality of solutions provided by the audit2allow utility. Situations that are
+best resolved using other tools should be detected by audit2allow and user
+should be warned. Selected improvements to audit2allow were implemented.
 %   state the hypotheses
+
 %   outline the order of information in the thesis
-Second chapter presents Security-Enhanced Linux, introduces SELinux policy
-languages, describes auditing of security events, and describes in detail the
-audit2allow utility. The third chapter discusses problems that arise with
-audit2allow usage. The fourth chapter describes implementation details of
-selected improvements to audit2allow.
+Second chapter of the thesis presents Security-Enhanced Linux, introduces
+SELinux policy languages, describes auditing of security events, and describes
+in detail the audit2allow utility. The third chapter discusses problems that
+arise with audit2allow usage. The fourth chapter describes implementation
+details of selected improvements to audit2allow.
 %   outline the methodology
 
 % ==============================================================================
