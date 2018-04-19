@@ -998,8 +998,8 @@ the policy (either in base policy or in another policy module).
 %         4.6.2. Configuring Booleans
 %         4.6.3. Shell Auto-Completion
 \subsection{Conditional Policy}
+\label{booleans}
 % TODO: write about audit2allow?
-
 SELinux policy allows turning on and off set of policy statements without the
 need for reloading policy. Conditional policy is defined using the \texttt{bool}
 statement that defines a condition. Then a \texttt{if}/\texttt{else} construct
@@ -1343,28 +1343,30 @@ The audit2allow is a userspace tool that scans the AVC messages and generates
 SELinux policy snippets based on them.
 
 \subsection{Purpose of audit2allow}
-The audit2allow is tool designed both for system administrators and SELinux
+% STATUS: 4
+The audit2allow utility is designed both for system administrators and SELinux
 policy developers. System administrators use audit2allow to analyze SELinux
-denials and to add policy new policy modules. The audit2allow utility also
-suggests other options to resolve denials, such as turning on a boolean.
+denials and to create new policy modules. When suitable, the audit2allow utility
+suggests other options to resolve denials, such as turning on a boolean (see
+section \ref{booleans}).
 
-Policy developers can use audit2allow for creating basis for new policy module.
-When writing policy for their program, they can run the program's test suite in
-permissive mode, collect SELinux denials, create policy module, and then
-manually finish the policy module. Policy developers can use the
-\texttt{-{}-reference} option to generate policy using macros.
+Policy developers use audit2allow to create basis for new policy modules for
+their products. When writing policy for their program, they can run the
+programs test suite in permissive mode, collect AVC denials, create policy
+module, and then manually finish the policy module. Policy developers can use
+the \texttt{-{}-reference} option to generate policy using macros.
 
 \subsection{Basic Mode of Operation}
 % STATUS: 4
-In default mode, audit2allow scans the AVC denial messages and generates policy
-rules which allows the operations that were denied. For example, when the
-\texttt{httpd} process tries to perform \texttt{getattr} operation on the
+In default mode, audit2allow scans AVC denial messages and generates policy
+rules which allow operations that were denied. For example, when the
+\texttt{httpd} process tries to perform the \texttt{getattr} operation on the
 \texttt{/var/www/html/file1} file, the following AVC message is generated:
-\begin{lstlisting}
-type=AVC msg=audit(1223024155.684:49): avc:  denied  { getattr }
-for pid=2000 comm="httpd" path="/var/www/html/file1" dev=dm-0
-ino=399185 scontext=unconfined_u:system_r:httpd_t:s0
-tcontext=system_u:object_r:samba_share_t:s0 tclass=file
+\begin{lstlisting}[escapechar=\%]
+type=%\textbf{AVC}% msg=audit(1223024155.684:49): avc:  denied  { %\textbf{getattr}% }
+for pid=2000 comm="%\textbf{httpd}%" path="%\textbf{/var/www/html/file1}%" dev=dm-0
+ino=399185 scontext=%\textbf{unconfined\_u:system\_r:httpd\_t:s0}%
+tcontext=%\textbf{system\_u:object\_r:samba\_share\_t:s0}% tclass=%\textbf{file}%
 \end{lstlisting}
 The audit2allow utility would generate the following policy rule:
 \begin{lstlisting}
@@ -1379,16 +1381,16 @@ The audit2allow utility is able to read AVC messages from stdin, dmesg, audit
 log, or arbitrary file (see \texttt{-{}-dmesg}, \texttt{-{}-all}, and
 \texttt{-{}-input} options). There is \texttt{-{}-boot} option which loads only
 messages generated since last boot and \texttt{-{}-lastreload} option which
-loads only messages since last policy reload.
+loads only messages since last SELinux policy reload.
 
 The audit2allow utility can output the policy rules directly to stdout or file,
 or create a policy module which can be loaded directly into the policy (see
 \texttt{-{}-module}, \texttt{-M}, and \texttt{-{}-output} options).
 
 The audit2allow utility is using currently loaded policy (or any other policy
-specified in the \texttt{-{}-policy} option) to get more information about the
-denials.  For example, audit2allow suggests turning on a boolean that would
-allow the denied operations.
+specified with the \texttt{-{}-policy} option) to get more information about the
+denials. For example, audit2allow suggests turning on a boolean that would allow
+the denied operations.
 
 When run with the \texttt{-{}-reference} option, audit2allow tries to match the
 denials against defined interfaces. Example of audit2allow output without the
@@ -1437,29 +1439,33 @@ together with binary policy file to find out the reason of denial.
 
 From AVC denial messages, source contexts, target contexts, object classes, and
 permissions are extracted and converted into \emph{access vector sets}. Each
-access vector has unique source context, target context, and object class
-combination. Permissions from multiple AVC messages are merged into one access
-vector. Example of an access vector set:
+access vector in the set contains unique combination of source context, target
+context, and object class. Permissions from multiple AVC messages are merged
+into one access vector set. Example of an access vector set:
 \begin{lstlisting}
 {
-    ('unconfined_u:system_r:httpd_t:s0',
-     'system_u:object_r:samba_share_t:s0',
-     'file'): [ 'getattr', 'open' ],
-    ('unconfined_u:system_r:httpd_t:s0',
-     'system_u:object_r:sssd_conf_t:s0',
-     'file'): [ 'getattr' ],
+  {
+    src: 'unconfined_u:system_r:httpd_t:s0',
+    tgt: 'system_u:object_r:samba_share_t:s0',
+    class: 'file', perms: [ 'getattr', 'open' ]
+  },
+  {
+    src: 'unconfined_u:system_r:httpd_t:s0',
+    tgt: 'system_u:object_r:sssd_conf_t:s0',
+    class: 'file', perms: [ 'getattr' ]
+  }
 }
 \end{lstlisting}
 
-Each access vector is then converted into an allow rule. All rules are then
-printed to the output, optionally with \texttt{require} section. Example:
+Each access vector is then converted into an allow rule. All rules are printed
+to the output. Example:
 \begin{lstlisting}
 allow httpd_t samba_share_t:file { getattr, open };
 allow httpd_t sssd_conf_t:file getattr;
 \end{lstlisting}
-
-Various other information is stored during processing. The audit2allow prints
-comments with helpful messages.
+The \texttt{module} and \texttt{require} statements (see section \ref{modules})
+may be optionally written to the output. Various other information is stored
+during processing. The audit2allow prints comments with helpful messages.
 
 \subsection{Implementation of audit2allow}
 % STATUS: 4
