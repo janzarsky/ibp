@@ -1289,7 +1289,7 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 % ------------------------------------------------------------------------------
 % TOPIC: Troubleshooting
 % ----------------------------------------
-% STATUS: 1
+% STATUS: 3
 % 11. Troubleshooting
 %     11.1. What Happens when Access is Denied
 %     11.2. Top Three Causes of Problems
@@ -1331,10 +1331,12 @@ the \texttt{httpd\_t} domain into permissive mode:
 SELinux denials caused by the \texttt{httpd\_t} domain would still be logged but
 not enforced.
 
-SELinux denials are logged using the Linux Audit System (the default option in
-Fedora and RHEL) or using the system log at \texttt{/var/log/messages}. The
-\texttt{setroubleshootd} daemon (if running) analyzes SELinux denials and
-provides suggestions for resolving the problem using various plugins.
+On Fedora and RHEL, SELinux denials are analyzed by the \texttt{setroubleshootd}
+daemon that provides suggestions for resolving the problem using various
+plugins. Majority of problems are caused by missing \texttt{allow} rules in
+policy. To add missing rules, the audit2allow utility is used. However, not
+every problem requires new policy rules, some issues may require relabeling of
+objects using restorecon or semanage.
 
 % ------------------------------------------------------------------------------
 \section{The audit2allow Utility}
