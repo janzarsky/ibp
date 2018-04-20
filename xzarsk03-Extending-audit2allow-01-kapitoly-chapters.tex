@@ -1442,17 +1442,17 @@ permissions are extracted and converted into \emph{access vector sets}. Each
 access vector in the set contains unique combination of source context, target
 context, and object class. Permissions from multiple AVC messages are merged
 into one access vector set. Example of an access vector set:
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 {
   {
     src: 'unconfined_u:system_r:httpd_t:s0',
     tgt: 'system_u:object_r:samba_share_t:s0',
-    class: 'file', perms: [ 'getattr', 'open' ]
+    cls: 'file', perms: [ 'getattr', 'open' ]
   },
   {
     src: 'unconfined_u:system_r:httpd_t:s0',
     tgt: 'system_u:object_r:sssd_conf_t:s0',
-    class: 'file', perms: [ 'getattr' ]
+    cls: 'file', perms: [ 'getattr' ]
   }
 }
 \end{lstlisting}
@@ -1590,7 +1590,7 @@ ino=399185 scontext=%\textbf{unconfined\_u:system\_r:httpd\_t:s0}%
 tcontext=%\textbf{system\_u:object\_r:samba\_share\_t:s0}% tclass=%\textbf{file}%
 \end{lstlisting}
 would be converted into the following access vector:
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 {
     source_context: 'unconfined_u:system_r:httpd_t:s0',
     target_context: 'system_u:object_r:samba_share_t:s0',
@@ -1603,7 +1603,7 @@ Multiple access vectors are aggregated in access vector sets. Access vectors
 that share the same source and target type and object class are merged together
 so that there are no duplicates. For example, if we add the following access
 vector:
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 {
     source_context: 'unconfined_u:system_r:httpd_t:s0',
     target_context: 'system_u:object_r:samba_share_t:s0',
@@ -1613,7 +1613,7 @@ vector:
 \end{lstlisting}
 to the access vector above, they would be merged into the following access
 vector (they share source and target context and object class):
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 {
     source_context: 'unconfined_u:system_r:httpd_t:s0',
     target_context: 'system_u:object_r:samba_share_t:s0',
@@ -1643,7 +1643,7 @@ The \texttt{policygen.py} module defines the \texttt{PolicyGenerator} class that
 generates policy module from access vectors. \texttt{PolicyGenerator} converts
 access vector set into SELinux policy statements. For example, this access
 vector:
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 {
     source_context: 'unconfined_u:system_r:httpd_t:s0',
     target_context: 'system_u:object_r:samba_share_t:s0',
@@ -2117,7 +2117,7 @@ in AVC denial messages. The \texttt{ioctlcmd} field is then converted to fit the
 general concept of extended permissions and passed to the access vector set. The
 following code in the \texttt{AuditParser.to\_access()} method converts
 operation-specific fields to generic extended permission dictionary:
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 if avc.ioctlcmd:
     xperm_set = refpolicy.XpermSet()
     xperm_set.add(avc.ioctlcmd)
@@ -2155,7 +2155,7 @@ dictionary where the operation is the key, for example:
 When merging two access vectors, the permissions set are merged using the
 \texttt{union()} method. Extended permission dictionary is merged using the
 following code from the \texttt{AccessVector.merge()} method:
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 for op in av.xperms:
     if op not in self.xperms:
         self.xperms[op] = refpolicy.XpermSet()
@@ -2185,7 +2185,7 @@ AV rule. With extended permissions attached to the access vector, to fully
 convert access vector to policy rules, there needs to be one AV rule and
 possibly several extended permission AV rules. For example, this access vector:
 % TODO use different contexts and tcp_socket
-\begin{lstlisting}
+\begin{lstlisting}[language=Python]
 {
     source_context: 'unconfined_u:system_r:httpd_t:s0',
     target_context: 'system_u:object_r:samba_share_t:s0',
