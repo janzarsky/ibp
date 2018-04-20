@@ -1464,7 +1464,7 @@ into one access vector set. Example of an access vector set:
 Each access vector is then converted into an allow rule. All rules are printed
 to the output. Example:
 \begin{lstlisting}
-allow httpd_t samba_share_t:file { getattr, open };
+allow httpd_t samba_share_t:file { getattr open };
 allow httpd_t sssd_conf_t:file getattr;
 \end{lstlisting}
 The \texttt{module} and \texttt{require} statements (see section \ref{modules})
