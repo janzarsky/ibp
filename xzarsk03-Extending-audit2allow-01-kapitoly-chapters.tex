@@ -140,7 +140,16 @@ reported via ``access denied'' error code to the application \cite{centoshowto}.
 % TODO: describe all parts
 % TODO: introduce the image in text
 SELinux is composed of kernel and userspace part \cite[pp.~19--22]{tsn}. Main
-components of SELinux, as shown in figure \ref{fig:selinuxcomponents}, are:
+components of SELinux, are shown in figure \ref{fig:selinuxcomponents}.
+
+\begin{figure}
+    \centering
+    \label{fig:selinuxcomponents}
+    \input{./figures/selinux-components.tex}
+    % TODO: add "adapted from"?
+    \caption{Main SELinux components.}
+\end{figure}
+
 \begin{description}
     \item [libsepol and libsemanage] Libraries for working with SELinux binary
         policy and policy infrastructure.
@@ -169,20 +178,13 @@ components of SELinux, as shown in figure \ref{fig:selinuxcomponents}, are:
     \item [Linux Security Module Hooks] Call SELinux Security Server.
 \end{description}
 
-\begin{figure}
-    \centering
-    \label{fig:selinuxcomponents}
-    \input{./figures/selinux-components.tex}
-    % TODO: add "adapted from"?
-    \caption{Main SELinux components.}
-\end{figure}
-
 % ------------------------------------------------------------------------------
 \section{Basic Concepts}
-% STATUS: 2
+% STATUS: 4
 
-This section describes basic access control mechanisms used in SELinux and
-explains how are these mechanisms enforced.
+This section defines basic terms related to SELinux, such as mandatory access
+control, type enforcement, multi-level and multi-category security, security
+context, and others.
 
 % ----------------------------------------
 % TOPIC: Subjects and objects
@@ -216,7 +218,7 @@ discretionary access control mechanisms present in Linux kernel.
 \subsubsection{Discretionary Access Control}
 % TODO: cite something
 \emph{Discretionary access control} (DAC) is defined by \emph{Trusted Computer
-System Evaluation Criteria} (TCSES) standard \cite{orangebook}. System with DAC
+System Evaluation Criteria} (TCSEC) standard \cite{orangebook}. System with DAC
 must enable users to protect their data by controlling access to their data,
 e.g. by setting permissions for other users or user groups. In DAC, users make
 security decisions by specifying who can access their data. The problem is that
