@@ -2125,7 +2125,7 @@ if avc.ioctlcmd:
 \end{lstlisting}
 
 \subsection{Storing Extended Permissions}
-% STATUS: 3
+% STATUS: 4
 AVC denial messages are converted to access vectors (see section
 \ref{implementation}). Two messages that contains same source and target context
 and object class are merged together. Denials caused by the ioctl system call
@@ -2165,21 +2165,23 @@ The \texttt{av} variable contains access vector that is to be merged with
 \texttt{self} access vector.
 
 \subsection{Representation of Extended Permission AV Rules}
-% STATUS: 2
-Extended permission access vector rules are represented in the
-\texttt{refpolicy} module by the \texttt{AVExtRule} class. These rules are
-created from access vectors using the \texttt{from\_av()} method. Method
-\texttt{to\_string()} prints out the rule. Example of an extended permission AV
-rule:
+% STATUS: 4
+Extended permission access vector rules are represented by new
+\texttt{AVExtRule} class from the \texttt{refpolicy.py} module. This class is
+very similar to the \texttt{AVRule} class, but contains attributes specific to
+extended permission AV rules. The \texttt{operation} attribute is a string
+identifying the operation, e.g. 'ioctl'. The \texttt{xperms} attribute is an
+\texttt{XpermSet} instance. Method \texttt{to\_string()} prints out the rule.
+Example of an extended permission AV rule:
 \begin{lstlisting}
 allowxperm my_app_t my_socket_t : tcp_socket ioctl { 20 30 0x40 50-60 };
 \end{lstlisting}
 
-The extended permission set (in the previous listing \texttt{\{ 20 30 0x40 50-60
-\}}) is represented by separate class \texttt{XpermSet}.
+The \texttt{AVExtRule} class is initialized from an access vector using the
+\texttt{from\_av()} method. This method contains the \texttt{op} parameter to
+select which extended permission operation from the access vector should appear
+in the rule.
 
-\subsection{Generating Extended Permission AV rules}
-% STATUS: 3
 Without extended permissions, every access vector can be converted into single
 AV rule. With extended permissions attached to the access vector, to fully
 convert access vector to policy rules, there needs to be one AV rule and
@@ -2190,11 +2192,11 @@ possibly several extended permission AV rules. For example, this access vector:
     source_context: 'unconfined_u:system_r:httpd_t:s0',
     target_context: 'system_u:object_r:samba_share_t:s0',
     object_class: 'file',
-    permissions: [ 'getattr', 'ioctl', 'open' ]
+    permissions: { 'getattr', 'ioctl', 'open' }
     extended_permissions: {
-        'ioctl': [ 1, 2, 3 ],
-        'other_command': [ 40, 50, 60 ],
-        'another_command': [ 700, 800, 900 ],
+        'ioctl': { 1, 2, 3 },
+        'other_command': { 40, 50, 60 },
+        'another_command': { 700, 800, 900 },
     }
 }
 \end{lstlisting}
@@ -2209,10 +2211,27 @@ allowxperm httpd_t samba_share_t:file other_command { 40 50 60 };
 allowxperm httpd_t samba_share_t:file another_command { 700 800 900 };
 \end{lstlisting}
 
-The \texttt{PolicyGenerator} was modified to generate extended permission AV
-rules for every operation in access vector. New configuration method was added,
-\texttt{set\_gen\_xperms()}, to specify whether the extended permission AV rules
-should be generated.
+\subsection{Generating Extended Permission AV Rules}
+% STATUS: 3
+New configuration method \texttt{set\_gen\_xperms()} was added to the
+\texttt{PolicyGenerator} from the \texttt{policygen.py} module, to specify
+whether the extended permission AV rules should be generated.
+
+In the old implementation, method \texttt{add\_access()} called the
+\texttt{\_\_add\_allow\_rules()} method which generated AV rules for every
+access vector set. In new implementation, there are two methods,
+\texttt{\_\_add\_av\_rule()} and \texttt{\_\_add\_ext\_av\_rules()}. Both accept
+access vector as a parameter, the \texttt{\_\_add\_av\_rule()} method generates
+single standard access vector rule, \texttt{\_\_add\_ext\_av\_rules()} method
+generates (possibly) several extended permission access vector rules. Both
+methods are called from the \texttt{add\_access()} methods:
+\begin{lstlisting}
+for av in raw_allow:
+    self.__add_av_rule(av)
+    if self.xperms and av.xperms:
+        self.__add_ext_av_rules(av)
+\end{lstlisting}
+
 
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
