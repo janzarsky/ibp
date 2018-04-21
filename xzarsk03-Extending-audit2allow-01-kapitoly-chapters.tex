@@ -259,7 +259,7 @@ Module hooks calls security checks in SELinux.
 % ----------------------------------------
 % TOPIC: SELinux users
 % ----------------------------------------
-% STATUS: 5
+% STATUS: 4
 % 2.4 SELINUX USERS                                                     ?
 \subsection{SELinux Users}
 \label{selinuxuser}
@@ -1472,8 +1472,8 @@ may be optionally written to the output. Various other information is stored
 during processing. The audit2allow prints comments with helpful messages.
 
 \subsection{Implementation of audit2allow}
-\label{implementation}
 % STATUS: 4
+\label{implementation}
 % TODO: link to upstream repo on github
 The audit2allow utility is part of SELinux userspace. It is written mostly in
 Python with several parts written in C. It uses sepolgen and sepolicy Python
@@ -2066,21 +2066,25 @@ audit2allow should suggest using the \texttt{semanage port} command when
 appropriate.
 
 \subsection{Network Nodes}
-% STATUS: 1
+% STATUS: 3
 SELinux is capable of labeling network nodes. For example, there can be rules
 that allow process to communicate only on private LAN or even only on local
 host. Attempts to violate these rules would then produce AVC denial messages
 that contain IP address of the node.
 
-% TODO: rewrite
-Proper solution would be to modify label of certain subnet on the network. AVC
-denial messages provides only the IP addresses. As IP addresses can change
-often, labeling single network node would not be useful.
+Proper solution would be to modify label of certain subnet of the network, for
+example using the \texttt{semanage node} command. AVC denial messages provides
+only IP addresses. As IP addresses can change often, labeling single network
+node would not be useful. Labeling of network nodes is not used on Fedora and
+RHEL. Improving the audit2allow utility to suggest \texttt{semanage node}
+commands would not make a big impact on security.
 
 \subsection{Network Interfaces}
-% STATUS: 0
-% TODO: write or remove?
-TODO
+% STATUS: 2
+SELinux is capable of labeling network interfaces (such as \texttt{eth0}). In
+Fedora and RHEL, labeling of network interfaces is not used. Improving
+audit2allow to suggest \texttt{semanage interface} commands would not make a big
+impact on security.
 
 % ==============================================================================
 \chapter{Implementation}
@@ -2239,23 +2243,28 @@ for av in raw_allow:
 
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
+% STATUS: 2
 The audit2allow utility was extended to check the default context of file if the
-\texttt{path} field is present in the AVC denial message. The \texttt{audit} and
-\texttt{policygen} modules were modified.
+\texttt{path} field is present in the AVC denial message. The \texttt{audit.py}
+and \texttt{policygen.py} modules were modified.
 
 \subsection{Parsing Path}
-The \texttt{audit} module was modified to parse the \texttt{path} field in AVC
-denial messages. Only paths found directly in AVC denial messages will be
-analyzed later by matchpathcon.
+% STATUS: 2
+The \texttt{audit.py} module was modified to parse the \texttt{path} field in
+AVC denial messages. Only paths found directly in AVC denial messages will be
+analyzed later by matchpathcon. As a result, the context will not be checked in
+many cases, because the AVC denials often does not contain full path, only inode
+number and file name.
 
 \subsection{Checking Default Context}
-In \texttt{policygen} module, new option was added to the
+% STATUS: 2
+In \texttt{policygen.py} module, new option was added to the
 \texttt{PolicyGenerator} to turn on or off checking of mislabeled files.
 Checking is turned on by default. Every AVC message from every access vector is
-checked whether it contains the path. Default context of the path is then obtain
-via \texttt{selinux.matchpathcon()} function. Target context of the access
-vector is then compared with default context. In case of difference, comment is
-added to warn user about mislabeled file. For example:
+checked whether it contains the path. Default context of the path is then
+obtained via \texttt{selinux.matchpathcon()} function. Target context of the
+access vector is then compared with default context. In case of difference,
+comment is added to warn user about mislabeled file. For example:
 \begin{lstlisting}
 #============= src_t ==============
 
@@ -2273,7 +2282,7 @@ interoperation between audit2allow, SELinux, and Linux Audit system.
 
 % ------------------------------------------------------------------------------
 \section{Testing Extended Permissions Implementation}
-% STATUS: 1
+% STATUS: 3
 % TODO: write more stuff
 
 Unit tests were extended to ensure that the new functionality does not break
@@ -2400,8 +2409,7 @@ Testing \texttt{AccessVector.add()}: this method just creates an instance of
 \end{longtabu}
 
 \subsection{Testing policygen.py Module}
-% STATUS: 2
-% TODO: write
+% STATUS: 4
 In this module, \texttt{PolicyGenerator} was extended to generate extended
 permission access vector rules.
 
@@ -2440,8 +2448,7 @@ Testing \texttt{PolicyGenerator.add\_access()}:
 \end{longtabu}
 
 \subsection{Testing refpolicy.py Module}
-% STATUS: 2
-% TODO: write
+% STATUS: 4
 The \texttt{XpermSet} and \texttt{AVExtRule} classes were added to represent
 extended permission access vector rules.
 
