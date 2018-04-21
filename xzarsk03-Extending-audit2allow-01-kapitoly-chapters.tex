@@ -638,8 +638,8 @@ denied. When a process tries to perform an action which is not allowed by the
 policy, it is logged. In \emph{permissive} mode, SELinux is not enforcing the
 policy, it only logs actions. In \emph{disabled} mode, SELinux is turned off.
 
-Running SELinux in permissive is useful for catching AVC denials that can be
-analyzes using the audit2allow utility. To perform single task (for example
+Running SELinux in permissive mode is useful for catching AVC denials that can
+be analyzed using the audit2allow utility. To perform single task (for example
 to save a file), several SELinux checks are usually needed. When running in
 enforcing mode, only the first denial would be logged and the troubleshooting
 would be more difficult.
@@ -671,14 +671,14 @@ would be more difficult.
 \label{policy}
 Security decisions made by the security server in kernel are made using
 SELinux policy. This section describes the most important SELinux policy
-statements.
+statements. The primary output audit2allow utility are policy statements.
 
 SELinux supports either monolithic (compiled from single source file) or modular
 policy. Modular policy, which is used in Fedora and RHEL, consists of mandatory
 base policy source file and loadable modules. In Fedora, almost every module
 contains policy for one application or service, such as the \texttt{apache} or
-\texttt{xserver} module. Some policy statements are valid only in base policy or
-in policy module.
+\texttt{xserver} module. The audit2allow utility can be used to create a
+loadable policy module.
 
 SELinux policy statements starts with a statement keyword usually followed by
 several identifiers and semicolon at the end. Comments starts with a ``\#''.
@@ -850,8 +850,9 @@ typealias type_id alias alias_id;
 \subsection{Access Vector Rules}
 \label{avrules}
 The access vector rules support type enforcement within SELinux. They control
-what access do processes get. The \texttt{allow} rule grants an access to an
-object. Syntax:
+what access do processes get. The audit2allow utility generates access vector
+rules as an output. The \texttt{allow} rule grants an access to an object.
+Syntax:
 \begin{lstlisting}[language=te]
 allow source_type target_type:obj_class perm_set;
 \end{lstlisting}
@@ -909,7 +910,9 @@ increments. Extended permission AV rules are currently (as of policy version 31)
 used only for ioctl whitelisting, but they provide generic tool that can be used
 in future for more granular control over an operation~\cite{selinuxmailxperms}.
 
-Syntax of extended permission AV rules \cite{xpermrules}:
+Support for extended permission AV rules by the audit2allow utility was
+implemented as a part of this thesis. Syntax of extended permission AV rules
+\cite{xpermrules}:
 \begin{lstlisting}[language=te]
 rule_name source_type target_type : obj_class operation xperm_set;
 \end{lstlisting}
@@ -976,8 +979,9 @@ rules must be present.
 \label{modules}
 
 The \texttt{module} and \texttt{require} statements are used to support policy
-modules. Every policy module must start with the \texttt{module} statement.
-Syntax:
+modules. The audit2allow utility is able to generate these statements when
+specified by command-line options. Every policy module must start with the
+\texttt{module} statement. Syntax:
 \begin{lstlisting}[language=te]
 module module_name version;
 \end{lstlisting}
@@ -1045,6 +1049,8 @@ if (allow_execmem) {
 }
 \end{lstlisting}
 Booleans can be turned on and off using the \texttt{semanage boolean} command.
+The audit2allow utility is able to detect that certain AVC denials can be solved
+by turning on a boolean.
 
 % ----------------------------------------
 % TOPIC: Networking
@@ -1072,6 +1078,8 @@ SELinux policy supports labeling of the following network objects:
     \item [Network interfaces] Interfaces managed by \texttt{ifconfig} (e.g.
         \texttt{eth0}).
 \end{description}
+The audit2allow utility can be extended to suggest changing labels of network
+objects, see section \ref{networkobjects}.
 
 \subsubsection{Network Interfaces}
 The \texttt{netifcon} statement labels network interface statements. Syntax:
@@ -1170,6 +1178,9 @@ $ getfattr -n security.selinux testfile
 # file: testfile
 security.selinux="unconfined_u:object_r:user_home_t:s0"
 \end{lstlisting}
+Mislabeled files often causes AVC denials that should not be solved using the
+audit2allow utility and audit2allow should detect these situations. Proper
+solutions should be presented to the user. See section \ref{mislabeled}.
 
 \subsection{Temporary Changes}
 % TODO: example?
@@ -1242,15 +1253,15 @@ restore default contexts of files \cite[pp.~165--167]{tsn}:
 These files are created when building policy, see figure \ref{fig:filecontexts}.
 All \texttt{.fc} files from base policy and from policy modules are used to
 build the \texttt{file\_contexts.template} file. This file may contain rules
-that has special keywords inside their path, such as \texttt{HOME\_ROOT},
+that have special keywords inside their path, such as \texttt{HOME\_ROOT},
 \texttt{HOME\_DIR}, or \texttt{USER}. All rules without special keywords are
 used to build the \texttt{file\_contexts} file used directly by utilities such
 as restorecon or setfiles.
 
 Rules with special keywords are used to build the \texttt{homedir\_template}
 file. These rules are asssociated with user home directories and need to be
-expanded for individual users using the \texttt{genhomedircon} utility. For
-example the following \texttt{homedir\_template} entry:
+expanded for individual users using the genhomedircon utility. For example the
+following \texttt{homedir\_template} entry:
 \begin{lstlisting}
 HOME_DIR/\.ssh(/.*)?        system_u:object_r:ssh_home_t:s0
 \end{lstlisting}
@@ -1955,6 +1966,7 @@ allow src_t tgt_t:tcp_socket ioctl;
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
 % STATUS: 3
+\label{mislabeled}
 SELinux relies on files that are correctly labeled. Sometimes, files get
 mislabeled, processes cannot access these files and causes AVC denials. When
 used for troubleshooting, audit2allow suggests adding new rules to the policy
@@ -2033,6 +2045,7 @@ does not work on files that are not indexed in the database created by
 
 % ------------------------------------------------------------------------------
 \section{Labeling Network Ports, Nodes, and Interfaces}
+\label{networkobjects}
 SELinux policy supports labeling of TCP and UDP ports, network nodes
 (represented by IP addresses and subnet masks), and network interfaces (e.g.
 \texttt{eth0}).
