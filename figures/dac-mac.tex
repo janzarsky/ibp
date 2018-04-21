@@ -1,0 +1,15 @@
+% COUNT: 0
+\begin{tikzpicture}
+    \usetikzlibrary{calc}
+    \tikzstyle{arrow} = [->,>=stealth, line width=1pt]
+    \tikzstyle{darrow} = [<->,>=stealth, line width=1pt]
+    \tikzstyle{rec} = [rectangle, draw=black, align=center, text width=3.5cm,
+        minimum height=1cm, minimum width=4cm, fill=white]
+
+    \draw (0,0) rectangle (11,-9.5);
+    \draw[step=1cm,gray,very thin] (0,0) grid (11,-8);
+
+    \node(fcfiles) [rec, text width=2cm, minimum width=2.5cm]
+        at (3.75,-0.5) [anchor=north west]
+        {\textbf{\texttt{.fc} files}};
+\end{tikzpicture}

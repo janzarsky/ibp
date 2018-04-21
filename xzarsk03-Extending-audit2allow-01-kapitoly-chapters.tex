@@ -29,7 +29,7 @@ loaded into the security policy to allow the operations that were denied.
 % establish a niche
 %   outline the current situation
 %   evaluate the current situation (advantages/ disadvantages) and identify the gap
-In certain situations, the audit2allow utility fails to provide an effective and
+In certain situations, the audit2allow utility fails to provide effective and
 secure solution. There are several reasons for that. Users often try to use
 audit2allow to solve problems that does not require new rules in policy. Some
 solutions are not effective because audit2allow does not recognize new types of
@@ -50,7 +50,7 @@ should be warned. Selected improvements to audit2allow were implemented.
 
 %   outline the order of information in the thesis
 Second chapter of the thesis presents Security-Enhanced Linux, introduces
-SELinux policy languages, describes auditing of security events, and describes
+SELinux policy language, describes auditing of security events, and describes
 in detail the audit2allow utility. The third chapter discusses problems that
 arise with audit2allow usage. The fourth chapter describes implementation
 details of selected improvements to audit2allow.
@@ -63,9 +63,9 @@ details of selected improvements to audit2allow.
 % problems of SELinux. Purpose of audit2allow, how is it used, how does it work,
 % internal structure of audit2allow.
 
-This chapter describes basic concepts of Security-Enhanced Linux, writing of
-security policy, basic overview of the Linux Audit System and how it is used by
-Security-Enhanced Linux, and the details of the audit2allow utility.
+This chapter describes basic concepts of Security-Enhanced Linux, introduces the
+SELinux security policy language, provides overview of the Linux Audit System,
+and describes in detail the audit2allow utility.
 
 % ------------------------------------------------------------------------------
 % TOPIC: SELinux introduction and motivation
@@ -83,7 +83,7 @@ Security-Enhanced Linux (SELinux) is a mandatory access control mechanism that
 consists of kernel modifications and user-space tools and is a part of several
 Linux distributions.
 
-\subsection{What Problems Does SELinux Solve}
+\subsection{Purpose of SELinux}
 Without SELinux, operating system relies on traditinal access control methods
 such as file permissions. Users can grant insecure file permissions to others or
 gain access to files that they do not need \cite{selinuxguide}:
@@ -98,10 +98,11 @@ gain access to files that they do not need \cite{selinuxguide}:
         though it may be compromised, is able to read all user's files.
 \end{itemize}
 
-With SELinux, every action is denied by default. A security policy is written
-which allows individual applications to perform actions required to function.
-Applications do not need to be aware of SELinux. When an action is denied, it is
-reported via ``access denied'' error code to the application \cite{centoshowto}.
+SELinux enforces a security policy that cannot be overriden by users.
+Application are allowed to perform only actions they need for normal operation,
+everything else is denied by default. Applications do not need to be aware of
+SELinux. When an action is denied, it is reported via ``access denied'' error
+code to the application \cite{centoshowto}.
 
 %\subsection{How Does SELinux Enforce a Security Policy}
 %
@@ -152,18 +153,24 @@ components of SELinux, are shown in figure \ref{fig:selinuxcomponents}.
 
 \begin{description}
     \item [libsepol and libsemanage] Libraries for working with SELinux binary
-        policy and policy infrastructure.
+        policy and policy infrastructure. The libsepol library is used for
+        example for loading policy modules into the active security policy. The
+        libsemanage library is used for example for assigning security contexts
+        to TCP or UDP ports.
     % TODO: improve
-    \item [libselinux] API for implementing SELinux-aware applications.
+    \item [libselinux] API for implementing SELinux-aware applications. For
+        example, SELinux-aware window manager can use the libselinux library to
+        compute security contexts of its objects.
     \item [checkmodule, semodule\_package, semodule] Utilities that compile
         SELinux policy and load it into the kernel.
     \item [semanage] Utility for configuring various parts of policy, for
-        example setting contexts for TCP and UDP ports.
+        example setting contexts for TCP and UDP ports. It uses mainly the
+        libsemanage library.
     \item [restorecon and setfiles] Utilities for restoring default context of
-        files.
-    % TODO: check
+        files (see section \ref{filecontexts}).
     \item [policycoreutils] Various utilities for working with and
-        troubleshooting of SELinux.
+        troubleshooting of SELinux, for example the audit2allow utility
+        described in section \ref{audit2allow}.
     \item [Modified Linux Commands] Standard Linux commands such as ls or ps,
         modified to support SELinux.
     \item [SELinux and proc filesystem] Userspace tools communicate with kernel
@@ -198,11 +205,10 @@ There are two basic entities in SELinux \cite[p.~29]{tsn}:
     \item [Subject] is an entity that causes information to flow among objects
         or changes the system state. Within SELinux, a subject is an active
         process that can access objects. A~process can also be an object, for
-        example when sending signal to another process, the process receiving
-        the signal is treated as an object.
+        example when a process is sending signal to another process, the process
+        receiving the signal is treated as an object.
     \item [Object] is a system resource such as file, socket, pipe, TCP or UDP
-        port, network interface, semaphore or shared memory segment. Objects
-        are accessed via subjects.
+        port, network interface, semaphore or shared memory segment.
 \end{description}
 
 % ----------------------------------------
@@ -221,8 +227,8 @@ discretionary access control mechanisms present in Linux kernel.
 System Evaluation Criteria} (TCSEC) standard \cite{orangebook}. System with DAC
 must enable users to protect their data by controlling access to their data,
 e.g. by setting permissions for other users or user groups. In DAC, users make
-security decisions by specifying who can access their data. The problem is that
-users can propagate sensitive information.
+security decisions by specifying who can access their data. The disadvantage is
+that users can propagate sensitive information.
 
 Linux implements discretionary access control. Every object has an owner that
 controls access to that object. Permissions are set in three scopes: user,
@@ -250,11 +256,20 @@ SUSE, is used in SUSE Linux Enterprise, openSUSE and Ubuntu
 \cite{apparmor,apparmorubuntu}. There are two other Linux security modules,
 Smack and TOMOYO Linux.
 
-\subsubsection{SELinux and MAC}
-% TODO: image with MAC hooks
-When running an SELinux-enabled system, when a userspace process makes a system
-call, standard file permissions are checked first. Then the Linux Security
-Module hooks calls security checks in SELinux.
+\subsection{SELinux and MAC Checks}
+SELinux security checks are carried out after standard Linux DAC checks. When
+running an SELinux-enabled system, when a userspace process makes a system call,
+standard file permissions are checked first. Then, if the access is allowed, the
+Linux Security Module hooks calls security checks in SELinux. See figure
+\ref{fig:dacmac}.
+
+\begin{figure}
+    \centering
+    \label{fig:dacmac}
+    \input{./figures/dac-mac.tex}
+    % TODO: add "adapted from"?
+    \caption{DAC and MAC checks.}
+\end{figure}
 
 % ----------------------------------------
 % TOPIC: SELinux users
@@ -269,7 +284,8 @@ example, Linux user \texttt{root} is mapped to SELinux user
 \texttt{unconfined\_u} on Fedora 27. There is a special SELinux user that is
 not mapped to any user: \texttt{system\_u}.
 
-Available SELinux users can be listed using the \texttt{seinfo} command:
+Available SELinux users can be listed using the \texttt{seinfo -{}-user}
+command:
 \begin{lstlisting}
 $ seinfo --user
 
@@ -291,12 +307,19 @@ Users: 8
 % 2.5 ROLE-BASED ACCESS CONTROL (RBAC)                                  ?
 \subsection{Role-Based Access Control}
 \label{rbac}
-SELinux uses role-based access control, where every SELinux user is associated
-to one or more roles \cite[p.~24]{tsn}. Each role can access only types
-that are associated to that role. For example, user \texttt{system\_u} is
-associated to roles \texttt{unconfined\_r} and \texttt{system\_r} on Fedora 27.
+% TODO: cite something
+SELinux uses role-based access control (RBAC) as one of its security mechanisms.
+RBAC as general concept is based on users, roles, and permissions, and
+relationships between them. RBAC defines the role-permission, user-role, and
+role-role relationships.
 
-Available SELinux roles can be listed using the \texttt{seinfo} command:
+In SELinux, every user is associated to one or more roles \cite[p.~24]{tsn}.
+Each role can access only types that are associated to that role. For example,
+user \texttt{system\_u} is associated to roles \texttt{unconfined\_r} and
+\texttt{system\_r} on Fedora 27.
+
+Available SELinux roles can be listed using the \texttt{seinfo -{}-role}
+command:
 \begin{lstlisting}
 $ seinfo --role
 
@@ -331,7 +354,8 @@ SELinux uses type enforcement for enforcing mandatory access control
 Processes running with the same type are called a \emph{domain}. SELinux
 policy then contains rules that allow domains access types.
 
-Available SELinux types can be listed using the \texttt{seinfo} command:
+Available SELinux types can be listed using the \texttt{seinfo -{}-type}
+command:
 \begin{lstlisting}
 $ seinfo --type
 
@@ -372,7 +396,9 @@ classification. Process running at certain security level can:
     \item write only at higher levels.
 \end{itemize}
 This means that processes cannot read data with higher security level and
-cannot leak sensitive information to the lower levels.
+cannot leak sensitive information to the lower levels. Multi-level security is
+not used by default in most SELinux-enabled Linux distributions such as Fedora
+or RHEL, but it is supported.
 
 % ----------------------------------------
 % TOPIC: SELinux context
@@ -440,9 +466,9 @@ $ ls -Z /etc
 % TODO: rewrite
 % TODO: cite reference policy
 
-Each object is assigned class identifier which specifies set of permissions that
-describe what operations can object handle \cite[pp.~29--30]{tsn}. For example,
-on Fedora 27, there are the following classes:
+Each object belongs to an object class. Object classes specify operations that
+can be performed on the object \cite[pp.~29--30]{tsn}. For example, on Fedora
+27, there are the following classes:
 \begin{lstlisting}
 $ seinfo --class
 
@@ -519,8 +545,8 @@ The first init process usually transitions to its own unique domain, for example
 \texttt{init\_t}. On fork, the child process inherits the security context of
 its parent. On exec, the child process may transition to different security
 context. This is achieved by type transition policy statements. SELinux-aware
-processes may change context by calling \texttt{setcon} or \texttt{setexeccon}
-functions from the libselinux library.
+processes may change context by calling \texttt{setcon()} or
+\texttt{setexeccon()} functions from the libselinux library.
 
 \subsubsection{Labeling Files}
 Security context for files is computed as follows:
@@ -550,10 +576,9 @@ File contexts are covered in depth in section \ref{filecontexts}.
 \subsection{Type Transitions}
 \label{typetransitions}
 To run different processes in different domains, we need a way how to
-\emph{transition} a process from one domain to another. To attach file label
-different than its parent's label, we need to transition an object from one type
-to another. Both transitions can be achieved using the \texttt{type\_transition}
-statement.
+\emph{transition} a process from one domain to another. To attach specific label
+to an object, we need to transition an object from one type to another. Both
+transitions can be achieved using the \texttt{type\_transition} statement.
 
 \subsubsection{Domain Transition}
 Starting new process with different security context is called domain transition
@@ -596,7 +621,7 @@ context \texttt{user\_tmp\_t}. This is achieved by the following
 \begin{lstlisting}[language=te]
 type_transition xserver_t tmp_t:file user_tmp_t;
 \end{lstlisting}
-The X server does not need to be aware of SELinux, the kernel handles the label
+The X server does not need to be aware of SELinux, the kernel computes the label
 automatically.
 
 % ----------------------------------------
@@ -612,6 +637,12 @@ SELinux has three modes of operation \cite{selinuxguide}. The default mode is
 denied. When a process tries to perform an action which is not allowed by the
 policy, it is logged. In \emph{permissive} mode, SELinux is not enforcing the
 policy, it only logs actions. In \emph{disabled} mode, SELinux is turned off.
+
+Running SELinux in permissive is useful for catching AVC denials that can be
+analyzes using the audit2allow utility. To perform single task (for example
+to save a file), several SELinux checks are usually needed. When running in
+enforcing mode, only the first denial would be logged and the troubleshooting
+would be more difficult.
 
 % ------------------------------------------------------------------------------
 % TOPIC: Policy language
@@ -1343,6 +1374,7 @@ objects using restorecon or semanage.
 % ------------------------------------------------------------------------------
 \section{The audit2allow Utility}
 % STATUS: 4
+\label{audit2allow}
 The audit2allow is a userspace tool that scans the AVC messages and generates
 SELinux policy snippets based on them.
 
@@ -2520,9 +2552,6 @@ extended to parse path field. Test cases:
     \texttt{test\_audit.py} module:}
     \\ \hline
     \texttt{test\_path()} & Test that the \texttt{path} field is parsed.
-    \\ \hline
-    \texttt{test\_path\_without()} & Test message without the \texttt{path}
-    field.
     \\ \hline
 \end{longtabu}
 
