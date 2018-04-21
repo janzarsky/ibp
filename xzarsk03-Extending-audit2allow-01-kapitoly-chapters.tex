@@ -2467,7 +2467,9 @@ values. The \texttt{add()} method adds values or ranges of values, the
     \\ \hline
 \end{longtabu}
 
-Testing \texttt{AVExtRule} class:
+Testing \texttt{AVExtRule} class: this class is similar to the \texttt{AVRule}
+class. The \texttt{from\_av()} method creates the rule from an access vector and
+the \texttt{to\_string()} method prints the rule to a string.
 \begin{longtabu}{|l|X|} \hline
     \multicolumn2{|l|}{\texttt{TestAVExtRule} class from the
     \texttt{test\_refpolicy.py} module:}
@@ -2502,25 +2504,34 @@ command-line options.
 
 New unit tests were written to cover new functionality.
 
-\subsection{Testing audit Module}
+\subsection{Testing audit.py Module}
 % STATUS: 2
 In this module, the \texttt{AVCMessage.from\_split\_string()} method was
 extended to parse path field. Test cases:
-\begin{description}
-    \item [\texttt{test\_path()}] Test that the \texttt{path} field is parsed.
-    \item [\texttt{test\_path\_without()}] Test message without the \texttt{path}
-        field.
-\end{description}
+\begin{longtabu}{|l|X|} \hline
+    \multicolumn2{|l|}{\texttt{TestAVCMessage} class from the
+    \texttt{test\_audit.py} module:}
+    \\ \hline
+    \texttt{test\_path()} & Test that the \texttt{path} field is parsed.
+    \\ \hline
+    \texttt{test\_path\_without()} & Test message without the \texttt{path}
+    field.
+    \\ \hline
+\end{longtabu}
 
 \subsection{Testing policygen Module}
 % STATUS: 2
 In this module, new configuration option was added to the
 \texttt{PolicyGenerator}.
-\begin{description}
-    \item [\texttt{test\_check\_mislabeled\_nothing()}] Test no mislabeled
-        files.
-    \item [\texttt{test\_check\_mislabeled\_one()}] Test one mislabeled file.
-\end{description}
+\begin{longtabu}{|l|X|} \hline
+    \multicolumn2{|l|}{\texttt{TestPolicyGenerator} class from the
+    \texttt{test\_policygen.py} module:}
+    \\ \hline
+    \texttt{test\_check\_mislabeled\_nothing()} & Test no mislabeled files.
+    \\ \hline
+    \texttt{test\_check\_mislabeled\_one()} & Test one mislabeled file.
+    \\ \hline
+\end{longtabu}
 
 \chapter{Conclusion}
 % STATUS: 1
