@@ -2506,13 +2506,13 @@ command-line options.
 
 % ------------------------------------------------------------------------------
 \section{Testing Implementation of Mislabeled Files}
-% STATUS: 2
+% STATUS: 3
 % TODO: write more stuff
 
 New unit tests were written to cover new functionality.
 
 \subsection{Testing audit.py Module}
-% STATUS: 2
+% STATUS: 4
 In this module, the \texttt{AVCMessage.from\_split\_string()} method was
 extended to parse path field. Test cases:
 \begin{longtabu}{|l|X|} \hline
@@ -2527,9 +2527,11 @@ extended to parse path field. Test cases:
 \end{longtabu}
 
 \subsection{Testing policygen Module}
-% STATUS: 2
+% STATUS: 4
 In this module, new configuration option was added to the
-\texttt{PolicyGenerator}.
+\texttt{PolicyGenerator}. For the purposes of testing,
+\texttt{selinux.matchpathcon()} function used for checking the default context
+was replaced. 
 \begin{longtabu}{|l|X|} \hline
     \multicolumn2{|l|}{\texttt{TestPolicyGenerator} class from the
     \texttt{test\_policygen.py} module:}
