@@ -1304,10 +1304,10 @@ itself, it can be only used to discover security violations.
 
 The Linux Audit system consists of kernel and userspace part. Kernel filters
 events and sends them to the \emph{audit daemon}. Audit daemon then writes the
-received events to log file. There are several userspace tools used for
+received events to a log file. There are several userspace tools used for
 interacting with the audit system and for working with the log file.
 
-\subsection{Audit and SELinux}
+\subsection{Auditing SELinux Denials}
 
 In Fedora and RHEL, SELinux uses the Linux Audit system to log security events.
 When a process tries to perform operation without the permissions, an
@@ -1876,7 +1876,7 @@ Several improvements to audit2allow were proposed:
 
 % ------------------------------------------------------------------------------
 \section{Extended Permission Access Vector Rules}
-% STATUS: 3
+% STATUS: 4
 Since policy version 30, SELinux policy supports extended permission access
 vector rules (see section \ref{extavrules}). Usage of extended permission AV
 rules introduces situations when audit2allow is not able to detect the true
@@ -1884,24 +1884,24 @@ cause of denial. As a result, when using extended permission AV rules,
 audit2allow may suggest rules that do not solve the denial.
 
 \subsection{AVC Denials Caused by Extended Permission AV Rules}
-% STATUS: 3
+% STATUS: 4
 Suppose there are following rules present in the policy:
 \begin{lstlisting}
 allow src_t tgt_t : tcp_socket ioctl;
 allowxperm src_t tgt_t : tcp_socket ioctl 0x42;
 \end{lstlisting}
-When the process tries to call \texttt{ioctl(0x1234, ...)}, the operation would
-be denied, because only syscall \texttt{ioctl(0x42, ...)} is allowed. The
-following AVC denial message would be generated:
-\begin{lstlisting}
+When a process tries to call \texttt{ioctl(0x1234, ...)}, the operation would be
+denied, because only syscall \texttt{ioctl(0x42, ...)} is allowed. The following
+AVC denial message would be generated:
+\begin{lstlisting}[escapechar=\%]
 type=AVC msg=audit(1515017775.689:1722): avc:  denied  { ioctl } for
-pid=14587 comm="test" dev="dm-0" ino=8390105 ioctlcmd=0x1234
+pid=14587 comm="test" dev="dm-0" ino=8390105 %\textbf{ioctlcmd=0x1234}%
 scontext=unconfined_u:unconfined_r:src_t:s0-s0:c0.c1023
 tcontext=unconfined_u:object_r:tgt_t:s0 tclass=tcp_socket permissive=0
 \end{lstlisting}
-The \texttt{ioctlcmd} field contains first parameter of ioctl syscall that was
-denied. This value can be used to construct an allowxperm rule to allow this
-operation.
+The \texttt{ioctlcmd} field contains the first parameter of the ioctl syscall
+that was denied. This value can be used to construct an \texttt{allowxperm} rule
+to allow this operation.
 
 When used for troubleshooting this AVC denial, audit2allow produces the
 following output:
@@ -1911,8 +1911,8 @@ following output:
 #!!!! This avc is allowed in the current policy
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
-which is not helpful. User must know about extended permissions and assume that
-the allow rule was overridden.
+which is not helpful. Users are expected to know about extended permissions to 
+assume that the allow rule was overridden.
 
 \subsection{Generating Extended Permission AV Rules in audit2allow}
 % STATUS: 3
@@ -1925,10 +1925,12 @@ rules:
     \item There is neither \texttt{allow} nor \texttt{allowxperm} rule in the
         policy. The audit2allow utility has two options: either generate only
         allow rule (current behaviour) or generate \texttt{allow} and
-        \texttt{allowxperm} rules. Generating \texttt{allowxperm} rules may be
-        % TODO: explain better
-        inefficient for many processes, because they use lot of different ioctl
-        calls.
+        \texttt{allowxperm} rules. Generating \texttt{allowxperm} rules is more
+        secure and provides more granular access control. However, for many
+        processes that use lot of different ioctl calls it may be inefficient.
+        Generating the \texttt{allowxperm} rules automatically also changes the
+        default output of audit2allow and breaks lot of integration tests
+        written using the audit2allow utility.
     \item There is both \texttt{allow} and \texttt{allowxperm} rule in the
         policy. This means that the specific ioctl parameter is not allowed. In
         this case \texttt{allowxperm} rule should be generated.
@@ -1951,10 +1953,11 @@ example:
 #!!!! This avc is allowed in the current policy
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
-In this example, it is not clear, that the denial is caused by extended
-permission AV rule. The audit2allow utility should generate an explanation in
-situations, when the access would be allowed and the AVC denial messages
-contains the \texttt{ioctlcmd} field. For example:
+In this example, it is not clear that the denial is caused by extended
+permission AV rule. In situations when the denial would be allowed according to
+the binary policy (there is an \texttt{allow} rule) and the AVC denial message
+contains the \texttt{ioctlcmd} field, the user should be warned about extended
+permission AV rules. For example:
 \begin{lstlisting}
 #============= src_t ==============
 
@@ -1962,6 +1965,8 @@ contains the \texttt{ioctlcmd} field. For example:
 #!!!! This av rule may have been overriden by extended permission av rule
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
+Support for extended permissions was implemented as a part of this thesis, see
+section \ref{xpermsimp}.
 
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
@@ -2148,6 +2153,7 @@ improvements were implemented:
 
 % ------------------------------------------------------------------------------
 \section{Extended Permissions}
+\label{xpermsimp}
 % STATUS: 4
 Main script \texttt{audit2allow} and modules \texttt{audit.py},
 \texttt{access.py}, \texttt{policygen.py}, \texttt{refpolicy.py} were modified
