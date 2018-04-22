@@ -2055,7 +2055,7 @@ SELinux policy supports labeling of TCP and UDP ports, network nodes
 \texttt{eth0}).
 
 \subsection{Network Ports}
-% STATUS: 3
+% STATUS: 4
 SELinux can enforce binding to system ports. For example, in Fedora 27, there
 are several hundred \texttt{portcon} rules that label TCP and UDP ports.
 Example:
@@ -2121,7 +2121,7 @@ audit2allow should suggest using the \texttt{semanage port} command when
 appropriate.
 
 \subsection{Network Nodes}
-% STATUS: 3
+% STATUS: 4
 SELinux is capable of labeling network nodes. For example, there can be rules
 that allow process to communicate only on private LAN or even only on local
 host. Attempts to violate these rules would then produce AVC denial messages
@@ -2135,7 +2135,7 @@ RHEL. Improving the audit2allow utility to suggest \texttt{semanage node}
 commands would not make a big impact on security.
 
 \subsection{Network Interfaces}
-% STATUS: 2
+% STATUS: 4
 SELinux is capable of labeling network interfaces (such as \texttt{eth0}). In
 Fedora and RHEL, labeling of network interfaces is not used. Improving
 audit2allow to suggest \texttt{semanage interface} commands would not make a big
@@ -2143,7 +2143,7 @@ impact on security.
 
 % ==============================================================================
 \chapter{Implementation}
-% STATUS: 2
+% STATUS: 4
 From the list of possible improvements to audit2allow, the following
 improvements were implemented:
 \begin{itemize}
@@ -2158,8 +2158,8 @@ improvements were implemented:
 
 % ------------------------------------------------------------------------------
 \section{Extended Permissions}
-\label{xpermsimp}
 % STATUS: 4
+\label{xpermsimp}
 Main script \texttt{audit2allow} and modules \texttt{audit.py},
 \texttt{access.py}, \texttt{policygen.py}, \texttt{refpolicy.py} were modified
 to support extended permissions. Support for extended permission AV rules with
@@ -2299,13 +2299,13 @@ for av in raw_allow:
 
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
-% STATUS: 2
+% STATUS: 4
 The audit2allow utility was extended to check the default context of file if the
 \texttt{path} field is present in the AVC denial message. The \texttt{audit.py}
 and \texttt{policygen.py} modules were modified.
 
-\subsection{Parsing Path}
-% STATUS: 2
+\subsection{Parsing File Path}
+% STATUS: 4
 The \texttt{audit.py} module was modified to parse the \texttt{path} field in
 AVC denial messages. Only paths found directly in AVC denial messages will be
 analyzed later by matchpathcon. As a result, the context will not be checked in
@@ -2313,13 +2313,13 @@ many cases, because the AVC denials often does not contain full path, only inode
 number and file name.
 
 \subsection{Checking Default Context}
-% STATUS: 2
+% STATUS: 4
 In \texttt{policygen.py} module, new option was added to the
 \texttt{PolicyGenerator} to turn on or off checking of mislabeled files.
 Checking is turned on by default. Every AVC message from every access vector is
 checked whether it contains the path. Default context of the path is then
 obtained via \texttt{selinux.matchpathcon()} function. Target context of the
-access vector is then compared with default context. In case of difference,
+access vector is then compared with the default context. In case of difference,
 comment is added to warn user about mislabeled file. For example:
 \begin{lstlisting}
 #============= src_t ==============
