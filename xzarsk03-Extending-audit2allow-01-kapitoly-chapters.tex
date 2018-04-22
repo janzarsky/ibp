@@ -2608,23 +2608,37 @@ was replaced.
 
 % 1. Conclusions: concise statements about your main findings, related to your
 %       aims/objectives/hypothesis.
-% situations were identified 
-% causes investigated
-Several situations where audit2allow provides too permissive or insecure
-solutions were identified. Extended permission access vector rules that provide
-more granular control were not supported by audit2allow. The audit2allow utility
-provided solutions that assumed that the context of object is correct.
+% audit2alow relies on correct labels
+% when incorrect label of file or port or whatever, it still tries to suggest
+% solutions based on adding new rules to the policy
+% audit2allow may provide unfunctional solutions because it does not understands
+% new policy statements
+The aim of this thesis was to identify situations where the audit2allow utility
+provides unsecure and too permissive solutions. Several situations were found.
+The audit2allow utility relies on objects having correct labels and it is not
+able to detect that the denials were caused by mislabeled objects. In case of
+mislabeled files, audit2allow is only partially able to detect that the file is
+mislabeled. In case of mislabeled TCP or UDP ports, audit2allow can detect that
+the port needs application-specific label. The audit2allow utility does not
+recognize several new features in the SELinux policy, such as extended
+permissions, and provide solutions that are not functional.
 
 % 2. Contributions to your field of research, stating/restating the significance
 %       of what you have discovered. Can include limitations.
-%Support for extended permissions was added to audit2allow.
-% implemented stuff
-Improvement of audit2allow were implemented.
+% two improvements were implemented
+% extended permission support was introduced
+% checking of mislabeled files was introduced
+Two improvements of the audit2allow utility were implemented. Support for
+extended permissions provides more granular control over the operations. The
+audit2allow now generates the extended permission access vector rules when
+neccessary. Support for checking the default context of files provides warnings
+to the user and prevents unneccessary and too permissive rules from ending up as
+a part of users policy.
 
 % 3. Future research:
 %       where to go from here (can include where NOT to go, if your research
 %       demonstrated that a particular approach or avenue was not useful).
-%Other improvements can be implemented.
-% network stuff is no-go
-The audit2allow can be further improved to detect situations where the correct
-solution is to use different tool.
+% in the future, more improvements can be implemented
+% some improvements are not useful
+The audit2allow utility can be further improved to detect situations where the
+correct solution is to use different tool.
