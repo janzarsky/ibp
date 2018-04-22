@@ -1970,9 +1970,9 @@ section \ref{xpermsimp}.
 
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
-% STATUS: 3
+% STATUS: 4
 \label{mislabeled}
-SELinux relies on files that are correctly labeled. Sometimes, files get
+SELinux relies on files having correct label. Sometimes, when files get
 mislabeled, processes cannot access these files and causes AVC denials. When
 used for troubleshooting, audit2allow suggests adding new rules to the policy
 instead of changing label of the file.
@@ -1989,7 +1989,7 @@ unconfined_u:object_r:httpd_sys_content_t:s0 index.html
        unconfined_u:object_r:admin_home_t:s0 my_file.html
 \end{lstlisting}
 File \texttt{index.html} has correct label, but file \texttt{my\_file.html} has
-incorrect label. The \texttt{httpd} process cannot access files labeled
+an incorrect label. The \texttt{httpd} process cannot access files labeled
 \texttt{admin\_home\_t}, because there are no allow rules in the policy for this
 operation:
 \begin{lstlisting}
@@ -2006,10 +2006,9 @@ dev=dm-0 ino=218171 scontext=system_u:system_r:httpd_t:s0
 tcontext=system_u:object_r:admin_home_t:s0 tclass=file
 \end{lstlisting}
 In this case, there is the \texttt{ino} field, which contains inode number
-associated with the denial, and the \texttt{name} field, which contains name of
-the file (but not the full path). In cases of \texttt{getattr} denial, the
-\texttt{path} field is present. AVC denial may also happen because a process
-cannot access list of files in directory.
+associated with the denial, and the \texttt{name} field, which contains the name
+of the file (but not the full path). In cases of \texttt{getattr} denial, the
+\texttt{path} field is present.
 
 \subsection{Solving Problems With Mislabeled Files}
 The restorecon utility uses file contexts files to get default security contexts
@@ -2090,19 +2089,25 @@ labels (based on range):
     61001--65535 & \texttt{unreserved\_port\_t} \\
 \end{tabular}
 
-When a process tries to bind port and it is denied by policy, AVC message is
-generated. For example:
-\begin{lstlisting}
+When a process tries to bind to a port and it is denied by SELinux, AVC denial
+message is generated. For example:
+\begin{lstlisting}[escapechar=\%]
 type=AVC msg=audit(1516026512.648:4191): avc:  denied  { name_bind } for
-pid=6116 comm="test" src=43 scontext=unconfined_u:unconfined_r:my_app_t:s0
+pid=6116 comm="test" %\textbf{src=43}% scontext=unconfined_u:unconfined_r:my_app_t:s0
 tcontext=system_u:object_r:reserved_port_t:s0
 tclass=tcp_socket permissive=0
 \end{lstlisting}
 
 Proper way how to allow the process to bind on port number 43 would be to label
-this port with a application-specific context. The audit2allow suggest adding
-the following rule to the policy:
+this port with a application-specific context using either a \texttt{portcon}
+rule or the \texttt{semanage port} command. For example:
 \begin{lstlisting}
+# semanage port --add -t system_u:object_r:my_app_port_t:s0 -p TCP 43
+\end{lstlisting}
+
+When used for troubleshooting this denial, the audit2allow utility suggests
+adding the following rule to the policy:
+\begin{lstlisting}[language=te]
 allow my_app_t reserved_port_t:tcp_socket name_bind;
 \end{lstlisting}
 This rule would allow \texttt{my\_app\_t} access to all reserved ports which is
