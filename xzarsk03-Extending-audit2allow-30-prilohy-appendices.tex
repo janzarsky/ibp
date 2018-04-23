@@ -9,7 +9,7 @@
 
 The contents of the enclosed memory media:
 \begin{description}
-    \item [\texttt{/packages}] RPM packages for Fedora 27
+    \item [\texttt{/packages}] RPM packages for Fedora 28
     \item [\texttt{/source-packages}] Source RPM packages
     \item [\texttt{/selinux-xperms}] Source codes for extended permission support
     \item [\texttt{/selinux-restorecon}] Source codes for checking mislabeled
@@ -44,7 +44,7 @@ commit.
 
 Patches for both extended permission support and support for checking mislabeled
 files were applied to Fedora userspace packages and can be installed on
-Fedora~27. The \texttt{/packages} directory contains RPM packages. The
+Fedora~28. The \texttt{/packages} directory contains RPM packages. The
 \texttt{/source-packages} directory contains SRPM packages with source codes.
 
 These packages can be installed directly using the dnf command:
@@ -54,8 +54,8 @@ These packages can be installed directly using the dnf command:
 or from a COPR repository:
 \begin{lstlisting}
 # dnf copr enable janzarsky/selinux-fedora
-# dnf update checkpolicy libselinux libsemanage libsepol policycoreutils \
-    secilc
+# dnf update checkpolicy libselinux libsemanage libsepol policycoreutils
+# dnf install policycoreutils-python-utils
 \end{lstlisting}
 
 \section{Tests}
