@@ -58,8 +58,8 @@ details of selected improvements to audit2allow.
 
 % ==============================================================================
 \chapter{Security-Enhanced Linux and audit2allow}
-% STATUS: 3
-% TODO: describe SELinux, describe audit2allow, use examples, what are the
+% STATUS: 4
+% describe SELinux, describe audit2allow, use examples, what are the
 % problems of SELinux. Purpose of audit2allow, how is it used, how does it work,
 % internal structure of audit2allow.
 
@@ -70,15 +70,13 @@ and describes in detail the audit2allow utility.
 % ------------------------------------------------------------------------------
 % TOPIC: SELinux introduction and motivation
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 2.1 INTRODUCTION                                                      Y
 %     2.1.1 Is SELinux useful                                           Y
 % 1. Introduction
 %     1.1. Benefits of running SELinux
 %     1.2. Examples
 \section{Security-Enhanced Linux}
-
-% TODO: improve
 Security-Enhanced Linux (SELinux) is a mandatory access control mechanism that
 consists of kernel modifications and user-space tools and is a part of several
 Linux distributions.
@@ -138,8 +136,6 @@ code to the application \cite{centoshowto}.
 % 2.2 CORE SELINUX COMPONENTS                                           Y
 %     1.3. SELinux Architecture
 \subsection{SELinux Components}
-% TODO: describe all parts
-% TODO: introduce the image in text
 SELinux is composed of kernel and userspace part \cite[pp.~19--22]{tsn}. Main
 components of SELinux, are shown in figure \ref{fig:selinuxcomponents}.
 
@@ -157,7 +153,6 @@ components of SELinux, are shown in figure \ref{fig:selinuxcomponents}.
         example for loading policy modules into the active security policy. The
         libsemanage library is used for example for assigning security contexts
         to TCP or UDP ports.
-    % TODO: improve
     \item [libselinux] API for implementing SELinux-aware applications. For
         example, SELinux-aware window manager can use the libselinux library to
         compute security contexts of its objects.
@@ -198,8 +193,6 @@ context, and others.
 % ----------------------------------------
 % STATUS: 4
 \subsection{Subjects and Objects}
-% TODO: basic description of subjects and objects, improve
-
 There are two basic entities in SELinux \cite[p.~29]{tsn}:
 \begin{description}
     \item [Subject] is an entity that causes information to flow among objects
@@ -214,7 +207,7 @@ There are two basic entities in SELinux \cite[p.~29]{tsn}:
 % ----------------------------------------
 % TOPIC: MAC, DAC
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 2.3 MANDATORY ACCESS CONTROL (MAC)                                    Y
 \subsection{Mandatory Access Control}
 
@@ -222,7 +215,6 @@ SELinux provides mandatory access control mechanism that extends the
 discretionary access control mechanisms present in Linux kernel.
 
 \subsubsection{Discretionary Access Control}
-% TODO: cite something
 \emph{Discretionary access control} (DAC) is defined by \emph{Trusted Computer
 System Evaluation Criteria} (TCSEC) standard \cite{orangebook}. System with DAC
 must enable users to protect their data by controlling access to their data,
@@ -307,7 +299,6 @@ Users: 8
 % 2.5 ROLE-BASED ACCESS CONTROL (RBAC)                                  ?
 \subsection{Role-Based Access Control}
 \label{rbac}
-% TODO: cite something
 SELinux uses role-based access control (RBAC) as one of its security mechanisms.
 RBAC as general concept is based on users, roles, and permissions, and
 relationships between them. RBAC defines the role-permission, user-role, and
@@ -372,7 +363,7 @@ Types: 4845
 % ----------------------------------------
 % TOPIC: MLS and MCS
 % ----------------------------------------
-% STATUS: 2
+% STATUS: 4
 %     4.13. Multi-Level Security (MLS)
 %         4.13.1. MLS and System Privileges
 %         4.13.2. Enabling MLS in SELinux
@@ -380,8 +371,6 @@ Types: 4845
 %         4.13.4. Setting Up Polyinstantiated Directories
 \subsection{Multi-Level and Multi-Category Security}
 \label{mls}
-% TODO: improve
-
 In addition to type enforcement and role-based access control, SELinux also
 supports multi-level security (MLS) and multi-category security (MCS)
 \cite[pp.~48--53]{tsn}. For the purposes of MLS and MCS, security context is
@@ -408,8 +397,6 @@ or RHEL, but it is supported.
 % 2. SELinux Contexts
 \subsection{SELinux Security Context}
 \label{context}
-% TODO: describe parts of the context
-
 Security decisions are based on a \emph{security context} that must be assigned
 to every subject and object \cite[pp.~27--28]{tsn}. The security context is
 sometimes reffered to as \emph{security label} or just \emph{label}.  The
@@ -463,9 +450,6 @@ $ ls -Z /etc
 %     4.10.3 common                                                     Y
 %     4.10.4 class                                                      Y
 \subsection{Object Classes}
-% TODO: rewrite
-% TODO: cite reference policy
-
 Each object belongs to an object class. Object classes specify operations that
 can be performed on the object \cite[pp.~29--30]{tsn}. For example, on Fedora
 27, there are the following classes:
@@ -556,10 +540,6 @@ Security context for files is computed as follows:
         \texttt{role\_transition} statement.
     \item [\texttt{type}] Type defaults to the type of the parent directory
         unless modified by \texttt{type\_transition} statement.
-        % TODO: make it clear, low or current?
-    \item [\texttt{range}/\texttt{level}] Defaults to the low/current level of
-        the creating process unless modified by \texttt{range\_transition}
-        statement.
 \end{description}
 File contexts are covered in depth in section \ref{filecontexts}.
 
@@ -647,7 +627,7 @@ would be more difficult.
 % ------------------------------------------------------------------------------
 % TOPIC: Policy language
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 4.1 INTRODUCTION                                                      Y
 %     4.1.1 CIL Overview                                                Y
 % 4.2 KERNEL POLICY LANGUAGE                                            Y
@@ -1026,7 +1006,7 @@ the policy (either in base policy or in another policy module).
 % ----------------------------------------
 % TOPIC: Conditional policy
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 4.11 CONDITIONAL POLICY STATEMENTS                                    Y
 %     4.11.1 bool                                                       Y
 %     4.11.2 if                                                         Y
@@ -1036,7 +1016,6 @@ the policy (either in base policy or in another policy module).
 %         4.6.3. Shell Auto-Completion
 \subsection{Conditional Policy}
 \label{booleans}
-% TODO: write about audit2allow?
 SELinux policy allows turning on and off set of policy statements without the
 need for reloading policy. Conditional policy is defined using the \texttt{bool}
 statement that defines a condition. Then a \texttt{if}/\texttt{else} construct
@@ -1137,7 +1116,6 @@ portcon tcp 22 system_u:object_r:ssh_port_t:s0
 % ----------------------------------------
 %\subsection{Interfaces}
 %\label{interfaces}
-%TODO
 
 % ----------------------------------------
 % TOPIC: File contexts
@@ -1183,7 +1161,6 @@ audit2allow utility and audit2allow should detect these situations. Proper
 solutions should be presented to the user. See section \ref{mislabeled}.
 
 \subsection{Temporary Changes}
-% TODO: example?
 The chcon command changes the SELinux context of files \cite{selinuxguide}. User
 must have the permission to relabel files. The changes made by chcon are
 overwritten by a file system relabel or running of restorecon.
@@ -1193,16 +1170,14 @@ There are rules in policy that specifies the context of files created by
 processes. For example, when process running with the \texttt{httpd\_t} context
 creates a file in directory with the \texttt{var\_run\_t} context, the file will
 get context \texttt{httpd\_var\_run\_t}:
-% TODO explain
 \begin{lstlisting}[language=te]
 type_transition httpd_t var_run_t:file httpd_var_run_t;
 \end{lstlisting}
 Type transitions are explained in section \ref{typetransitions}.
 
 \subsection{File Context Configuration Files}
-% TODO: cite something
 There are situations when files get label that is different than the default
-one:
+one \cite{selinuxguide}:
 \begin{enumerate}
     \item When moving files, label is preserved. This does not happen when
         copying files because new file is always created.
@@ -1289,11 +1264,10 @@ In this example, new file contexts entry was added. The rule states that file
 % ------------------------------------------------------------------------------
 % TOPIC: Auditing
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 2.16 AUDITING SELINUX EVENTS                                          Y
 %     2.16.1 AVC Audit Events                                           Y
 %     2.16.2 General SELinux Audit Events                               Y
-% TODO: write intro text
 \section{Auditing Security Events}
 
 The \emph{Linux Audit system} provides an auditing system for tracking
@@ -1333,7 +1307,7 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 % ------------------------------------------------------------------------------
 % TOPIC: Troubleshooting
 % ----------------------------------------
-% STATUS: 3
+% STATUS: 4
 % 11. Troubleshooting
 %     11.1. What Happens when Access is Denied
 %     11.2. Top Three Causes of Problems
@@ -1350,7 +1324,6 @@ tcontext=system_u:object_r:samba_share_t:s0 tclass=file
 %         11.3.7. sealert Messages
 %         11.3.8. Allowing Access: audit2allow
 \section{Troubleshooting SELinux}
-% TODO: write about SELinux problems and troubleshooting
 % SELinux denial - what happens, logs
 % auditd
 % setroubleshootd
@@ -1479,7 +1452,7 @@ The \texttt{-{}-dontaudit} option generates \texttt{dontaudit} rules instead of
 \texttt{allow} rules (see section~\ref{avrules}).
 
 \subsection{How Does audit2allow Work}
-% STATUS: 3
+% STATUS: 4
 The audit2allow first collects audit messages from various sources. Messages are
 stored based on their type and then parsed. Every AVC denial message is analyzed
 together with binary policy file to find out the reason of denial.
@@ -1517,7 +1490,6 @@ during processing. The audit2allow prints comments with helpful messages.
 \subsection{Implementation of audit2allow}
 % STATUS: 4
 \label{implementation}
-% TODO: link to upstream repo on github
 The audit2allow utility is part of SELinux userspace. It is written mostly in
 Python with several parts written in C. It uses sepolgen and sepolicy Python
 packages and libselinux and libsepol libraries.
@@ -1864,14 +1836,14 @@ options.
 
 % ==============================================================================
 \chapter{Analysis}
-% STATUS: 2
-% TODO: improve
-Several improvements to audit2allow were proposed:
+% STATUS: 4
+Two general areas for improvement to audit2allow were identified:
 \begin{enumerate}
     \item Changing label of an object instead of creating new policy rules. This
         includes checking of mislabeled files, labeling network ports, nodes,
         and interfaces.
-    \item Support for new SELinux policy statements.
+    \item Support for new SELinux policy statements such as extended permission
+        access vector rules.
 \end{enumerate}
 
 % ------------------------------------------------------------------------------
@@ -1915,7 +1887,7 @@ which is not helpful. Users are expected to know about extended permissions to
 assume that the allow rule was overridden.
 
 \subsection{Generating Extended Permission AV Rules in audit2allow}
-% STATUS: 3
+% STATUS: 4
 % example 1: no rule
 % example 2: both allow and allow rule
 The audit2allow does have all the information to generate extended permission AV
@@ -1978,7 +1950,7 @@ used for troubleshooting, audit2allow suggests adding new rules to the policy
 instead of changing label of the file.
 
 \subsection{AVC Denial Messages Caused by Mislabeled Files}
-% STATUS: 3
+% STATUS: 4
 When a process is trying to access file that is mislabeled, the operation is
 usually denied (unless the process has access also to the incorrect label). For
 example, when user moves content from \texttt{/root} directory to the
@@ -2030,7 +2002,7 @@ files. This solution is not secure because it is adding unnecessary rules to the
 policy and it does not solve the real problem.
 
 \subsection{Improving audit2allow}
-% STATUS: 2
+% STATUS: 4
 The audit2allow utility should detect when the AVC message is caused by
 mislabeled file and suggest solution using the restorecon utility.
 
@@ -2250,13 +2222,12 @@ Without extended permissions, every access vector can be converted into single
 AV rule. With extended permissions attached to the access vector, to fully
 convert access vector to policy rules, there needs to be one AV rule and
 possibly several extended permission AV rules. For example, this access vector:
-% TODO use different contexts and tcp_socket
 \begin{lstlisting}[language=Python]
 {
-    source_context: 'unconfined_u:system_r:httpd_t:s0',
-    target_context: 'system_u:object_r:samba_share_t:s0',
-    object_class: 'file',
-    permissions: { 'getattr', 'ioctl', 'open' }
+    source_context: 'unconfined_u:system_r:src_t:s0',
+    target_context: 'system_u:object_r:tgt_t:s0',
+    object_class: 'tcp_socket',
+    permissions: { 'getattr', 'ioctl' }
     extended_permissions: {
         'ioctl': { 1, 2, 3 },
         'other_command': { 40, 50, 60 },
@@ -2269,14 +2240,14 @@ version 31, only the \texttt{ioctl} operation is supported, operations
 \texttt{other\_command} and \texttt{another\_command} were added only as an
 example.}:
 \begin{lstlisting}
-allow httpd_t samba_share_t:file { getattr ioctl open };
-allowxperm httpd_t samba_share_t:file ioctl { 1 2 3 };
-allowxperm httpd_t samba_share_t:file other_command { 40 50 60 };
-allowxperm httpd_t samba_share_t:file another_command { 700 800 900 };
+allow src_t tgt_t:tcp_socket { getattr ioctl };
+allowxperm src_t tgt_t:tcp_socket ioctl { 1 2 3 };
+allowxperm src_t tgt_t:tcp_socket other_command { 40 50 60 };
+allowxperm src_t tgt_t:tcp_socket another_command { 700 800 900 };
 \end{lstlisting}
 
 \subsection{Generating Extended Permission AV Rules}
-% STATUS: 3
+% STATUS: 4
 New configuration method \texttt{set\_gen\_xperms()} was added to the
 \texttt{PolicyGenerator} from the \texttt{policygen.py} module, to specify
 whether the extended permission AV rules should be generated.
@@ -2330,17 +2301,14 @@ allow src_t tgt_t:file getattr;
 
 % ==============================================================================
 \chapter{Functional Testing}
-% STATUS: 3
-% TODO: write about tests, chosen coverage
+% STATUS: 4
 The functionality of implemented features to audit2allow was tested by extending
 existing unit tests and writing integration tests that are focused on
 interoperation between audit2allow, SELinux, and Linux Audit system.
 
 % ------------------------------------------------------------------------------
 \section{Testing Extended Permissions Implementation}
-% STATUS: 3
-% TODO: write more stuff
-
+% STATUS: 4
 Unit tests were extended to ensure that the new functionality does not break
 existing code. New test cases were added to test the new features.
 
@@ -2562,9 +2530,7 @@ command-line options.
 
 % ------------------------------------------------------------------------------
 \section{Testing Implementation of Mislabeled Files}
-% STATUS: 3
-% TODO: write more stuff
-
+% STATUS: 4
 New unit tests were written to cover new functionality.
 
 \subsection{Testing audit.py Module}
