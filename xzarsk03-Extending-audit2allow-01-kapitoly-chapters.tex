@@ -252,16 +252,7 @@ Smack and TOMOYO Linux.
 SELinux security checks are carried out after standard Linux DAC checks. When
 running an SELinux-enabled system, when a userspace process makes a system call,
 standard file permissions are checked first. Then, if the access is allowed, the
-Linux Security Module hooks calls security checks in SELinux. See figure
-\ref{fig:dacmac}.
-
-\begin{figure}
-    \centering
-    \label{fig:dacmac}
-    \input{./figures/dac-mac.tex}
-    % TODO: add "adapted from"?
-    \caption{DAC and MAC checks.}
-\end{figure}
+Linux Security Module hooks calls security checks in SELinux.
 
 % ----------------------------------------
 % TOPIC: SELinux users
