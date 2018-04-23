@@ -2509,18 +2509,17 @@ the \texttt{to\_string()} method prints the rule to a string.
     \\ \hline
 \end{longtabu}
 
-% ------------------------------------------------------------------------------
 \subsection{Integration Tests of Extended Permissions}
-% STATUS: 2
+% STATUS: 4
 
-Integration tests were written to check audit2allow functionality in real world
+Integration test was written to check audit2allow functionality in real world
 situation. First, SELinux policy module with extended permission AV rules is
 loaded. Testing program then tries to call ioctl on a file with different
 parameters. AVC denials are collected and sent to audit2allow with different
 command-line options.
 
 % ------------------------------------------------------------------------------
-\section{Testing Implementation of Mislabeled Files}
+\section{Testing Implementation of File Contexts Checks}
 % STATUS: 4
 New unit tests were written to cover new functionality.
 
@@ -2552,6 +2551,15 @@ was replaced.
     \\ \hline
 \end{longtabu}
 
+\subsection{Integration Tests of File Contexts Checks}
+% STATUS: 4
+To test checking of mislabeled files, integration test was written. First,
+SELinux policy module that defines new SELinux type is loaded. Test file is
+created and labeled with new type. Testing program then tries to open that
+file and fails. AVC denials are collected and sent to the audit2allow utility.
+The output is checked for warnings about mislabeled file.
+
+% ==============================================================================
 \chapter{Conclusion}
 % STATUS: 1
 % Závěrečná kapitola obsahuje zhodnocení dosažených výsledků se zvlášť
