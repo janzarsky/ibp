@@ -54,7 +54,6 @@ These packages can be installed directly using the dnf command:
 or from a COPR repository:
 \begin{lstlisting}
 # dnf copr enable janzarsky/selinux-fedora
-# dnf update checkpolicy libselinux libsemanage libsepol policycoreutils
 # dnf install policycoreutils-python-utils
 \end{lstlisting}
 
@@ -65,6 +64,7 @@ tests from the upstream repository. As a part of this thesis, tests in
 \texttt{selinux/python/sepolgen/tests} and \\
 \texttt{selinux/python/audit2allow/test\_audit2allow} were implemented.
 
+% TODO: gcc package
 The \texttt{/tests} directory contains integration tests. These tests require
 the beakerlib library. To run the tests, install modified packages on the system
 and run the \texttt{runtest.sh} files.
