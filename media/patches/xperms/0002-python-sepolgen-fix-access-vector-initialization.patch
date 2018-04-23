@@ -1,0 +1,37 @@
+From 36a8714a6c05b14ae8233acbae130c1de59d7cfe Mon Sep 17 00:00:00 2001
+From: Jan Zarsky <jan.zarsky@gmail.com>
+Date: Tue, 17 Apr 2018 10:52:49 +0200
+Subject: [PATCH 2/3] python/sepolgen: fix access vector initialization
+
+In access module, in AccessVector.__init__() method, when init_list is
+not None, the access vector is initialized by from_list() method.
+However, this method does not assign attributes self.audit_msgs,
+self.type, and self.data. Fix this by assigning these attributes in
+__init__() method.
+
+Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
+---
+ python/sepolgen/src/sepolgen/access.py | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/python/sepolgen/src/sepolgen/access.py b/python/sepolgen/src/sepolgen/access.py
+index a5d86982..21613eb8 100644
+--- a/python/sepolgen/src/sepolgen/access.py
++++ b/python/sepolgen/src/sepolgen/access.py
+@@ -87,9 +87,10 @@ class AccessVector(util.Comparison):
+             self.tgt_type = None
+             self.obj_class = None
+             self.perms = refpolicy.IdSet()
+-            self.audit_msgs = []
+-            self.type = audit2why.TERULE
+-            self.data = []
++
++        self.audit_msgs = []
++        self.type = audit2why.TERULE
++        self.data = []
+         # when implementing __eq__ also __hash__ is needed on py2
+         # if object is muttable __hash__ should be None
+         self.__hash__ = None
+-- 
+2.14.3
+

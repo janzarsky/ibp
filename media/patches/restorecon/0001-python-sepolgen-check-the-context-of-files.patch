@@ -1,0 +1,176 @@
+From 095ac9f98c0c6438953927f8acc927025b1f0cd7 Mon Sep 17 00:00:00 2001
+From: Jan Zarsky <jan.zarsky@gmail.com>
+Date: Sat, 21 Apr 2018 19:03:35 +0200
+Subject: [PATCH] python/sepolgen: check the context of files
+
+Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
+---
+ python/sepolgen/src/sepolgen/audit.py     |  2 ++
+ python/sepolgen/src/sepolgen/policygen.py | 28 ++++++++++++++++++++++++-
+ python/sepolgen/tests/test_audit.py       | 10 +++++++++
+ python/sepolgen/tests/test_policygen.py   | 35 +++++++++++++++++++++++++++++--
+ 4 files changed, 72 insertions(+), 3 deletions(-)
+
+diff --git a/python/sepolgen/src/sepolgen/audit.py b/python/sepolgen/src/sepolgen/audit.py
+index 26ce6c92..69df2f9f 100644
+--- a/python/sepolgen/src/sepolgen/audit.py
++++ b/python/sepolgen/src/sepolgen/audit.py
+@@ -237,6 +237,8 @@ class AVCMessage(AuditMessage):
+                 self.exe = fields[1][1:-1]
+             elif fields[0] == "name":
+                 self.name = fields[1][1:-1]
++            elif fields[0] == "path":
++                self.path = fields[1][1:-1]
+ 
+         if not found_src or not found_tgt or not found_class or not found_access:
+             raise ValueError("AVC message in invalid format [%s]\n" % self.message)
+diff --git a/python/sepolgen/src/sepolgen/policygen.py b/python/sepolgen/src/sepolgen/policygen.py
+index ee664fb7..620c8dfa 100644
+--- a/python/sepolgen/src/sepolgen/policygen.py
++++ b/python/sepolgen/src/sepolgen/policygen.py
+@@ -82,8 +82,9 @@ class PolicyGenerator:
+             self.module = refpolicy.Module()
+ 
+         self.dontaudit = False
+-
+         self.domains = None
++        self.check_mislabeled = True
++
+     def set_gen_refpol(self, if_set=None, perm_maps=None):
+         """Set whether reference policy interfaces are generated.
+ 
+@@ -120,6 +121,11 @@ class PolicyGenerator:
+     def set_gen_dontaudit(self, dontaudit):
+         self.dontaudit = dontaudit
+ 
++    def set_check_mislabeled(self, mislabeled):
++        """Set whether to check for mislabeled files.
++        """
++        self.check_mislabeled = mislabeled
++
+     def __set_module_style(self):
+         if self.ifgen:
+             refpolicy = True
+@@ -153,6 +159,20 @@ class PolicyGenerator:
+         """Return the generated module"""
+         return self.module
+ 
++    def __check_mislabeled(self, avs):
++        for av in avs:
++            av.mislabeled = []
++            for msg in av.audit_msgs:
++                if msg.path:
++                    import selinux
++                    try:
++                        context = selinux.matchpathcon(msg.path, 0)
++                        split = context[1].split(":")[2]
++                        if split != av.tgt_type:
++                            av.mislabeled.append(msg.path)
++                    except OSError:
++                        pass
++
+     def __add_allow_rules(self, avs):
+         for av in avs:
+             rule = refpolicy.AVRule(av)
+@@ -166,6 +186,9 @@ class PolicyGenerator:
+             if av.type == audit2why.DONTAUDIT:
+                 rule.comment += "\n#!!!! This avc has a dontaudit rule in the current policy"
+ 
++            for filename in av.mislabeled:
++                rule.comment += "\n#!!!! The '%s' file has other than default context" % filename
++
+             if av.type == audit2why.BOOLEAN:
+                 if len(av.data) > 1:
+                     rule.comment += "\n#!!!! This avc can be allowed using one of the these booleans:\n#     %s" % ", ".join([x[0] for x in av.data])
+@@ -214,6 +237,9 @@ class PolicyGenerator:
+         else:
+             raw_allow = av_set
+ 
++        if self.check_mislabeled:
++            self.__check_mislabeled(raw_allow)
++
+         # Generate the raw allow rules from the filtered list
+         self.__add_allow_rules(raw_allow)
+ 
+diff --git a/python/sepolgen/tests/test_audit.py b/python/sepolgen/tests/test_audit.py
+index 6379954f..223264ce 100644
+--- a/python/sepolgen/tests/test_audit.py
++++ b/python/sepolgen/tests/test_audit.py
+@@ -56,6 +56,8 @@ type=SYSCALL msg=audit(1162852201.019:1225): arch=40000003 syscall=11 success=ye
+ type=AVC msg=audit(1162852201.019:1225): avc:  denied  { execute_no_trans } for  pid=6974 comm="sh" name="sa1" dev=dm-0 ino=13061698 scontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tcontext=system_u:object_r:lib_t:s0 tclass=file
+ type=AVC msg=audit(1162852201.019:1225): avc:  denied  { execute } for  pid=6974 comm="sh" name="sa1" dev=dm-0 ino=13061698 scontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tcontext=system_u:object_r:lib_t:s0 tclass=file"""
+ 
++path2 = """type=AVC msg=audit(1162852201.019:1225): avc:  denied  { getattr } for  pid=6974 comm="sh" path="/etc/testfile" dev=dm-0 ino=13061698 scontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tcontext=system_u:object_r:admin_home_t:s0 tclass=file"""
++
+ class TestAVCMessage(unittest.TestCase):
+     def test_defs(self):
+         avc = sepolgen.audit.AVCMessage(audit1)
+@@ -133,6 +135,14 @@ class TestAVCMessage(unittest.TestCase):
+ 
+         self.assertEqual(avc.denial, True)
+ 
++    def test_path(self):
++        """Test that the path field is parsed"""
++        avc = sepolgen.audit.AVCMessage(path2)
++        recs = path2.split()
++        avc.from_split_string(recs)
++
++        self.assertEqual(avc.path, "/etc/testfile")
++
+ class TestPathMessage(unittest.TestCase):
+     def test_from_split_string(self):
+         path = sepolgen.audit.PathMessage(path1)
+diff --git a/python/sepolgen/tests/test_policygen.py b/python/sepolgen/tests/test_policygen.py
+index 58d1adf3..7cac6802 100644
+--- a/python/sepolgen/tests/test_policygen.py
++++ b/python/sepolgen/tests/test_policygen.py
+@@ -19,13 +19,44 @@
+ 
+ import unittest
+ import sepolgen.policygen as policygen
++import sepolgen.access as access
++import sepolgen.audit as audit
++import selinux
+ 
+ class PolicyGenerator(unittest.TestCase):
+-    def __init__(self):
++    def setUp(self):
++        # import selinux and replace matchpathcon function with this one
++        def mock_matchpathcon(path, mode):
++            return [0, 'system_u:object_r:test_t:s0']
++
++        self.matchpathcon_bak = selinux.matchpathcon
++        selinux.matchpathcon = mock_matchpathcon
++
++    def test_check_mislabeled_nothing(self):
++        """ Test AVC messages without mislabeled files. """
+         g = policygen.PolicyGenerator()
+-        
++        avs = access.AccessVectorSet()
++        msg = audit.AVCMessage('')
++        msg.path = '/test'
++        avs.add('foo', 'test_t', 'file', ['getattr'], msg)
+ 
++        g._PolicyGenerator__check_mislabeled(avs)
+ 
++        for av in avs:
++            self.assertEqual(av.mislabeled, [])
++
++    def test_check_mislabeled_one(self):
++        """ Test AVC messages with mislabeled files. """
++        g = policygen.PolicyGenerator()
++        avs = access.AccessVectorSet()
++        msg = audit.AVCMessage('')
++        msg.path = '/test'
++        avs.add('foo', 'invalid_t', 'file', ['getattr'], msg)
+ 
++        g._PolicyGenerator__check_mislabeled(avs)
+ 
++        for av in avs:
++            self.assertEqual(av.mislabeled, ['/test'])
+ 
++    def tearDown(self):
++        selinux.matchpathcon = self.matchpathcon_bak
+-- 
+2.14.3
+

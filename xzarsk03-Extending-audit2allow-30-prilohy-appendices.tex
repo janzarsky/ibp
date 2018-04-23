@@ -10,25 +10,53 @@
 \begin{itemize}
     \item selinux repo with extended permissions
     \item selinux repo with checking mislabeled files
-    \item package for Fedora 28 with both patches applied
+    \item package for Fedora with both patches applied
 \end{itemize}
 
 \chapter{Manual}
 
+\section{Upstream Repository}
+
 Improvements to audit2allow were implemented as a series of patches to a 2.8-rc1
-version of the SELinux userspace upstream repository.
+version of the SELinux userspace upstream repository. To install upstream
+version of userspace, follow the instructions in \texttt{README}.
 
-To install patched SELinux userspace, follow the instructions in the upstream
-repository (TODO). TODO: installation of packages on Fedora.
+The \texttt{/selinux-xperms} directory contains the SELinux userspace repository
+with support for extended permissions applied on top of the \texttt{f04d6401}
+commit from the upstream repository.
 
-TODO: how to run unit tests
+The \texttt{/selinux-restorecon} directory contains the SELinux userspace
+repository with support for checking mislabeled files applied on top of the
+\texttt{f04d6401} commit from the upstream repository.
 
-TODO: how to integration tests
+The \texttt{/patches} directory contains patches against the \texttt{f04d6401}
+commit.
 
-%\chapter{Konfigurační soubor} % Configuration file
+\section{Fedora packages}
 
-%\chapter{RelaxNG Schéma konfiguračního souboru} % Scheme of RelaxNG configuration file
+Patches for both extended permission support and support for checking mislabeled
+files were applied to Fedora userspace packages and can be installed on
+Fedora~27. The \texttt{/packages} directory contains RPM packages. The
+\texttt{/source-packages} directory contains SRPM packages with source codes.
 
-%\chapter{Plakát} % poster
+These packages can be installed directly using the dnf command:
+\begin{lstlisting}
+# dnf install packages/*.rpm
+\end{lstlisting}
+or from a COPR repository:
+\begin{lstlisting}
+# dnf copr enable janzarsky/selinux-fedora
+# dnf update checkpolicy libselinux libsemanage libsepol policycoreutils \
+    secilc
+\end{lstlisting}
 
+\section{Tests}
+To run unit tests, install modified packages on the system. Then navigate to the
+\\ \texttt{/selinux-xperms} or \texttt{/selinux-restorecon} directory and run
+tests from the upstream repository. As a part of this thesis, tests in
+\texttt{selinux/python/sepolgen/tests} and \\
+\texttt{selinux/python/audit2allow/test\_audit2allow} were implemented.
+
+The \texttt{/tests} directory contains integration tests. These tests require
+the beakerlib library. (TODO)
 
