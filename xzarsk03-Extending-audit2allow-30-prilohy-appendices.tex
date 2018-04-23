@@ -7,11 +7,19 @@
 % a supervisor
 \chapter{Contents of Enclosed Memory Media}
 
-\begin{itemize}
-    \item selinux repo with extended permissions
-    \item selinux repo with checking mislabeled files
-    \item package for Fedora with both patches applied
-\end{itemize}
+The contents of the enclosed memory media:
+\begin{description}
+    \item [\texttt{/packages}] RPM packages for Fedora 27
+    \item [\texttt{/source-packages}] Source RPM packages
+    \item [\texttt{/selinux-xperms}] Source codes for extended permission support
+    \item [\texttt{/selinux-restorecon}] Source codes for checking mislabeled
+        files
+    \item [\texttt{/patches}] Source codes as a patches to the upstream
+        repository
+    \item [\texttt{/tests}] Integration tests
+    \item [\texttt{/thesis}] Sources for building the text of the thesis
+    \item [\texttt{Extending-audit2allow.pdf}] Text of the thesis
+\end{description}
 
 \chapter{Manual}
 
@@ -57,6 +65,7 @@ tests from the upstream repository. As a part of this thesis, tests in
 \texttt{selinux/python/sepolgen/tests} and \\
 \texttt{selinux/python/audit2allow/test\_audit2allow} were implemented.
 
+% TODO: add tests
 The \texttt{/tests} directory contains integration tests. These tests require
 the beakerlib library. (TODO)
 
