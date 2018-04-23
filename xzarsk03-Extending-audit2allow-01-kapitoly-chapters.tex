@@ -2590,24 +2590,35 @@ The output is checked for warnings about mislabeled file.
 The aim of this thesis was to identify situations where the audit2allow utility
 provides unsecure and too permissive solutions. Several situations were found.
 The audit2allow utility relies on objects having correct labels and it is not
-able to detect that the denials were caused by mislabeled objects. In case of
-mislabeled files, audit2allow is only partially able to detect that the file is
-mislabeled. In case of mislabeled TCP or UDP ports, audit2allow can detect that
-the port needs application-specific label. The audit2allow utility does not
-recognize several new features in the SELinux policy, such as extended
-permissions, and provide solutions that are not functional.
+able to detect that the denials were caused by mislabeled objects.
+
+In case of mislabeled files, audit2allow is only partially able to detect that
+the file is mislabeled. There are ways how to check if the file is mislabeled,
+but in most situations, not enough information is logged using the Linux Audit
+system to get full path of the file. Checking of default file context was
+implemented as a part of this thesis. This improvement warns users that the file
+is mislabeled and another tool needs to be used to restore the default context
+of the file.
+
+The audit2allow utility is not aware of recently added support for extended
+permission that provide more granular control of permissions given to processes.
+When used for troubleshooting SELinux denials caused by extended permissions,
+the audit2allow utility is not able to provide functional solution. Support for
+generating extended permission access vector rules was implemented as a part of
+this thesis. The audit2allow utility can now detect that the denial was caused
+by extended permissions and generate extended permission access vector rules to
+allow the operations that were denied.
+
+In case of mislabeled TCP or UDP ports, audit2allow can detect that the port
+needs application-specific label. Creating new labels for ports is a task that
+requires certain knowledge of SELinux a the solution is not straightforward
+Suggesting labels for ports can be imlemented in the future.
 
 % 2. Contributions to your field of research, stating/restating the significance
 %       of what you have discovered. Can include limitations.
 % two improvements were implemented
 % extended permission support was introduced
 % checking of mislabeled files was introduced
-Two improvements of the audit2allow utility were implemented. Support for
-extended permissions provides more granular control over the operations. The
-audit2allow now generates the extended permission access vector rules when
-neccessary. Support for checking the default context of files provides warnings
-to the user and prevents unneccessary and too permissive rules from ending up as
-a part of users policy.
 
 % 3. Future research:
 %       where to go from here (can include where NOT to go, if your research
@@ -2615,4 +2626,6 @@ a part of users policy.
 % in the future, more improvements can be implemented
 % some improvements are not useful
 The audit2allow utility can be further improved to detect situations where the
-correct solution is to use different tool.
+correct solution is to use different tool. This thesis serves as a basis for
+discussion about new features that would make troubleshooting problems with
+SELinux easier.
