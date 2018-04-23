@@ -1401,7 +1401,7 @@ Policy developers use audit2allow to create basis for new policy modules for
 their products. When writing policy for their program, they can run the
 programs test suite in permissive mode, collect AVC denials, create policy
 module, and then manually finish the policy module. Policy developers can use
-the \texttt{-{}-reference} option to generate policy using macros.
+the \texttt{-{}-reference} option to generate policy using predefined macros.
 
 \subsection{Basic Mode of Operation}
 % STATUS: 4
@@ -1455,8 +1455,8 @@ require {
 #============= httpd_t ==============
 samba_read_share_files(httpd_t)
 \end{lstlisting}
-The audit2allow found an interface which contained the same allow
-rule. Interfaces creates more readable code but can contain more rules that are
+The audit2allow found an interface which contained the same allow rule.
+Interfaces create more readable code but can contain more rules that are
 necessary.
 
 The \texttt{-{}-why} option does not output any policy rules but provides a text
