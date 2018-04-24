@@ -17,13 +17,13 @@
 %   provide a review of the literature related to the topic
 %   define the terms and scope of the topic
 \emph{Security-Enhanced Linux} (SELinux) is a mandatory access control mechanism
-used in Linux distributions. It extends the traditional file permissions using
-security policies that cannot be overridden by users. The \emph{audit2allow}
+used in Linux distributions. It extends the traditional file permissions using a
+security policy that cannot be overridden by users. The \emph{audit2allow}
 utility is one of several tools used by system administrators to troubleshoot
-SELinux denials. SELinux security policy developers use audit2allow to create a
-basis for security policy modules for their products.  The audit2allow utility
-analyzes SELinux denials and generates policy rules that can be loaded into the
-security policy to allow the operations that were previously denied.
+SELinux denials. Security policy developers use audit2allow to create a basis
+for security policy modules for their products. The audit2allow utility analyzes
+SELinux denials and generates policy rules that can be loaded into the security
+policy to allow the operations that were previously denied.
 
 % establish a niche
 %   outline the current situation
@@ -31,14 +31,15 @@ security policy to allow the operations that were previously denied.
 In certain situations, the audit2allow utility fails to provide effective and
 secure solution. The utility was designed to solve problems caused by missing
 rules in security policy, but users often use audit2allow to solve problems that
-do not require new rules in policy. As a result, users end up with policy rules
-that give processes too much permissions, making whole system more vulnerable.
+should not be solved by adding new rules to the policy. As a result, users end
+up with policy rules that give processes too much permissions, making whole
+system more vulnerable.
 
 In other situations, the audit2allow utility provides nonfunctional solutions
-because it is not aware of recently added features of SELinux. There are policy
-statements that provide more granular control over given permissions. The
+because it is not aware of recently added features of SELinux. There are new
+policy statements that provide more granular control over given permissions. The
 audit2allow utility is unable to detect that the denial was caused by these
-statement and fails to provide working solution. SELinux policy developers
+statement and fails to provide working solution. Security policy developers
 cannot use the audit2allow utility to generate these statements.
 
 % introduce the current research
@@ -57,10 +58,12 @@ audit2allow. As a part of thesis, two new features were implemented.
 
 %   outline the order of information in the thesis
 Second chapter of the thesis presents Security-Enhanced Linux, introduces
-SELinux policy language, describes auditing of security events, and describes
-in detail the audit2allow utility. The third chapter discusses problems that
-arise with audit2allow usage. The fourth chapter describes implementation
-details of selected improvements to audit2allow.
+SELinux policy language, describes auditing of security events, and provides
+detailed description of the audit2allow utility. The third chapter analyzes
+situations where the audit2allow utility generates nonfunctional or unsecure
+solutions. The fourth chapter goes through implementation details of selected
+improvements to audit2allow. The fifth chapter describes unit and integration
+tests of implemented improvements to audit2allow.
 %   outline the methodology
 
 % ==============================================================================
@@ -2607,12 +2610,14 @@ the audit2allow utility is not able to provide functional solution. Support for
 generating extended permission access vector rules was implemented as a part of
 this thesis. The audit2allow utility can now detect that the denial was caused
 by extended permissions and generate extended permission access vector rules to
-allow the operations that were denied.
+allow the operations that were denied. SELinux policy developers can now use
+audit2allow to generate more restrictive rules as a basis of a security policy
+for their products.
 
 In case of mislabeled TCP or UDP ports, audit2allow can detect that the port
-needs application-specific label. Creating new labels for ports is a task that
-requires certain knowledge of SELinux a the solution is not straightforward
-Suggesting labels for ports can be imlemented in the future.
+needs an application-specific label. Creating new labels for ports is a task
+that requires certain knowledge of SELinux and the solution is not
+straightforward. Suggesting labels for ports can be imlemented in the future.
 
 % 2. Contributions to your field of research, stating/restating the significance
 %       of what you have discovered. Can include limitations.
