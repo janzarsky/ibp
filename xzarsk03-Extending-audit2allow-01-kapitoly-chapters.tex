@@ -277,6 +277,8 @@ example, Linux user \texttt{root} is mapped to SELinux user
 \texttt{unconfined\_u} on Fedora 27. There is a~special SELinux user that is
 not mapped to any user: \texttt{system\_u}.
 
+\pagebreak
+
 Available SELinux users can be listed using the \texttt{seinfo -{}-user}
 command:
 \begin{lstlisting}
@@ -346,6 +348,8 @@ SELinux uses type enforcement for enforcing mandatory access control
 Processes running with the same type are called a~\emph{domain}. SELinux
 policy then contains rules that allow domains access types.
 
+\pagebreak
+
 Available SELinux types can be listed using the \texttt{seinfo -{}-type}
 command:
 \begin{lstlisting}
@@ -414,6 +418,8 @@ Where:
         \ref{te}).
     \item [\texttt{range}] Used by MLS or MCS (see section \ref{mls}). It is optional.
 \end{description}
+
+\pagebreak
 
 Example of subject security contexts:
 \begin{lstlisting}
@@ -1223,7 +1229,7 @@ restore default contexts of files \cite[pp.~165--167]{tsn}:
     \centering
     \label{fig:filecontexts}
     \input{./figures/filecontexts.tex}
-    \caption{File Context Files}
+    \caption{File Context Configuration Files}
 \end{figure}
 
 These files are created when building policy, see figure \ref{fig:filecontexts}.
@@ -1432,6 +1438,8 @@ samba_read_share_files(httpd_t)
 The audit2allow found an interface which contained the same allow rule.
 Interfaces create more readable code but can contain more rules that are
 necessary.
+
+\pagebreak
 
 The \texttt{-{}-why} option does not output any policy rules but provides a~text
 description of why the access was denied. Example of \texttt{audit2allow
@@ -1876,6 +1884,8 @@ The \texttt{ioctlcmd} field contains the first parameter of the ioctl syscall
 that was denied. This value can be used to construct an \texttt{allowxperm} rule
 to allow this operation.
 
+\pagebreak
+
 When used for troubleshooting this AVC denial, audit2allow produces the
 following output:
 \begin{lstlisting}
@@ -2062,6 +2072,8 @@ labels (based on range):
     61001--65535 & \texttt{unreserved\_port\_t} \\
 \end{tabular}
 
+\pagebreak
+
 When a~process tries to bind to a~port and it is denied by SELinux, AVC denial
 message is generated. For example:
 \begin{lstlisting}[escapechar=\%]
@@ -2223,6 +2235,9 @@ Without extended permissions, every access vector can be converted into single
 AV rule. With extended permissions attached to the access vector, to fully
 convert access vector to policy rules, there needs to be one AV rule and
 possibly several extended permission AV rules. For example, this access vector:
+
+\pagebreak
+
 \begin{lstlisting}[language=Python]
 {
     source_context: 'unconfined_u:system_r:src_t:s0',
