@@ -54,6 +54,9 @@ vlna:
 normostrany:
 	echo "scale=2; (`cat $(CO)-[01]*.tex | tr '$$' 'X' | grep -v '\input' | detex | grep -v 'longtabu' | wc -c` + `grep -Rh '% COUNT:' | grep -v .swp | cut -d' ' -f 3 | awk '{ total += $$1 } END { print total }'`)/1800;" | bc
 
+abstrakt_normostrany:
+	echo "scale=2; (`cat $(CO)-[99]*.tex | detex | wc -c`)/1800;" | bc
+
 status:
 	grep "STATUS" $(CO)-[01]*.tex | cut -d' ' -f 3 | awk '{ total += $$1; count++ } END { print total/count }'
 
