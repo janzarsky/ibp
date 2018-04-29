@@ -1873,7 +1873,7 @@ audit2allow may suggest rules that do not solve the denial.
 
 \subsection{AVC Denials Caused by Extended Permission AV Rules}
 % STATUS: 4
-Suppose there are following rules present in the policy:
+Suppose there are the following rules present in the policy:
 \begin{lstlisting}
 allow src_t tgt_t : tcp_socket ioctl;
 allowxperm src_t tgt_t : tcp_socket ioctl 0x42;
@@ -1901,8 +1901,8 @@ following output:
 #!!!! This avc is allowed in the current policy
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
-which is not helpful. Users are expected to know about extended permissions to 
-assume that the allow rule was overridden.
+which is not helpful. The users are expected to know about the extended
+permissions to assume that the allow rule was overridden.
 
 \subsection{Generating Extended Permission AV Rules in audit2allow}
 % STATUS: 4
@@ -1914,16 +1914,16 @@ rules:
 \begin{itemize}
     \item There is neither \texttt{allow} nor \texttt{allowxperm} rule in the
         policy. The audit2allow utility has two options: either generate only
-        allow rule (current behaviour) or generate \texttt{allow} and
+        the allow rule (current behaviour) or generate \texttt{allow} and
         \texttt{allowxperm} rules. Generating \texttt{allowxperm} rules is more
         secure and provides more granular access control. However, for many
-        processes that use lot of different ioctl calls it may be inefficient.
+        processes that use lots of different ioctl calls it may be inefficient.
         Generating the \texttt{allowxperm} rules automatically also changes the
-        default output of audit2allow and breaks lot of integration tests
+        default output of audit2allow and breaks lots of integration tests
         written using the audit2allow utility.
-    \item There is both \texttt{allow} and \texttt{allowxperm} rule in the
+    \item There are both \texttt{allow} and \texttt{allowxperm} rules in the
         policy. This means that the specific ioctl parameter is not allowed. In
-        this case \texttt{allowxperm} rule should be generated.
+        this case the \texttt{allowxperm} rule should be generated.
 \end{itemize}
 
 It is not possible to distinguish these two sitautions by analyzing the AVC
@@ -1934,8 +1934,8 @@ more secure solution) or only when requested by user (for example using
 command-line option, less secure solution, does not break backward
 compatibility).
 
-In case of using command-line option, there is still a~risk, that the user does
-not know that he or she should be using that option. Consider the following
+In case of using the command-line option, there is still a~risk, that the users
+do not know that they should be using that option. Consider the following
 example:
 \begin{lstlisting}
 #============= src_t ==============
@@ -1943,7 +1943,7 @@ example:
 #!!!! This avc is allowed in the current policy
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
-In this example, it is not clear that the denial is caused by extended
+In this example, it is not clear that the denial is caused by an extended
 permission AV rule. In situations when the denial would be allowed according to
 the binary policy (there is an \texttt{allow} rule) and the AVC denial message
 contains the \texttt{ioctlcmd} field, the user should be warned about extended
@@ -1962,32 +1962,32 @@ section \ref{xpermsimp}.
 \section{Mislabeled Files}
 % STATUS: 4
 \label{mislabeled}
-SELinux relies on files having correct label. Sometimes, when files get
-mislabeled, processes cannot access these files and causes AVC denials. When
-used for troubleshooting, audit2allow suggests adding new rules to the policy
-instead of changing label of the file.
+SELinux relies correctly labeled files. Sometimes, if files get mislabeled,
+processes cannot access these files and causes AVC denials. When used for
+troubleshooting, audit2allow suggests adding new rules to the policy instead of
+changing the file label.
 
 \subsection{AVC Denial Messages Caused by Mislabeled Files}
 % STATUS: 4
-When a~process is trying to access file that is mislabeled, the operation is
-usually denied (unless the process has access also to the incorrect label). For
-example, when user moves content from \texttt{/root} directory to the
-\texttt{/var/www/html/} directory, files retain their original label:
+When a~process is trying to access a file that is mislabeled, the operation is
+usually denied (unless the process has also access to the incorrect label). For
+example, when a user moves files from the \texttt{/root} directory to the
+\texttt{/var/www/html/} directory, the files retain their original label:
 \begin{lstlisting}
 $ ls /var/www/html
 unconfined_u:object_r:httpd_sys_content_t:s0 index.html
        unconfined_u:object_r:admin_home_t:s0 my_file.html
 \end{lstlisting}
-File \texttt{index.html} has correct label, but file \texttt{my\_file.html} has
-an incorrect label. The \texttt{httpd} process cannot access files labeled
-\texttt{admin\_home\_t}, because there are no allow rules in the policy for this
-operation:
+The \texttt{index.html} file has the correct label, but the
+\texttt{my\_file.html} file has an incorrect one. The \texttt{httpd} process
+cannot access the files labeled \texttt{admin\_home\_t}, because there are no
+allow rules in the policy for this operation:
 \begin{lstlisting}
 $ sesearch -A -s httpd_t -t admin_home_t -c file -p read
 (nothing)
 \end{lstlisting}
 
-As a~result, when trying to view \texttt{my\_file.html}, similar AVC denial
+As a~result, when trying to view \texttt{my\_file.html}, a similar AVC denial
 message is generated:
 \begin{lstlisting}
 type=AVC msg=audit(1226270358.848:238): avc:  denied  { read }
@@ -1995,16 +1995,16 @@ for  pid=13349 comm="httpd" ino=8390105 name="my_file.html"
 dev=dm-0 ino=218171 scontext=system_u:system_r:httpd_t:s0
 tcontext=system_u:object_r:admin_home_t:s0 tclass=file
 \end{lstlisting}
-In this case, there is the \texttt{ino} field, which contains inode number
+In this case, there is the \texttt{ino} field, which contains the inode number
 associated with the denial, and the \texttt{name} field, which contains the name
 of the file (but not the full path). In cases of \texttt{getattr} denial, the
 \texttt{path} field is present.
 
 \subsection{Solving Problems With Mislabeled Files}
 The restorecon utility uses file contexts files to get default security contexts
-of files (see section \ref{filecontexts}). For example, when file
-\texttt{/var/www/html/my\_file.html} is mislabeled, the denial should be fixed
-by running restorecon on the file:
+of files (see section \ref{filecontexts}). For example, when the
+\texttt{/var/www/html/my\_file.html} file is mislabeled, the denial should be
+fixed by running restorecon on the file:
 \begin{lstlisting}
 # restorecon -v /var/www/html/my_file.html
 Relabeled /var/www/html/my_file.html from unconfined_u:object_r:
@@ -2016,26 +2016,26 @@ When using audit2allow, the following rules are generated:
 allow httpd_t admin_home_t:file getattr;
 \end{lstlisting}
 This means that the \texttt{httpd} process would gain access to all root's
-files. This solution is not secure because it is adding unnecessary rules to the
-policy and it does not solve the real problem.
+files. This solution is not secure because it contains unnecessary rules to be
+added to the policy and it does not solve the real problem.
 
 \subsection{Improving audit2allow}
 % STATUS: 4
 The audit2allow utility should detect when the AVC message is caused by
-mislabeled file and suggest solution using the restorecon utility.
+a~mislabeled file and suggest a solution using the restorecon utility.
 
 There are three fields in the AVC message that can be used to detect if the file
 was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
 \texttt{path} field is present, audit2allow can run \texttt{matchpathcon} to get
-the default context of the file and compare it with actual file context.
+the default context of the file and compare it with an actual file context.
 
-In many cases, the \texttt{path} field is not present, only inode number and
-name of the file (without full path). In this case it is difficult to find the
-full path of the file. Ryan Hallisey created solution \cite{restoreconpullreq}
-that is using \texttt{locate} utility to get all files matching the name and
-then stat these files to get the inode number. This solution is only partial, it
-does not work on files that are not indexed in the database created by
-\texttt{updatedb}.
+In many cases, the \texttt{path} field is not present, only an inode number and
+the name of the file (without the full path). In this case it is difficult to
+find the full path of the file. Ryan Hallisey created a solution
+\cite{restoreconpullreq} that uses the \texttt{locate} utility to get all files
+matching the name and then stat these files to get the inode number. This
+solution is only partial, it does not work on files that are not indexed in the
+database created by \texttt{updatedb}.
 
 % ------------------------------------------------------------------------------
 \section{Labeling Network Ports, Nodes, and Interfaces}
@@ -2068,7 +2068,7 @@ Portcon: 615
 \end{lstlisting}
 Portcon rules can overlap, for example TCP port number 80 is labeled
 \texttt{http\_port\_t} but also \texttt{reserved\_port\_t} because it is in range
-1--511. Every port has either domain-specific label or one of the following
+1--511. Each port has either domain-specific label or one of the following
 labels (based on range):
 
 \begin{tabular}{l l}
@@ -2090,9 +2090,9 @@ tcontext=system_u:object_r:reserved_port_t:s0
 tclass=tcp_socket permissive=0
 \end{lstlisting}
 
-Proper way how to allow the process to bind on port number 43 would be to label
-this port with a~application-specific context using either a~\texttt{portcon}
-rule or the \texttt{semanage port} command. For example:
+The proper way how to allow the process to bind on port number 43 would be to
+label this port with a~application-specific context using either
+a~\texttt{portcon} rule or the \texttt{semanage port} command. For example:
 \begin{lstlisting}
 # semanage port --add -t system_u:object_r:my_app_port_t:s0 -p TCP 43
 \end{lstlisting}
@@ -2105,12 +2105,12 @@ allow my_app_t reserved_port_t:tcp_socket name_bind;
 This rule would allow \texttt{my\_app\_t} access to all reserved ports which is
 unneccessary and potentially unsecure.
 
-Ports can be labeled using the \texttt{portcon} rules, but as of policy version
-31, these rules are not valid in policy module, only in base policy. So
-audit2allow would not be able to generate \texttt{portcon} rules directly.
-Another way of labeling ports is via the \texttt{semanage port} command. The
-audit2allow should suggest using the \texttt{semanage port} command when
-appropriate.
+The ports can be labeled using the \texttt{portcon} rules, but as of policy
+version 31, these rules are not valid in a policy module, only in the base
+policy. So audit2allow would not be able to generate the \texttt{portcon} rules
+directly.  Another way of labeling ports is via the \texttt{semanage port}
+command. The audit2allow should suggest using the \texttt{semanage port} command
+when appropriate.
 
 \subsection{Network Nodes}
 % STATUS: 4
@@ -2119,12 +2119,12 @@ that allow process to communicate only on private LAN or even only on local
 host. Attempts to violate these rules would then produce AVC denial messages
 that contain IP address of the node.
 
-Proper solution would be to modify label of certain subnet of the network, for
-example using the \texttt{semanage node} command. AVC denial messages provides
-only IP addresses. As IP addresses can change often, labeling single network
-node would not be useful. Labeling of network nodes is not used on Fedora and
-RHEL. Improving the audit2allow utility to suggest \texttt{semanage node}
-commands would not make a~big impact on security.
+The proper solution would be to modify a label of a certain subnet of the
+network, for example using the \texttt{semanage node} command. AVC denial
+messages provide only IP addresses. As IP addresses can often change, labeling
+a single network node would not be useful. Labeling of network nodes is not used
+on Fedora and RHEL. Improving the audit2allow utility to suggest
+\texttt{semanage node} commands would not make a~big impact on security.
 
 \subsection{Network Interfaces}
 % STATUS: 4
@@ -2138,13 +2138,13 @@ impact on security.
 % STATUS: 4
 \label{implementation}
 From the list of possible improvements to audit2allow, the following
-improvements were implemented:
+improvements have been implemented:
 \begin{itemize}
     \item Support for extended permissions. The audit2allow utility can now
         detect denials that may be caused by extended permission AV rules. With
         the \texttt{-{}-xperms} option, audit2allow generates extended AV rules.
     \item Checking mislabeled files. The audit2allow utility now parses the
-        \texttt{path} field in AVC denial messages and checks if files have
+        \texttt{path} field in AVC denial messages and checks if files have the
         default context. When the context in AVC denial message is different
         than the default one, audit2allow produces warning.
 \end{itemize}
@@ -2158,8 +2158,8 @@ Main script \texttt{audit2allow} and the \texttt{audit.py}, \texttt{access.py},
 extended permissions. Support for extended permission AV rules with the
 \texttt{-{}-reference} option was not implemented.
 
-In main script, new command-line option \texttt{-{}-xperms} was added to turn on
-generating of the extended permission AV rules. This option turns on extended
+In main script, a new command-line option \texttt{-{}-xperms} was added to turn
+on generating of the extended permission AV rules. This option turns on extended
 permission AV rules generating in \texttt{PoligyGenerator}.
 
 \subsection{Parsing AVC Denial Messages}
@@ -2200,7 +2200,7 @@ extended permission values, new class \texttt{XpermSet} was implemented in the
 multiple values. It is likely that in the future new extended permission
 operation will be introduced. Access vector must store values for different
 operations. For this purpose, \texttt{XpermSet} objects are stored in a
-dictionary where the operation is the key, for example:
+dictionary where an operation is the key, for example:
 \begin{lstlisting}
 {
     'ioctl': <refpolicy.XpermSet() object>,
@@ -2229,7 +2229,7 @@ very similar to the \texttt{AVRule} class, but contains attributes specific to
 extended permission AV rules. The \texttt{operation} attribute is a~string
 identifying the operation, e.g. 'ioctl'. The \texttt{xperms} attribute is an
 \texttt{XpermSet} instance. Method \texttt{to\_string()} prints out the rule.
-Example of an extended permission AV rule:
+An example of an extended permission AV rule:
 \begin{lstlisting}
 allowxperm my_app_t my_socket_t : tcp_socket ioctl { 20 30 0x40 50-60 };
 \end{lstlisting}
