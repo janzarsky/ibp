@@ -2239,9 +2239,9 @@ The \texttt{AVExtRule} class is initialized from an access vector using the
 select which extended permission operation from the access vector should appear
 in the rule.
 
-Without extended permissions, every access vector can be converted into single
+Without extended permissions, each access vector can be converted into a single
 AV rule. With extended permissions attached to the access vector, to fully
-convert access vector to policy rules, there needs to be one AV rule and
+convert an access vector to the policy rules, there needs to be one AV rule and
 possibly several extended permission AV rules. For example, this access vector:
 
 \pagebreak
@@ -2272,7 +2272,7 @@ allowxperm src_t tgt_t:tcp_socket another_command { 700 800 900 };
 
 \subsection{Generating Extended Permission AV Rules}
 % STATUS: 4
-New configuration method \texttt{set\_gen\_xperms()} was added to the
+A new configuration method \texttt{set\_gen\_xperms()} was added to the
 \texttt{PolicyGenerator} from the \texttt{policygen.py} module, to specify
 whether the extended permission AV rules should be generated.
 
@@ -2295,9 +2295,9 @@ for av in raw_allow:
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
 % STATUS: 4
-The audit2allow utility was extended to check the default context of file if the
-\texttt{path} field is present in the AVC denial message. The \texttt{audit.py}
-and \texttt{policygen.py} modules were modified.
+The audit2allow utility was extended to check the default context of a file if
+the \texttt{path} field is present in the AVC denial message. The
+\texttt{audit.py} and \texttt{policygen.py} modules were modified.
 
 \subsection{Parsing File Path}
 % STATUS: 4
@@ -2309,13 +2309,14 @@ number and file name.
 
 \subsection{Checking Default Context}
 % STATUS: 4
-In \texttt{policygen.py} module, new option was added to the
+In the \texttt{policygen.py} module, a new option was added to the
 \texttt{PolicyGenerator} to turn on or off checking of mislabeled files.
-Checking is turned on by default. Every AVC message from every access vector is
-checked whether it contains the path. Default context of the path is then
-obtained via \texttt{selinux.matchpathcon()} function. Target context of the
-access vector is then compared with the default context. In case of difference,
-comment is added to warn user about mislabeled file. For example:
+Checking is turned on by default. Each AVC message from each access vector is
+checked whether it contains the path. The default context of the path is
+obtained via the \texttt{selinux.matchpathcon()} function then. The target
+context of the access vector is then compared with the default context. In a
+case of difference, a comment is added to warn the user about the mislabeled
+file. For example:
 \begin{lstlisting}
 #============= src_t ==============
 
@@ -2333,8 +2334,8 @@ interoperation between audit2allow, SELinux, and Linux Audit system.
 % ------------------------------------------------------------------------------
 \section{Testing Extended Permissions Implementation}
 % STATUS: 4
-Unit tests were extended to ensure that the new functionality does not break
-existing code. New test cases were added to test the new features.
+The unit tests were extended to ensure that the new functionality does not break
+the existing code. New test cases were added to test the new features.
 
 \subsection{Testing audit2allow Script}
 % STATUS: 4
@@ -2353,8 +2354,8 @@ on extended permission AV rules generation.
 
 \subsection{Testing audit.py Module}
 % STATUS: 4
-In this module, audit message parser was modified to recognize new field in AVC
-denial messages and to convert the field to extended permissions.
+In this module, the audit message parser have been modified to recognize new
+field in AVC denial messages and to convert the field to extended permissions.
 
 Testing \texttt{AVCMessage.\_\_init\_\_()}:
 \begin{longtabu}{|l|X|} \hline
@@ -2373,10 +2374,10 @@ Testing \texttt{AVCMessage.from\_split\_string()}:
     \\ \hline
     \texttt{test\_xperms()} & Test that the \texttt{ioctlcmd} field is parsed.
     \\ \hline
-    \texttt{test\_xperms\_invalid()} & Test message with invalid value in the
-    \texttt{ioctlcmd} field
+    \texttt{test\_xperms\_invalid()} & Test a message with an invalid value in
+    the \texttt{ioctlcmd} field
     \\ \hline
-    \texttt{test\_xperms\_without()} & Test message without the
+    \texttt{test\_xperms\_without()} & Test a message without the
     \texttt{ioctlcmd} field.
     \\ \hline
 \end{longtabu}
@@ -2393,8 +2394,8 @@ Testing \texttt{AVCMessage.to\_access()}:
 
 \subsection{Testing access.py Module}
 % STATUS: 4
-In this module, classes \texttt{AccessVector} and \texttt{AccessVectorSet} were
-extended.
+In this module, the \texttt{AccessVector} and \texttt{AccessVectorSet} classes
+have been extended.
 
 Testing \texttt{AccessVector.\_\_init\_\_()}:
 \begin{longtabu}{|l|X|} \hline
@@ -2421,10 +2422,10 @@ permissions and extended permissions of two access vectors.
     \texttt{test\_merge\_xperm2()} & Test merging AV that does not contain
     extended permissions with AV that does.
     \\ \hline
-    \texttt{test\_merge\_xperm\_diff\_op()} & Test merging two AVs both
+    \texttt{test\_merge\_xperm\_diff\_op()} & Test merging two AVs, both
     containing extended permissions, but with different operations.
     \\ \hline
-    \texttt{test\_merge\_xperm\_same\_op()} & Test merging two AVs both
+    \texttt{test\_merge\_xperm\_same\_op()} & Test merging two AVs, both
     containing extended permissions with the same operation.
     \\ \hline
 \end{longtabu}
@@ -2435,13 +2436,13 @@ set.
     \multicolumn2{|l|}{\texttt{TestAccessVectorSet} class from the
     \texttt{test\_access.py} module:}
     \\ \hline
-    \texttt{test\_add\_av\_first()} & Test adding first access vector to the
+    \texttt{test\_add\_av\_first()} & Test adding the first access vector to the
     access vector set.
     \\ \hline
-    \texttt{test\_add\_av\_second()} & Test adding second AV to the set with
-    same source and target context and class.
+    \texttt{test\_add\_av\_second()} & Test adding the second AV to the set with
+    the same source and the target context and class.
     \\ \hline
-    \texttt{test\_add\_av\_with\_msg()} & Test adding audit message.
+    \texttt{test\_add\_av\_with\_msg()} & Test adding an audit message.
     \\ \hline
 \end{longtabu}
 
@@ -2458,8 +2459,8 @@ Testing \texttt{AccessVector.add()}: this method just creates an instance of
 
 \subsection{Testing policygen.py Module}
 % STATUS: 4
-In this module, \texttt{PolicyGenerator} was extended to generate extended
-permission access vector rules.
+In this module, the \texttt{PolicyGenerator} class was extended to generate
+extended permission access vector rules.
 
 Testing \texttt{PolicyGenerator.\_\_init\_\_()}:
 \begin{longtabu}{|l|X|} \hline
@@ -2548,20 +2549,20 @@ the \texttt{to\_string()} method prints the rule to a~string.
 % STATUS: 4
 
 Integration test was written to check audit2allow functionality in real world
-situation. First, SELinux policy module with extended permission AV rules is
-loaded. Testing program then tries to call ioctl on a~file with different
-parameters. AVC denials are collected and sent to audit2allow with different
-command-line options.
+situation. First, an SELinux policy module with extended permission AV rules is
+loaded. Then the testing program tries to call ioctl on a~file with different
+parameters. AVC denials are collected and sent to the audit2allow utility with
+different command-line options.
 
 % ------------------------------------------------------------------------------
 \section{Testing Implementation of File Contexts Checks}
 % STATUS: 4
-New unit tests were written to cover new functionality.
+New unit tests were written to cover the new functionality.
 
 \subsection{Testing audit.py Module}
 % STATUS: 4
 In this module, the \texttt{AVCMessage.from\_split\_string()} method was
-extended to parse path field. Test cases:
+extended to parse a path field. Test cases:
 \begin{longtabu}{|l|X|} \hline
     \multicolumn2{|l|}{\texttt{TestAVCMessage} class from the
     \texttt{test\_audit.py} module:}
@@ -2572,7 +2573,7 @@ extended to parse path field. Test cases:
 
 \subsection{Testing policygen Module}
 % STATUS: 4
-In this module, new configuration option was added to the
+In this module, a new configuration option was added to the
 \texttt{PolicyGenerator}. For the purposes of testing,
 \texttt{selinux.matchpathcon()} function used for checking the default context
 was replaced. 
@@ -2615,29 +2616,29 @@ The output is checked for warnings about mislabeled file.
 % solutions based on adding new rules to the policy
 % audit2allow may provide unfunctional solutions because it does not understands
 % new policy statements
-The aim of this thesis was to identify situations where the audit2allow utility
-provides unsecure and too permissive solutions. Several situations were found.
-The audit2allow utility relies on objects having correct labels and it is not
-able to detect that the denials were caused by mislabeled objects.
+The aim of this thesis was to identify situations when the audit2allow utility
+provides insecure and too permissive solutions. Several situations were found.
+The audit2allow utility relies on objects having the correct labels and it is
+not able to detect denials caused by mislabeled objects.
 
-In case of mislabeled files, audit2allow is only partially able to detect that
-the file is mislabeled. There are ways how to check if the file is mislabeled,
-but in most situations, not enough information is logged using the Linux Audit
-system to get full path of the file. Checking of default file context was
+In case of mislabeled files, audit2allow is only partially able to detect a
+mislabeled file. There are ways how to check if the file is mislabeled, but in
+most situations, not enough information is logged using the Linux Audit system
+to get the full path of the file. Checking of the default file context was
 implemented as a~part of this thesis. This improvement warns users that the file
 is mislabeled and another tool needs to be used to restore the default context
 of the file.
 
 The audit2allow utility is not aware of recently added support for extended
-permission that provide more granular control of permissions given to processes.
-When used for troubleshooting SELinux denials caused by extended permissions,
-the audit2allow utility is not able to provide functional solution. Support for
-generating extended permission access vector rules was implemented as a~part of
-this thesis. The audit2allow utility can now detect that the denial was caused
-by extended permissions and generate extended permission access vector rules to
-allow the operations that were denied. SELinux policy developers can now use
-audit2allow to generate more restrictive rules as a~basis of a~security policy
-for their products.
+permissions that provide more granular control of permissions given to
+processes. When used for troubleshooting SELinux denials caused by extended
+permissions, the audit2allow utility is not able to provide functional solution.
+The support for generating extended permission access vector rules was
+implemented as a~part of this thesis. The audit2allow utility can now detect
+that the denial was caused by extended permissions and generate extended
+permission access vector rules to allow the operations that were denied. SELinux
+policy developers can now use audit2allow to generate more restrictive rules as
+a~basis of a~security policy for their products.
 
 In case of mislabeled TCP or UDP ports, audit2allow can detect that the port
 needs an application-specific label. Creating new labels for ports is a~task
@@ -2655,7 +2656,7 @@ straightforward. Suggesting labels for ports can be imlemented in the future.
 %       demonstrated that a~particular approach or avenue was not useful).
 % in the future, more improvements can be implemented
 % some improvements are not useful
-The audit2allow utility can be further improved to detect situations where the
-correct solution is to use different tool. This thesis serves as a~basis for
+The audit2allow utility can be further improved to detect situations when the
+correct solution is to use a different tool. This thesis serves as a~basis for
 discussion about new features that would make troubleshooting problems with
 SELinux easier.
