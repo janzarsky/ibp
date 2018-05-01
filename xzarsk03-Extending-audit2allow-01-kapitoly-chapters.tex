@@ -1854,9 +1854,9 @@ policy modules and is generated with either \texttt{-{}-module} or
 \label{analysis}
 Two general areas for improvement to audit2allow were identified:
 \begin{enumerate}
-    \item Changing label of an object instead of creating new policy rules. This
-        includes checking of mislabeled files, labeling network ports, nodes,
-        and interfaces.
+    \item Changing a label of an object instead of creating new policy rules.
+        This includes checking of mislabeled files, labeling network ports,
+        nodes, and interfaces.
     \item Support for new SELinux policy statements such as extended permission
         access vector rules.
 \end{enumerate}
@@ -2067,7 +2067,7 @@ Portcon: 615
 \end{lstlisting}
 Portcon rules can overlap, for example TCP port number 80 is labeled
 \texttt{http\_port\_t} but also \texttt{reserved\_port\_t} because it is in range
-1--511. Each port has either domain-specific label or one of the following
+1--511. Each port has either a domain-specific label or one of the following
 labels (based on range):
 
 \begin{tabular}{l l}
