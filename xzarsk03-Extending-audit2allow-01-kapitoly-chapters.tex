@@ -278,8 +278,6 @@ example, Linux user \texttt{root} is mapped to an SELinux user
 \texttt{unconfined\_u} on Fedora 27. There is a~special SELinux user that is
 mapped to no user: \texttt{system\_u}.
 
-\pagebreak
-
 Available SELinux users can be listed using the \texttt{seinfo -{}-user}
 command:
 \begin{lstlisting}
@@ -348,8 +346,6 @@ SELinux uses type enforcement for enforcing mandatory access control
 \cite[pp.~25--26]{tsn}. All subjects and objects are associated to an SELinux
 type. Processes running with the same type are called a~\emph{domain}. The
 SELinux policy then contains rules that allow domains access types.
-
-\pagebreak
 
 Available SELinux types can be listed using the \texttt{seinfo -{}-type}
 command:
@@ -420,8 +416,6 @@ Where:
     \item [\texttt{range}] is used by MLS or MCS (see section \ref{mls}) and is
         optional.
 \end{description}
-
-\pagebreak
 
 An example of subject security contexts:
 \begin{lstlisting}
@@ -1445,8 +1439,6 @@ The audit2allow found an interface which contained the same allow rule.
 Interfaces create more readable code but can contain more rules that are
 necessary.
 
-\pagebreak
-
 The \texttt{-{}-why} option does not output any policy rules but provides a~text
 description of why the access was denied. An example of \texttt{audit2allow
 -{}-why} output:
@@ -1864,11 +1856,11 @@ Two general areas for improvement to audit2allow were identified:
 % ------------------------------------------------------------------------------
 \section{Extended Permission Access Vector Rules}
 % STATUS: 4
-Since policy version 30, the SELinux policy supports extended permission access
-vector rules (see section \ref{extavrules}). Usage of extended permission AV
-rules introduces situations when audit2allow is not able to detect the true
-cause of denial. As a~result, when using extended permission AV rules,
-audit2allow may suggest rules that do not solve the denial.
+Since policy version 30, the SELinux policy supports the extended permission
+access vector rules (see section \ref{extavrules}). Usage of the extended
+permission AV rules introduces situations when audit2allow is not able to detect
+the true cause of the denial. As a~result, when using the extended permission AV
+rules, audit2allow may suggest rules that do not solve the denial.
 
 \subsection{AVC Denials Caused by Extended Permission AV Rules}
 % STATUS: 4
@@ -1878,19 +1870,17 @@ allow src_t tgt_t : tcp_socket ioctl;
 allowxperm src_t tgt_t : tcp_socket ioctl 0x42;
 \end{lstlisting}
 When a~process tries to call \texttt{ioctl(0x1234, ...)}, the operation would be
-denied, because only syscall \texttt{ioctl(0x42, ...)} is allowed. The following
-AVC denial message would be generated:
+denied, because only the \texttt{ioctl(0x42, ...)} system call is allowed. The
+following AVC denial message would be generated:
 \begin{lstlisting}[escapechar=\%]
 type=AVC msg=audit(1515017775.689:1722): avc:  denied  { ioctl } for
 pid=14587 comm="test" dev="dm-0" ino=8390105 %\textbf{ioctlcmd=0x1234}%
 scontext=unconfined_u:unconfined_r:src_t:s0-s0:c0.c1023
 tcontext=unconfined_u:object_r:tgt_t:s0 tclass=tcp_socket permissive=0
 \end{lstlisting}
-The \texttt{ioctlcmd} field contains the first parameter of the ioctl syscall
-that was denied. This value can be used to construct an \texttt{allowxperm} rule
-to allow this operation.
-
-\pagebreak
+The \texttt{ioctlcmd} field contains the first parameter of the ioctl system
+call that was denied. This value can be used to construct an \texttt{allowxperm}
+rule to allow this operation.
 
 When used for troubleshooting this AVC denial, audit2allow produces the
 following output:
@@ -1908,30 +1898,30 @@ permissions to assume that the allow rule was overridden.
 % example 1: no rule
 % example 2: both allow and allow rule
 The audit2allow does have all the information to generate extended permission AV
-rules. There are two situations that may arise when using extended permission AV
-rules:
+rules. There are two situations that may arise when using the extended
+permission AV rules:
 \begin{itemize}
-    \item There is neither \texttt{allow} nor \texttt{allowxperm} rule in the
+    \item There is neither an \texttt{allow} nor \texttt{allowxperm} rule in the
         policy. The audit2allow utility has two options: either generate only
-        the allow rule (current behaviour) or generate \texttt{allow} and
-        \texttt{allowxperm} rules. Generating \texttt{allowxperm} rules is more
-        secure and provides more granular access control. However, for many
-        processes that use lots of different ioctl calls it may be inefficient.
-        Generating the \texttt{allowxperm} rules automatically also changes the
-        default output of audit2allow and breaks lots of integration tests
-        written using the audit2allow utility.
+        the \texttt{allow} rule (current behaviour) or generate both
+        \texttt{allow} and \texttt{allowxperm} rules. Generating
+        \texttt{allowxperm} rules is more secure and provides more granular
+        access control. However, for many processes that use lots of different
+        ioctl calls it may be inefficient.  Generating the \texttt{allowxperm}
+        rules automatically also changes the default output of audit2allow and
+        breaks lots of integration tests written using the audit2allow utility.
     \item There are both \texttt{allow} and \texttt{allowxperm} rules in the
         policy. This means that the specific ioctl parameter is not allowed. In
         this case the \texttt{allowxperm} rule should be generated.
 \end{itemize}
 
-It is not possible to distinguish these two sitautions by analyzing the AVC
+It is not possible to distinguish these two situations by analyzing the AVC
 denial itself, because both denials contain the \texttt{ioctlcmd} field. The
 audit2allow utility would need to analyze the binary policy. The audit2allow
-utility may rather generate extended permission AV rules in all cases (stricter,
-more secure solution) or only when requested by user (for example using
-command-line option, less secure solution, does not break backward
-compatibility).
+utility may rather generate extended permission AV rules in all cases (it is a
+stricter, more secure solution) or only when requested by user (for example
+using a command-line option, it is a less secure solution, but it does not break
+backward compatibility).
 
 In case of using the command-line option, there is still a~risk, that the users
 do not know that they should be using that option. Consider the following
@@ -1945,8 +1935,8 @@ allow src_t tgt_t:tcp_socket ioctl;
 In this example, it is not clear that the denial is caused by an extended
 permission AV rule. In situations when the denial would be allowed according to
 the binary policy (there is an \texttt{allow} rule) and the AVC denial message
-contains the \texttt{ioctlcmd} field, the user should be warned about extended
-permission AV rules. For example:
+contains the \texttt{ioctlcmd} field, the user should be warned about the
+extended permission AV rules. For example:
 \begin{lstlisting}
 #============= src_t ==============
 
@@ -1954,23 +1944,23 @@ permission AV rules. For example:
 #!!!! This av rule may have been overriden by extended permission av rule
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
-Support for extended permissions was implemented as a~part of this thesis, see
-section \ref{xpermsimp}.
+Support for the extended permissions was implemented as a~part of this thesis,
+see section \ref{xpermsimp}.
 
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
 % STATUS: 4
 \label{mislabeled}
-SELinux relies correctly labeled files. Sometimes, if files get mislabeled,
-processes cannot access these files and causes AVC denials. When used for
-troubleshooting, audit2allow suggests adding new rules to the policy instead of
-changing the file label.
+SELinux relies on correctly labeled files. Sometimes, if the files get
+mislabeled, processes cannot access these files and causes AVC denials. When
+used for troubleshooting, audit2allow suggests adding new rules to the policy
+instead of changing the file label.
 
 \subsection{AVC Denial Messages Caused by Mislabeled Files}
 % STATUS: 4
 When a~process is trying to access a file that is mislabeled, the operation is
 usually denied (unless the process has also access to the incorrect label). For
-example, when a user moves files from the \texttt{/root} directory to the
+example, when the user moves files from the \texttt{/root} directory to the
 \texttt{/var/www/html/} directory, the files retain their original label:
 \begin{lstlisting}
 $ ls /var/www/html
@@ -1979,8 +1969,8 @@ unconfined_u:object_r:httpd_sys_content_t:s0 index.html
 \end{lstlisting}
 The \texttt{index.html} file has the correct label, but the
 \texttt{my\_file.html} file has an incorrect one. The \texttt{httpd} process
-cannot access the files labeled \texttt{admin\_home\_t}, because there are no
-allow rules in the policy for this operation:
+cannot access files labeled \texttt{admin\_home\_t}, because there are no allow
+rules in the policy for this operation:
 \begin{lstlisting}
 $ sesearch -A -s httpd_t -t admin_home_t -c file -p read
 (nothing)
@@ -1996,8 +1986,8 @@ tcontext=system_u:object_r:admin_home_t:s0 tclass=file
 \end{lstlisting}
 In this case, there is the \texttt{ino} field, which contains the inode number
 associated with the denial, and the \texttt{name} field, which contains the name
-of the file (but not the full path). In cases of \texttt{getattr} denial, the
-\texttt{path} field is present.
+of the file (but not the full path). In cases of the \texttt{getattr} denial,
+the \texttt{path} field is present.
 
 \subsection{Solving Problems With Mislabeled Files}
 The restorecon utility uses the \texttt{file\_contexts} files to get the default
@@ -2029,7 +2019,7 @@ was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
 the default context of the file and compare it with the actual file context.
 
 In many cases, the \texttt{path} field is not present, only an inode number and
-the name of the file (without the full path). In this case it is difficult to
+the name of the file (without the full path). In this case, it is difficult to
 find the full path of the file. Ryan Hallisey created a solution
 \cite{restoreconpullreq} that uses the \texttt{locate} utility to get all files
 matching the name and then stat these files to get the inode number. This
@@ -2065,10 +2055,10 @@ Portcon: 615
    portcon udp 67 system_u:object_r:dhcpd_port_t:s0
    ...
 \end{lstlisting}
-Portcon rules can overlap, for example TCP port number 80 is labeled
-\texttt{http\_port\_t} but also \texttt{reserved\_port\_t} because it is in range
-1--511. Each port has either a domain-specific label or one of the following
-labels (based on range):
+Portcon rules can overlap, for example a TCP port number 80 is labeled
+\texttt{http\_port\_t} but also \texttt{reserved\_port\_t} because it is in the
+range 1--511. Each port has either a domain-specific label or one of the
+following labels (based on a range):
 
 \begin{tabular}{l l}
     1--511 & \texttt{reserved\_port\_t} \\
@@ -2078,10 +2068,8 @@ labels (based on range):
     61001--65535 & \texttt{unreserved\_port\_t} \\
 \end{tabular}
 
-\pagebreak
-
-When a~process tries to bind to a~port and it is denied by SELinux, AVC denial
-message is generated. For example:
+When a~process tries to bind to a~port and it is denied by SELinux, an AVC
+denial message is generated. For example:
 \begin{lstlisting}[escapechar=\%]
 type=AVC msg=audit(1516026512.648:4191): avc:  denied  { name_bind } for
 pid=6116 comm="test" %\textbf{src=43}% scontext=unconfined_u:unconfined_r:my_app_t:s0
@@ -2089,8 +2077,8 @@ tcontext=system_u:object_r:reserved_port_t:s0
 tclass=tcp_socket permissive=0
 \end{lstlisting}
 
-The proper way how to allow the process to bind on port number 43 would be to
-label this port with an~application-specific context using either
+The proper way how to allow the process to bind on the port number 43 would be
+to label this port with an~application-specific context using either
 a~\texttt{portcon} rule or the \texttt{semanage port} command. For example:
 \begin{lstlisting}
 # semanage port --add -t system_u:object_r:my_app_port_t:s0 -p TCP 43
@@ -2101,7 +2089,7 @@ adding the following rule to the policy:
 \begin{lstlisting}[language=te]
 allow my_app_t reserved_port_t:tcp_socket name_bind;
 \end{lstlisting}
-This rule would allow \texttt{my\_app\_t} access to all reserved ports which is
+This rule would grant \texttt{my\_app\_t} access to all reserved ports which is
 unneccessary and potentially insecure.
 
 The ports can be labeled using the \texttt{portcon} rules, but as of policy
@@ -2114,16 +2102,16 @@ when appropriate.
 \subsection{Network Nodes}
 % STATUS: 4
 SELinux is capable of labeling network nodes. For example, there can be rules
-that allow process to communicate only on private LAN or even only on local
-host. Attempts to violate these rules would then produce AVC denial messages
-that contain IP address of the node.
+that allow processes to communicate only on a private LAN or even only on the
+local host. Attempts to violate these rules would then produce AVC denial
+messages that contain IP addresses of the nodes.
 
 The proper solution would be to modify a label of a certain subnet of the
-network, for example using the \texttt{semanage node} command. AVC denial
+network, for example using the \texttt{semanage node} command. The AVC denial
 messages provide only IP addresses. As IP addresses can often change, labeling
 a single network node would not be useful. Labeling of network nodes is not used
 on Fedora and RHEL. Improving the audit2allow utility to suggest
-\texttt{semanage node} commands would not make a~big impact on security.
+\texttt{semanage node} commands would not make a~big impact on the security.
 
 \subsection{Network Interfaces}
 % STATUS: 4
@@ -2242,8 +2230,6 @@ Without extended permissions, each access vector can be converted into a single
 AV rule. With extended permissions attached to the access vector, to fully
 convert an access vector to the policy rules, there need to be one AV rule and
 possibly several extended permission AV rules. For example, this access vector:
-
-\pagebreak
 
 \begin{lstlisting}[language=Python]
 {
@@ -2526,7 +2512,6 @@ Testing \texttt{AVExtRule} class: this class is similar to the \texttt{AVRule}
 class. The \texttt{from\_av()} method creates the rule from an access vector and
 the \texttt{to\_string()} method prints the rule to a~string.
 
-\pagebreak
 \begin{longtabu}{|l|X|} \hline
     \multicolumn2{|l|}{\texttt{TestAVExtRule} class from the
     \texttt{test\_refpolicy.py} module:}
