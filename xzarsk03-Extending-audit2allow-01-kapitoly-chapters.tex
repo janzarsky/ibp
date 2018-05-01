@@ -104,7 +104,7 @@ permissions to others or gain access to the files that they do not need
         \texttt{\textasciitilde/.ssh/} directory.
     \item Processes can change security properties. For example, a mail client
         can make the user's mail readable by other users.
-    \item Processes inherit the user's rights. For example, every application,
+    \item Processes inherit the user's rights. For example, each application,
         even though it may be compromised, is able to read all user's files.
 \end{itemize}
 
@@ -223,7 +223,7 @@ There are two basic entities in SELinux \cite[p.~29]{tsn}:
 \subsection{Mandatory Access Control}
 
 SELinux provides a mandatory access control mechanism that extends the
-discretionary access control mechanisms present in Linux kernel.
+discretionary access control mechanisms present in the Linux kernel.
 
 \subsubsection{Discretionary Access Control}
 \emph{Discretionary access control} (DAC) is defined by \emph{Trusted Computer
@@ -1063,12 +1063,11 @@ by turning on a~boolean.
 \subsection{Labeling Network Objects}
 
 SELinux policy supports labeling of the following network objects:
-\begin{description}
-    \item [Network ports] TCP or UDP port numbers.
-    \item [Network nodes] Nodes represented by IP addresses and subnet masks.
-    \item [Network interfaces] Interfaces managed by \texttt{ifconfig} (e.g.
-        \texttt{eth0}).
-\end{description}
+\begin{itemize}
+    \item TCP and UDP ports identified by a number,
+    \item network nodes represented by IP addresses and subnet masks,
+    \item network interfaces (e.g. \texttt{eth0}).
+\end{itemize}
 The audit2allow utility can be extended to suggest changing labels of network
 objects, see section \ref{networkobjects}.
 
@@ -1079,12 +1078,10 @@ netifcon netif_id netif_context packet_context
 \end{lstlisting}
 Where:
 \begin{description}
-    \item [\texttt{netif\_id}] Name of the network interface (e.g.
-        \texttt{eth0}).
-    \item [\texttt{netif\_context}] Security context of the interface.
-    \item [\texttt{packet\_context}] Security context of the packets. This
-        context is not currently used (the kernel does not support labeling of
-        packets).
+    \item [\texttt{netif\_id}] is the name of the network interface (e.g.
+        \texttt{eth0}),
+    \item [\texttt{netif\_context}] is the security context of the interface,
+    \item [\texttt{packet\_context}] is the security context of the packets.
 \end{description}
 An example:
 \begin{lstlisting}[language=te]
@@ -1098,9 +1095,9 @@ nodecon subnet netmask node_context
 \end{lstlisting}
 Where:
 \begin{description}
-    \item [\texttt{subnet}] The IP address.
-    \item [\texttt{netmask}] The subnet mask.
-    \item [\texttt{node\_context}] Security context of the node.
+    \item [\texttt{subnet}] is the IP address of the subnet,
+    \item [\texttt{netmask}] is the subnet mask,
+    \item [\texttt{node\_context}] is the security context of the node.
 \end{description}
 An example:
 \begin{lstlisting}[language=te]
@@ -1114,9 +1111,9 @@ portcon protocol port_number port_context
 \end{lstlisting}
 Where:
 \begin{description}
-    \item [\texttt{protocol}] Either \texttt{udp} or \texttt{tcp}.
-    \item [\texttt{port\_number}] Port number or a~range.
-    \item [\texttt{port\_context}] Security context of the port.
+    \item [\texttt{protocol}] is either \texttt{udp} or \texttt{tcp},
+    \item [\texttt{port\_number}] is a~port number or a~range of port numbers,
+    \item [\texttt{port\_context}] is the security context of the port.
 \end{description}
 An example:
 \begin{lstlisting}[language=te]
@@ -1174,14 +1171,15 @@ solutions should be presented to the user. See section \ref{mislabeled}.
 
 \subsection{Temporary Changes}
 The chcon command changes the SELinux context of files \cite{selinuxguide}. The
-user must have a permission to relabel files. The changes made by chcon are
+user must have a~permission to relabel files. The changes made by chcon are
 overwritten by a~file system relabel or running of restorecon.
 
 \subsection{Type Transition}
-There are rules in policy that specifies the context of files created by
-processes. For example, when process running with the \texttt{httpd\_t} context
-creates a~file in directory with the \texttt{var\_run\_t} context, the file will
-get context \texttt{httpd\_var\_run\_t}:
+To specify the context of files created by processes, the
+\texttt{type\_transition} rules are used. For example, when a process running
+with the \texttt{httpd\_t} context creates a~file in a directory with the
+\texttt{var\_run\_t} context, the file will get the
+\texttt{httpd\_var\_run\_t} context:
 \begin{lstlisting}[language=te]
 type_transition httpd_t var_run_t:file httpd_var_run_t;
 \end{lstlisting}
@@ -1219,17 +1217,17 @@ relabel files on the filesystem.
 \subsection{Building File Context Configuration Files}
 Utilities such as restorecon and setfiles use several files to restore default
 contexts of the files \cite[pp.~165--167]{tsn}:
-\begin{description}
-    \item [\texttt{file\_contexts}] Contains default contexts for files.
-    \item [\texttt{file\_contexts.homedirs}] Contains default contexts for files
-        inside the user home directories.
-    \item [\texttt{file\_contexts.local}] Contains local modifications of
-        default file contexts.
-    \item [\texttt{file\_contexts.subs} and \texttt{file\_contexts.subs\_dist}]
-        Contains file name substitutions. For example, these files can specify
-        that \texttt{/usr/lib64} should be treated the same way as
-        \texttt{/usr/lib}.
-\end{description}
+\begin{itemize}
+    \item The \texttt{file\_contexts} file contains default contexts for files.
+    \item The \texttt{file\_contexts.homedirs} file contains default contexts
+        for files inside the user home directories.
+    \item The \texttt{file\_contexts.local} file contains local modifications of
+        the default file contexts.
+    \item The \texttt{file\_contexts.subs} and
+        \texttt{file\_contexts.subs\_dist} files contain file name
+        substitutions. For example, these files can specify that
+        \texttt{/usr/lib64} should be treated the same way as \texttt{/usr/lib}.
+\end{itemize}
 
 \begin{figure}
     \centering
@@ -1517,18 +1515,17 @@ messages to access vector rules is implemented in the sepolgen package.
 
 The sepolgen package contains the following modules:
 \begin{description}
-    \item [\texttt{audit.py}] Defines classes for various audit messages,
-        contains audit message parser.
-    \item [\texttt{access.py}] Defines access vectors and access vector sets.
-    \item [\texttt{policygen.py}] Creates policy rules based on access vectors.
-    \item [\texttt{refpolicy.py}] Contains classes that represent the policy
-        statements.
-    \item [\texttt{output.py}] Outputs the generated rules.
-    \item [Other modules] There are several other modules which are either not
-        significant (e.g. the \texttt{utils.py} module) or used only to
-        generate policy using the interfaces (e.g. the \texttt{interfaces.py}
-        package).
+    \item [\texttt{audit.py}] defines classes for various audit messages,
+        contains audit message parser,
+    \item [\texttt{access.py}] defines access vectors and access vector sets,
+    \item [\texttt{policygen.py}] creates policy rules based on access vectors,
+    \item [\texttt{refpolicy.py}] contains classes that represent the policy
+        statements,
+    \item [\texttt{output.py}] outputs the generated rules.
 \end{description}
+There are several other modules which are either not significant (e.g. the
+\texttt{utils.py} module) or used only to generate policy using the interfaces
+(e.g. the \texttt{interfaces.py} package).
 
 \subsubsection{The audit2allow Script}
 % STATUS: 4
@@ -1551,13 +1548,13 @@ The sepolgen package contains the following modules:
 
 The main script does the following steps:
 \begin{enumerate}
-    \item Parse command-line arguments and check potential conflicts.
-    \item Read audit messages. Create \texttt{AuditParser} instance and feed it
-        the messages.
-    \item Filter the messages (if specified by the \texttt{-{}-type} option) and
-        convert them to access vectors.
-    \item Create and setup a~\texttt{PolicyGenerator} instance, feed it the
-        access vectors, and convert them to policy rules.
+    \item Parses command-line arguments and checks potential conflicts.
+    \item Reads audit messages. Creates an \texttt{AuditParser} instance and
+        feeds it with the messages.
+    \item Filters the messages (if specified by the \texttt{-{}-type} option)
+        and converts them to access vectors.
+    \item Creates a~\texttt{PolicyGenerator} instance, feeds it with the access
+        vectors, and converts them to policy rules.
     \item Write the output.
 \end{enumerate}
 
@@ -1581,7 +1578,7 @@ The main script does the following steps:
 % ComputeSidTypeFilter
 
 The \texttt{audit.py} module is used for parsing audit messages. It is not a
-general purpose library for parsing Audit messages, it is meant to parse mainly
+general purpose library for parsing audit messages, it is meant to parse mainly
 the AVC messages and policy load messages.
 
 The \texttt{AuditParser} class reads strings and creates objects of an
@@ -2243,7 +2240,7 @@ in the rule.
 
 Without extended permissions, each access vector can be converted into a single
 AV rule. With extended permissions attached to the access vector, to fully
-convert an access vector to the policy rules, there needs to be one AV rule and
+convert an access vector to the policy rules, there need to be one AV rule and
 possibly several extended permission AV rules. For example, this access vector:
 
 \pagebreak
@@ -2279,7 +2276,7 @@ A new configuration method \texttt{set\_gen\_xperms()} was added to the
 whether the extended permission AV rules should be generated.
 
 In the old implementation, method \texttt{add\_access()} called the
-\texttt{\_\_add\_allow\_rules()} method which generated AV rules for every
+\texttt{\_\_add\_allow\_rules()} method which generated AV rules for each
 access vector set. In new implementation, there are two methods,
 \texttt{\_\_add\_av\_rule()} and \texttt{\_\_add\_ext\_av\_rules()}. Both accept
 access vector as a~parameter, the \texttt{\_\_add\_av\_rule()} method generates
