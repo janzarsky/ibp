@@ -1196,7 +1196,7 @@ one \cite{selinuxguide}:
         there may be some files left with a type that is no longer defined in
         the policy.
 \end{enumerate}
-For these situations, there is a~\texttt{file\_contexts} file which specifies
+For these situations, there is the~\texttt{file\_contexts} file which specifies
 default contexts for each file based on its path. For example:
 \begin{lstlisting}
 /run/.*         --  system_u:object_r:var_run_t:s0
@@ -1411,7 +1411,7 @@ messages.
 \subsection{Command-Line Options}
 % STATUS: 4
 The audit2allow utility is able to read AVC messages from stdin, dmesg, audit
-log, or arbitrary file (see \texttt{-{}-dmesg}, \texttt{-{}-all}, and
+log, or an arbitrary file (see \texttt{-{}-dmesg}, \texttt{-{}-all}, and
 \texttt{-{}-input} options). There is \texttt{-{}-boot} option which loads only
 the messages generated since last boot and \texttt{-{}-lastreload} option which
 loads only the messages since last SELinux policy reload.
@@ -2000,10 +2000,10 @@ of the file (but not the full path). In cases of \texttt{getattr} denial, the
 \texttt{path} field is present.
 
 \subsection{Solving Problems With Mislabeled Files}
-The restorecon utility uses file contexts files to get default security contexts
-of files (see section \ref{filecontexts}). For example, when the
-\texttt{/var/www/html/my\_file.html} file is mislabeled, the denial should be
-fixed by running restorecon on the file:
+The restorecon utility uses the \texttt{file\_contexts} files to get the default
+security contexts of files (see section \ref{filecontexts}). For example, when
+the \texttt{/var/www/html/my\_file.html} file is mislabeled, the denial should
+be fixed by running restorecon on the file:
 \begin{lstlisting}
 # restorecon -v /var/www/html/my_file.html
 Relabeled /var/www/html/my_file.html from unconfined_u:object_r:
