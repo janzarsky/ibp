@@ -346,8 +346,8 @@ Roles: 14
 \label{te}
 SELinux uses type enforcement for enforcing mandatory access control
 \cite[pp.~25--26]{tsn}. All subjects and objects are associated to an SELinux
-type. Processes running with the same type are called a~\emph{domain}. SELinux
-policy then contains rules that allow domains access types.
+type. Processes running with the same type are called a~\emph{domain}. The
+SELinux policy then contains rules that allow domains access types.
 
 \pagebreak
 
@@ -1062,7 +1062,7 @@ by turning on a~boolean.
 %     4.16.4 portcon                                                    Y
 \subsection{Labeling Network Objects}
 
-SELinux policy supports labeling of the following network objects:
+The SELinux policy supports labeling of the following network objects:
 \begin{itemize}
     \item TCP and UDP ports identified by a number,
     \item network nodes represented by IP addresses and subnet masks,
@@ -1505,8 +1505,8 @@ during the processing. The audit2allow prints comments with helpful messages.
 \subsection{Implementation of audit2allow}
 % STATUS: 4
 \label{implementation}
-The audit2allow utility is a part of SELinux userspace. It is written mostly in
-Python, with several parts written in C. It uses sepolgen and sepolicy Python
+The audit2allow utility is a part of the SELinux userspace. It is written mostly
+in Python, with several parts written in C. It uses sepolgen and sepolicy Python
 packages and libselinux and libsepol libraries.
 
 The main script, \texttt{audit2allow}, parses command-line options, retrieves
@@ -1864,7 +1864,7 @@ Two general areas for improvement to audit2allow were identified:
 % ------------------------------------------------------------------------------
 \section{Extended Permission Access Vector Rules}
 % STATUS: 4
-Since policy version 30, SELinux policy supports extended permission access
+Since policy version 30, the SELinux policy supports extended permission access
 vector rules (see section \ref{extavrules}). Usage of extended permission AV
 rules introduces situations when audit2allow is not able to detect the true
 cause of denial. As a~result, when using extended permission AV rules,
@@ -2039,7 +2039,7 @@ database created by \texttt{updatedb}.
 % ------------------------------------------------------------------------------
 \section{Labeling Network Ports, Nodes, and Interfaces}
 \label{networkobjects}
-SELinux policy supports labeling of TCP and UDP ports, network nodes
+The SELinux policy supports labeling of TCP and UDP ports, network nodes
 (represented by IP addresses and subnet masks), and network interfaces (e.g.
 \texttt{eth0}).
 
@@ -2589,8 +2589,8 @@ was replaced.
 \subsection{Integration Tests of File Contexts Checks}
 % STATUS: 4
 To test checking of mislabeled files, integration test was written. First,
-SELinux policy module that defines new SELinux type is loaded. Test file is
-created and labeled with new type. Testing program then tries to open that
+an SELinux policy module that defines a new SELinux type is loaded. Test file is
+created and labeled with the new type. Testing program then tries to open that
 file and fails. AVC denials are collected and sent to the audit2allow utility.
 The output is checked for warnings about mislabeled file.
 
