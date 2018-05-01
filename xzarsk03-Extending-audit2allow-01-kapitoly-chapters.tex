@@ -718,9 +718,9 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock execute open };
 \label{userroletype}
 To support mechanisms such as the type enforcement, the role-based access
 control, and multi-level and multi-category security, SELinux assigns security
-contexts to subjects and objects. Security context is a combination of a user, a
-role, a type, and optionally range identifiers (see section \ref{context}). This
-section describes policy statements that declare these identifiers.
+contexts to subjects and objects. A security context is a combination of a user,
+a role, a type, and optionally range identifiers (see section \ref{context}).
+This section describes policy statements that declare these identifiers.
 
 SELinux users are declared using the \texttt{user} statement. The users are
 assigned one or more roles. SELinux roles are declared using the \texttt{role}
@@ -1170,7 +1170,7 @@ audit2allow utility and audit2allow should detect these situations. Proper
 solutions should be presented to the user. See section \ref{mislabeled}.
 
 \subsection{Temporary Changes}
-The chcon command changes the SELinux context of files \cite{selinuxguide}. The
+The chcon command changes the security context of files \cite{selinuxguide}. The
 user must have a~permission to relabel files. The changes made by chcon are
 overwritten by a~file system relabel or running of restorecon.
 
@@ -1268,7 +1268,7 @@ fcontext} command \cite{selinuxguide}. For example:
 SELinux fcontext    type        Context
 /etc/myfile         all files   system_u:object_r:samba_share_t:s0
 \end{lstlisting}
-In this example, a new file contexts entry was added. The rule states that the
+In this example, a new file context entry was added. The rule states that the
 \texttt{/etc/myfile} file should obtain the
 \texttt{system\_u:object\_r:samba\_share\_t:s0} context.
 
@@ -1300,12 +1300,12 @@ When a~process tries to perform an operation without the permissions, an
 \cite{selinuxguide}. This message can be processed by tools such as
 setroubleshoot or audit2allow then.
 
-Each AVC message contains information about a source context (the context of the
-process), an object class (for example a file), and a target context (the
-context of the object). For example, when a~process \texttt{httpd} running in
+Each AVC message contains information about the source context (the context of
+the process), the object class (for example a file), and the target context (the
+context of the object). For example, when an \texttt{httpd} process running with
 the \texttt{unconfined\_u:system\_r:httpd\_t:s0} context is trying to perform
-the \texttt{getattr} operation on the \texttt{/var/www/html/file1} file with
-context \texttt{system\_u:object\_r:samba\_share\_t:s0} and fails, the following
+the \texttt{getattr} operation on the \texttt{/var/www/html/file1} file with the
+\texttt{system\_u:object\_r:samba\_share\_t:s0} context and fails, the following
 AVC message is generated:
 
 \begin{lstlisting}
@@ -1645,7 +1645,7 @@ access vector:
 }
 \end{lstlisting}
 to the access vector above, they would be merged into the following access
-vector (they share source and target context and the object class):
+vector (they share the source and target context and the object class):
 \begin{lstlisting}[language=Python]
 {
     source_context: 'unconfined_u:system_r:httpd_t:s0',
@@ -2026,7 +2026,7 @@ a~mislabeled file and suggest a solution using the restorecon utility.
 There are three fields in the AVC message that can be used to detect if the file
 was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
 \texttt{path} field is present, audit2allow can run \texttt{matchpathcon} to get
-the default context of the file and compare it with an actual file context.
+the default context of the file and compare it with the actual file context.
 
 In many cases, the \texttt{path} field is not present, only an inode number and
 the name of the file (without the full path). In this case it is difficult to
@@ -2090,7 +2090,7 @@ tclass=tcp_socket permissive=0
 \end{lstlisting}
 
 The proper way how to allow the process to bind on port number 43 would be to
-label this port with a~application-specific context using either
+label this port with an~application-specific context using either
 a~\texttt{portcon} rule or the \texttt{semanage port} command. For example:
 \begin{lstlisting}
 # semanage port --add -t system_u:object_r:my_app_port_t:s0 -p TCP 43
@@ -2144,7 +2144,7 @@ improvements have been implemented:
         the \texttt{-{}-xperms} option, audit2allow generates extended AV rules.
     \item Checking mislabeled files. The audit2allow utility now parses the
         \texttt{path} field in AVC denial messages and checks if files have the
-        default context. When the context in AVC denial message is different
+        default context. When the context in the AVC denial message is different
         than the default one, audit2allow produces warning.
 \end{itemize}
 
@@ -2183,11 +2183,11 @@ if avc.ioctlcmd:
 \subsection{Storing Extended Permissions}
 % STATUS: 4
 AVC denial messages are converted to access vectors (see section
-\ref{implementation}). Two messages that contains same source and target context
-and object class are merged together. Denials caused by the ioctl system call
-produce AVC denial messages containing the \texttt{ioctlcmd} field. These
-messages can be treated the same way as any other AVC denial message, but for
-generating extended permission AV rules, the \texttt{ioctlcmd} field must be
+\ref{implementation}). Two messages that contains the same source and target
+context and the object class are merged together. Denials caused by the ioctl
+system call produce AVC denial messages containing the \texttt{ioctlcmd} field.
+These messages can be treated the same way as any other AVC denial message, but
+for generating extended permission AV rules, the \texttt{ioctlcmd} field must be
 stored. The \texttt{AccessVector} class was extended to store the
 \texttt{ioctlcmd} field and potentionally any other extended permission fields
 introduced in the future.
@@ -2538,7 +2538,7 @@ the \texttt{to\_string()} method prints the rule to a~string.
     \texttt{test\_from\_av()} & Test creating the rule from an access vector.
     \\ \hline
     \texttt{test\_from\_av\_self()} & Test creating the rule from an access
-    vector that has same source and target context.
+    vector that has the same source and target context.
     \\ \hline
     \texttt{test\_to\_string()} & Test printing the rule.
     \\ \hline
