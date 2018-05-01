@@ -750,7 +750,7 @@ Where:
     \item [\texttt{seuser\_id}] is an SELinux user identifier,
     \item [\texttt{role\_id}] is one or more role identifiers.
 \end{description}
-Example from Fedora 27:
+An example from Fedora 27:
 \begin{lstlisting}[language=te]
 user staff_u roles { system_r unconfined_r sysadm_r staff_r };
 \end{lstlisting}
@@ -767,7 +767,7 @@ Where:
     \item [\texttt{role\_id}] is an SELinux role identifier,
     \item [\texttt{type\_id}] is one or more type identifiers.
 \end{description}
-Example from Fedora 27:
+An example from Fedora 27:
 \begin{lstlisting}[language=te]
 role auditadm_r types { auditadm_t auditadm_screen_t auditadm_su_t
     auditadm_sudo_t chkpwd_t updpwd_t exim_t auditctl_t auditd_t
@@ -1001,7 +1001,7 @@ Where:
         \texttt{bool}, \texttt{sensitivity}, \texttt{category}, \texttt{class}.
 \end{description}
 
-Example of \texttt{module} and \texttt{require} statements:
+An example of the \texttt{module} and \texttt{require} statements:
 \begin{lstlisting}[language=te]
 module my_module 1.2.0;
 
@@ -1448,7 +1448,7 @@ necessary.
 \pagebreak
 
 The \texttt{-{}-why} option does not output any policy rules but provides a~text
-description of why the access was denied. Example of \texttt{audit2allow
+description of why the access was denied. An example of \texttt{audit2allow
 -{}-why} output:
 \begin{lstlisting}
 type=AVC msg=audit(1223024155.684:49): avc: denied { getattr }
@@ -2047,7 +2047,7 @@ The SELinux policy supports labeling of TCP and UDP ports, network nodes
 % STATUS: 4
 SELinux can enforce binding to system ports. For example, in Fedora 27, there
 are several hundred \texttt{portcon} rules that label TCP and UDP ports.
-Example:
+An example:
 \begin{lstlisting}
 $ seinfo --portcon
 
@@ -2102,7 +2102,7 @@ adding the following rule to the policy:
 allow my_app_t reserved_port_t:tcp_socket name_bind;
 \end{lstlisting}
 This rule would allow \texttt{my\_app\_t} access to all reserved ports which is
-unneccessary and potentially unsecure.
+unneccessary and potentially insecure.
 
 The ports can be labeled using the \texttt{portcon} rules, but as of policy
 version 31, these rules are not valid in a policy module, only in the base
