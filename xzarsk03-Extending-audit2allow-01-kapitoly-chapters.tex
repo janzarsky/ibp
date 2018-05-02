@@ -380,7 +380,7 @@ extended by a level or range entry.
 
 Security levels conform to the Bell-LaPadula model. For processes, the security
 levels describe subjects clearance, for objects, they describe objects
-classification. A process running at a certain security level can:
+classification. A process running at a certain security level can
 \begin{itemize}
     \item read and write at their current level,
     \item read only at lower levels,
@@ -406,13 +406,12 @@ security context is a~string in the following form:
 \begin{lstlisting}
 user:role:type[:range]
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{user}] is the SELinux user (see section \ref{selinuxuser}),
+    \item [\texttt{user}] is the SELinux user (see section \ref{selinuxuser}).
     \item [\texttt{role}] is the SELinux role used by the role-based access
-        control (see section \ref{rbac}),
+        control (see section \ref{rbac}).
     \item [\texttt{type}] is the SELinux type used by the type enforcement (see
-        section \ref{te}),
+        section \ref{te}).
     \item [\texttt{range}] is used by MLS or MCS (see section \ref{mls}) and is
         optional.
 \end{description}
@@ -538,9 +537,9 @@ processes may change their context by calling the \texttt{setcon()} or
 \subsubsection{Labeling Files}
 Security context for files is computed as follows:
 \begin{description}
-    \item [\texttt{user}] is inherited from the creating process,
+    \item [\texttt{user}] is inherited from the creating process.
     \item [\texttt{role}] defaults to \texttt{object\_r} unless modified by a
-        \texttt{role\_transition} statement,
+        \texttt{role\_transition} statement.
     \item [\texttt{type}] defaults to the type of the parent directory unless
         modified by a \texttt{type\_transition} statement.
 \end{description}
@@ -667,7 +666,6 @@ to create a loadable policy module.
 SELinux policy statements start with a~statement keyword, usually followed by
 several identifiers and a semicolon at the end. Comments start with a~``\#''.
 An example of an allow rule:
-
 \begin{lstlisting}[language=te]
 # This is an allow rule
 allow httpd_t httpd_exec_t: file { ioctl read getattr lock execute open };
@@ -739,9 +737,8 @@ The \texttt{user} statement declares an identifier for an SELinux user. Syntax:
 \begin{lstlisting}[language=te]
 user seuser_id roles role_id;
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{seuser\_id}] is an SELinux user identifier,
+    \item [\texttt{seuser\_id}] is an SELinux user identifier.
     \item [\texttt{role\_id}] is one or more role identifiers.
 \end{description}
 An example from Fedora 27:
@@ -756,9 +753,8 @@ and optionally associates a~role to one or more types. Syntax:
 role role_id;
 role role_id types type_id;
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{role\_id}] is an SELinux role identifier,
+    \item [\texttt{role\_id}] is an SELinux role identifier.
     \item [\texttt{type\_id}] is one or more type identifiers.
 \end{description}
 An example from Fedora 27:
@@ -779,14 +775,13 @@ type type_id, attribute_id;
 type type_id alias alias_id;
 type type_id alias alias_id, attribute_id;
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{type\_id}] is an SELinux type identifier,
+    \item [\texttt{type\_id}] is an SELinux type identifier.
     \item [\texttt{alias\_id}] is one or more optional aliases declared by the
-        \texttt{typealias} statement, multiple aliases must be enclosed in
-        braces,
+        \texttt{typealias} statement. Multiple aliases must be enclosed in
+        braces.
     \item [\texttt{attribute\_id}] is one or more optional attributes declared
-        by the \texttt{attribute} statement, multiple attributes must be
+        by the \texttt{attribute} statement. Multiple attributes must be
         separated by a comma.
 \end{description}
 An example from Fedora 27:
@@ -840,18 +835,17 @@ object. Syntax:
 \begin{lstlisting}[language=te]
 allow source_type target_type:obj_class perm_set;
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{source\_type}] One or more type or attribute identifiers (see
-        section \ref{userroletype}). This field identifies the subject that is
-        performing the operation.
-    \item [\texttt{target\_type}] One or more type or attribute identifiers.
-        This field identifies the object that is being accessed. When the
-        target type is the same as the source type, the \texttt{self} keyword
-        can be used instead of the target type.
-    \item [\texttt{obj\_class}] One or more object classes (for example
-        \texttt{file} or \texttt{tcp\_socket}).
-    \item [\texttt{perm\_set}] One or more permissions (for example
+    \item [\texttt{source\_type}] represents one or more type or attribute
+        identifiers (see section \ref{userroletype}). This field identifies the
+        subject that is performing the operation.
+    \item [\texttt{target\_type}] represents one or more type or attribute
+        identifiers.  This field identifies the object that is being accessed.
+        When the target type is the same as the source type, the \texttt{self}
+        keyword can be used instead of the target type.
+    \item [\texttt{obj\_class}] represents one or more object classes (for
+        example \texttt{file} or \texttt{tcp\_socket}).
+    \item [\texttt{perm\_set}] represents one or more permissions (for example
         \texttt{read} or \texttt{connectto}).
 \end{description}
 An example:
@@ -901,7 +895,6 @@ implemented as a~part of this thesis. Syntax of extended permission AV rules
 \begin{lstlisting}[language=te]
 rule_name source_type target_type : obj_class operation xperm_set;
 \end{lstlisting}
-Where:
 \begin{description}
     \item [\texttt{rule\_name}] is one of the following: \texttt{allowxperm},
         \texttt{dontauditxperm}, \texttt{auditallowxperm}, or
@@ -971,10 +964,9 @@ specified by command-line options. Each policy module must start with the
 \begin{lstlisting}[language=te]
 module module_name version;
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{module\_name}] Name of the module.
-    \item [\texttt{version}] Version number in format \texttt{X.Y.Z}.
+    \item [\texttt{module\_name}] is the name of the module.
+    \item [\texttt{version}] is the version number in format \texttt{X.Y.Z}.
 \end{description}
 This name is used to refer to the module when using userspace utilities. For
 example this command is used to remove a module from the policy:
@@ -987,10 +979,9 @@ from other modules or the base policy. Syntax:
 \begin{lstlisting}[language=te]
 require { require_list }
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{require\_list}] One or more keywords followed by an
-        identifier separated by a semicolon. The valid keywords are:
+    \item [\texttt{require\_list}] represents one or more keywords followed by
+        an identifier separated by a semicolon. The valid keywords are:
         \texttt{role}, \texttt{type}, \texttt{attribute}, \texttt{user},
         \texttt{bool}, \texttt{sensitivity}, \texttt{category}, \texttt{class}.
 \end{description}
@@ -1070,11 +1061,10 @@ The \texttt{netifcon} statement labels network interface statements. Syntax:
 \begin{lstlisting}[language=te]
 netifcon netif_id netif_context packet_context
 \end{lstlisting}
-Where:
 \begin{description}
     \item [\texttt{netif\_id}] is the name of the network interface (e.g.
-        \texttt{eth0}),
-    \item [\texttt{netif\_context}] is the security context of the interface,
+        \texttt{eth0}).
+    \item [\texttt{netif\_context}] is the security context of the interface.
     \item [\texttt{packet\_context}] is the security context of the packets.
 \end{description}
 An example:
@@ -1087,10 +1077,9 @@ The \texttt{nodecon} statement labels network addresses. Syntax:
 \begin{lstlisting}[language=te]
 nodecon subnet netmask node_context
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{subnet}] is the IP address of the subnet,
-    \item [\texttt{netmask}] is the subnet mask,
+    \item [\texttt{subnet}] is the IP address of the subnet.
+    \item [\texttt{netmask}] is the subnet mask.
     \item [\texttt{node\_context}] is the security context of the node.
 \end{description}
 An example:
@@ -1103,10 +1092,9 @@ The \texttt{portcon} statement labels TCP and UDP ports. Syntax:
 \begin{lstlisting}[language=te]
 portcon protocol port_number port_context
 \end{lstlisting}
-Where:
 \begin{description}
-    \item [\texttt{protocol}] is either \texttt{udp} or \texttt{tcp},
-    \item [\texttt{port\_number}] is a~port number or a~range of port numbers,
+    \item [\texttt{protocol}] is either \texttt{udp} or \texttt{tcp}.
+    \item [\texttt{port\_number}] is a~port number or a~range of port numbers.
     \item [\texttt{port\_context}] is the security context of the port.
 \end{description}
 An example:
@@ -1508,11 +1496,11 @@ messages to access vector rules is implemented in the sepolgen package.
 The sepolgen package contains the following modules:
 \begin{description}
     \item [\texttt{audit.py}] defines classes for various audit messages,
-        contains audit message parser,
-    \item [\texttt{access.py}] defines access vectors and access vector sets,
-    \item [\texttt{policygen.py}] creates policy rules based on access vectors,
+        contains audit message parser.
+    \item [\texttt{access.py}] defines access vectors and access vector sets.
+    \item [\texttt{policygen.py}] creates policy rules based on access vectors.
     \item [\texttt{refpolicy.py}] contains classes that represent the policy
-        statements,
+        statements.
     \item [\texttt{output.py}] outputs the generated rules.
 \end{description}
 There are several other modules which are either not significant (e.g. the
@@ -1685,14 +1673,15 @@ allow httpd_t samba_share_t:file { getattr open read };
 to represent policy statements. \texttt{PolicyGenerator} provides several
 configuration methods:
 \begin{description}
-    \item [\texttt{set\_gen\_refpol()}] Turn on interface generation.
-    \item [\texttt{set\_gen\_requires()}] Generate \texttt{require} statements
-        that are neccessary for creating a~standalone policy module (see section
-        \ref{modules}).
-    \item [\texttt{set\_gen\_explain()}] Add comments explaining why the policy
-        statements were generated.
-    \item [\texttt{set\_gen\_dontaudit()}] Generate \texttt{dontaudit} rules
-        instead of \texttt{allow} rules (see section \ref{avrules}).
+    \item [\texttt{set\_gen\_refpol()}] turns on generating of interfaces.
+    \item [\texttt{set\_gen\_requires()}] turns on generating of the
+        \texttt{require} statements that are neccessary for creating
+        a~standalone policy module (see section \ref{modules}).
+    \item [\texttt{set\_gen\_explain()}] turns on adding of comments explaining
+        why the policy statements were generated.
+    \item [\texttt{set\_gen\_dontaudit()}] turns on generating of the
+        \texttt{dontaudit} rules instead of \texttt{allow} rules (see section
+        \ref{avrules}).
 \end{description}
 The output of \texttt{PolicyGenerator} is a~tree-like structure containing
 generated policy statements. The \texttt{output.py} module then just prints out
@@ -1743,11 +1732,11 @@ For the basic operation mode, the following classes are used: \texttt{AVRule},
 \texttt{ModuleDeclaration}, \texttt{Module}, and \texttt{Require}. The
 \texttt{AVRule} class contains the following attributes:
 \begin{description}
-    \item [\texttt{src\_types}] \texttt{IdSet()} of source types.
-    \item [\texttt{tgt\_types}] \texttt{IdSet()} of target types.
-    \item [\texttt{obj\_classes}] \texttt{IdSet()} of object classes.
-    \item [\texttt{perms}] \texttt{IdSet()} of permissions.
-    \item [\texttt{rule\_type}] One of the following: \texttt{ALLOW},
+    \item [\texttt{src\_types}] is an \texttt{IdSet()} of source types.
+    \item [\texttt{tgt\_types}] is an \texttt{IdSet()} of target types.
+    \item [\texttt{obj\_classes}] is an \texttt{IdSet()} of object classes.
+    \item [\texttt{perms}] is an \texttt{IdSet()} of permissions.
+    \item [\texttt{rule\_type}] is one of the following: \texttt{ALLOW},
         \texttt{DONTAUDIT}, \texttt{AUDITALLOW}, or \texttt{NEVERALLOW}.
 \end{description}
 The \texttt{Module} class serves only as a~node that is parent to all statements
