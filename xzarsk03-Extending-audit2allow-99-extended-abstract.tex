@@ -50,12 +50,22 @@ kontext.
 %   4.2 Mislabeled Files
 % Třetí část popisuje implementaci vybraných rozšíření, která poskytují více
 % omezující a~bezpečnější řešení.
-Kapitola \ref{implementation} popisuje 
+V rámci práce byla implementována dvě rozšíření nástroje audit2allow. Kapitola
+\ref{implementation} popisuje, jakým způsobem byla implementována. Pro podporu
+rozšířených oprávnění bylo potřeba změnit zpracování vstupních zpráv, vytvořit
+objekty reprezentující rozšířená oprávnění a implementovat generování pravidel
+povolující rozšířená oprávnění. Druhým rozšířením byla kontrola bezpečnostních
+kontextů souborů. Bylo potřeba detekovat cesty k souborům ve vstupních zprávách
+a využít knihovnu libselinux pro získání výchozího bezpečnostního kontextu.
 
 % 5 Functional Testing
 %   5.1 Unit Tests of Extended Permissions
 %   5.2 Integration Tests of Extended Permissions
 %   5.3 Unit Tests of Mislabeled Files
 % Poslední část popisuje testování těchto rozšíření.
+Testování implementovaných rozšíření je popsáno v kapitole \ref{testing}. Změny
+v kódu a nové třídy jsou pokryty jednotkovými testy, které jsou stručně popsány.
+Obě rožšíření jsou testované také pomocí integračního testu, který spouští
+audit2allow v reálné situaci.
 
 % 6 Conclusion
