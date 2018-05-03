@@ -42,7 +42,7 @@ která jsou neefektivní a~potenciálně nebezpečná. Nástroj audit2allow nero
 tzv. rozšířená oprávnění, která umožňují granulárnějsí způsob přidělování
 oprávnění, například dokáží přidělit procesu oprávnění volat jen některá ioctl
 systémová volání. Práce rozebírá možnosti implementace podpory pro rozšířená
-oprávnění a ideální výchozí chování nástroje s ohledem na bezpečnost a zpětnou
+oprávnění a~ideální výchozí chování nástroje s~ohledem na bezpečnost a~zpětnou
 kompatibilitu.
 Nástroj audit2allow spoléhá při analýze zamítnutí přístupu na to, že
 objekty, ke kterým byl přístup zamítnut, měly správný bezpečnostní kontext.
@@ -56,23 +56,26 @@ objekty se špatným bezpečnostním kontextem, jsou navrženy.
 %   4.2 Mislabeled Files
 % Třetí část popisuje implementaci vybraných rozšíření, která poskytují více
 % omezující a~bezpečnější řešení.
-V rámci práce byla implementována dvě rozšíření nástroje audit2allow popsaná
+V~rámci práce byla implementována dvě rozšíření nástroje audit2allow popsaná
 v~kapitole \ref{implementation}. Pro podporu rozšířených oprávnění bylo potřeba
 změnit zpracování vstupních zpráv, vytvořit objekty reprezentující rozšířená
-oprávnění a implementovat generování pravidel povolující rozšířená oprávnění.
+oprávnění a~implementovat generování pravidel povolující rozšířená oprávnění.
 Druhým rozšířením byla kontrola bezpečnostních kontextů souborů. Bylo potřeba
-detekovat cesty k souborům ve vstupních zprávách a využít knihovnu libselinux
+detekovat cesty k~souborům ve vstupních zprávách a~využít knihovnu libselinux
 pro získání výchozího bezpečnostního kontextu. Upozornění na soubor se špatným
 bezpečnostním kontextem bylo přidáno jako komentář do výstupu audit2allow.
+Detekci síťových portů se špatným kontextem lze implementovat v~budoucnu,
+implementace detekce síťových uzlů a~rozhraní se špatným kontextem by neměla
+velký dopad na zvýšení bezpečnosti systému.
 
 % 5 Functional Testing
 %   5.1 Unit Tests of Extended Permissions
 %   5.2 Integration Tests of Extended Permissions
 %   5.3 Unit Tests of Mislabeled Files
 % Poslední část popisuje testování těchto rozšíření.
-Testování implementovaných rozšíření je popsáno v kapitole \ref{testing}. Změny
-v kódu a nové třídy jsou pokryty jednotkovými testy, které jsou stručně popsány.
+Testování implementovaných rozšíření je popsáno v~kapitole~\ref{testing}. Změny
+v~kódu a~nové třídy jsou pokryty jednotkovými testy, které jsou stručně popsány.
 Obě rožšíření jsou testované také pomocí integračního testu, který spouští
-audit2allow v reálné situaci.
+audit2allow v~reálné situaci.
 
 % 6 Conclusion
