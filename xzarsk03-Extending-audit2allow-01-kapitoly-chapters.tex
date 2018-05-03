@@ -14,11 +14,11 @@
 
 % establish your territory
 %   state the general topic and give some background
-%   provide a review of the literature related to the topic
+%   provide a~review of the literature related to the topic
 %   define the terms and scope of the topic
 \emph{Security-Enhanced Linux} (SELinux) is a~mandatory access control mechanism
-used in Linux distributions. It extends the traditional file permissions using a
-security policy that cannot be overridden by users. The \emph{audit2allow}
+used in Linux distributions. It extends the traditional file permissions using
+a~security policy that cannot be overridden by users. The \emph{audit2allow}
 utility is one of several tools used by system administrators to troubleshoot
 SELinux denials. Security policy developers use audit2allow to create a~basis
 for security policy modules for their products. The audit2allow utility analyzes
@@ -39,14 +39,14 @@ In other situations, the audit2allow utility provides nonfunctional solutions
 because it is not aware of recently added features of SELinux. There are new
 policy statements that provide more granular control over given permissions. The
 audit2allow utility is unable to detect that the denial was caused by these
-statements and fails to provide a working solution. Security policy developers
+statements and fails to provide a~working solution. Security policy developers
 cannot use the audit2allow utility to generate these statements.
 
 % introduce the current research
 %   identify the importance of the proposed research
 The users, not familiar with SELinux, cannot recognize the limitations of the
-audit2allow utility. They either fail to solve the problem or end up with a
-workaround that is potentially insecure.
+audit2allow utility. They either fail to solve the problem or end up with
+a~workaround that is potentially insecure.
 %   state the research problem/ questions
 %   state the research aims and/or research objectives
 This thesis aims to analyze different causes of SELinux denials and evaluate the
@@ -59,7 +59,7 @@ audit2allow. As a~part of the thesis, two new features were implemented.
 %   outline the order of information in the thesis
 The second chapter of the thesis presents Security-Enhanced Linux, introduces
 the SELinux policy language, describes auditing of security events, and provides
-a detailed description of the audit2allow utility. The third chapter analyzes
+a~detailed description of the audit2allow utility. The third chapter analyzes
 situations where the audit2allow utility generates nonfunctional or insecure
 solutions. The fourth chapter goes through the implementation details of
 selected improvements to audit2allow. The fifth one describes unit and
@@ -102,7 +102,7 @@ permissions to others or gain access to the files that they do not need
         permissions on their files. For example, they can set the read
         permission for everyone on the SSH keys in the
         \texttt{\textasciitilde/.ssh/} directory.
-    \item Processes can change security properties. For example, a mail client
+    \item Processes can change security properties. For example, a~mail client
         can make the user's mail readable by other users.
     \item Processes inherit the user's rights. For example, each application,
         even though it may be compromised, is able to read all user's files.
@@ -175,7 +175,7 @@ main components of SELinux are shown in figure \ref{fig:selinuxcomponents}.
         the libsemanage library.
     \item [restorecon and setfiles] are utilities for restoring the default
         context of files (see section \ref{filecontexts}).
-    \item [policycoreutils] is a set of various utilities for working with and
+    \item [policycoreutils] is a~set of various utilities for working with and
         troubleshooting of SELinux, for example the audit2allow utility
         described in section \ref{audit2allow}.
     \item [Modified Linux Commands] are standard Linux commands such as ls or
@@ -209,10 +209,10 @@ There are two basic entities in SELinux \cite[p.~29]{tsn}:
     \item [Subject] is an entity that causes information to flow among objects
         or changes the system state. Within SELinux, a~subject is an active
         process that can access objects. A~process can also be an object, for
-        example when a~process is sending a signal to another process, the
+        example when a~process is sending a~signal to another process, the
         process receiving the signal is treated as an object.
-    \item [Object] is a~system resource such as a file, a socket, a pipe, a TCP
-        or UDP port, a network interface, a semaphore or shared memory segment.
+    \item [Object] is a~system resource such as a~file, a~socket, a~pipe, a~TCP
+        or UDP port, a~network interface, a~semaphore or shared memory segment.
 \end{description}
 
 % ----------------------------------------
@@ -222,7 +222,7 @@ There are two basic entities in SELinux \cite[p.~29]{tsn}:
 % 2.3 MANDATORY ACCESS CONTROL (MAC)                                    Y
 \subsection{Mandatory Access Control}
 
-SELinux provides a mandatory access control mechanism that extends the
+SELinux provides a~mandatory access control mechanism that extends the
 discretionary access control mechanisms present in the Linux kernel.
 
 \subsubsection{Discretionary Access Control}
@@ -242,7 +242,7 @@ can be set.
 \emph{Mandatory access control} (MAC), defined by TCSEC standard, provides more
 restrictions than DAC. In this type of access control, the operating system can
 prevent subjects from performing operations on objects. This is achieved by
-attaching subjects and objects a set of security attributes. When a~subject
+attaching subjects and objects a~set of security attributes. When a~subject
 (usually a~process) wants to perform an operation on an object (a~file,
 a~directory, a~socket, etc.), the operating system first examines these
 attributes. Then the security policy is used to determine whether this operation
@@ -302,7 +302,7 @@ Users: 8
 \subsection{Role-Based Access Control}
 \label{rbac}
 SELinux uses the role-based access control (RBAC) as one of its security
-mechanisms. RBAC as a general concept is based on users, roles, permissions,
+mechanisms. RBAC as a~general concept is based on users, roles, permissions,
 and relationships between them. RBAC defines the role-permission, user-role, and
 role-role relationships.
 
@@ -376,17 +376,17 @@ Types: 4845
 In addition to the type enforcement and the role-based access control, SELinux
 also supports multi-level security (MLS) and multi-category security (MCS)
 \cite[pp.~48--53]{tsn}. For the purposes of MLS and MCS, the security context is
-extended by a level or range entry.
+extended by a~level or range entry.
 
 Security levels conform to the Bell-LaPadula model. For processes, the security
 levels describe subjects clearance, for objects, they describe objects
-classification. A process running at a certain security level can
+classification. A~process running at a~certain security level can
 \begin{itemize}
     \item read and write at their current level,
     \item read only at lower levels,
     \item write only at higher levels.
 \end{itemize}
-This means that processes cannot read data with a higher security level and
+This means that processes cannot read data with a~higher security level and
 cannot leak sensitive information to the lower levels. Multi-level security is
 not used by default in most SELinux-enabled Linux distributions such as Fedora
 or RHEL, but it is supported.
@@ -401,7 +401,7 @@ or RHEL, but it is supported.
 \label{context}
 Security decisions are based on a~\emph{security context} that must be assigned
 to each subject and object \cite[pp.~27--28]{tsn}. The security context is
-sometimes referred to as a \emph{security label} or just a \emph{label}. The
+sometimes referred to as a~\emph{security label} or just a~\emph{label}. The
 security context is a~string in the following form:
 \begin{lstlisting}
 user:role:type[:range]
@@ -529,7 +529,7 @@ server using several policy statements \cite[pp.~31--33]{tsn}.
 \subsubsection{Labeling Processes}
 The first init process usually transitions to its own unique domain, for example
 \texttt{init\_t}. On fork, the child process inherits the security context of
-its parent. On exec, the child process may transition to a different security
+its parent. On exec, the child process may transition to a~different security
 context. This is achieved by type transition policy statements. SELinux-aware
 processes may change their context by calling the \texttt{setcon()} or
 \texttt{setexeccon()} functions from the libselinux library.
@@ -538,10 +538,10 @@ processes may change their context by calling the \texttt{setcon()} or
 Security context for files is computed as follows:
 \begin{description}
     \item [\texttt{user}] is inherited from the creating process.
-    \item [\texttt{role}] defaults to \texttt{object\_r} unless modified by a
-        \texttt{role\_transition} statement.
+    \item [\texttt{role}] defaults to \texttt{object\_r} unless modified by
+        a~\texttt{role\_transition} statement.
     \item [\texttt{type}] defaults to the type of the parent directory unless
-        modified by a \texttt{type\_transition} statement.
+        modified by a~\texttt{type\_transition} statement.
 \end{description}
 The file contexts are covered in depth in section \ref{filecontexts}.
 
@@ -558,12 +558,12 @@ The file contexts are covered in depth in section \ref{filecontexts}.
 \subsection{Type Transitions}
 \label{typetransitions}
 To run different processes in different domains, we need a~way how to
-\emph{transition} a~process from one domain to another. To attach a specific
+\emph{transition} a~process from one domain to another. To attach a~specific
 label to an object, we need to transition an object from one type to another.
 Both transitions can be achieved using the \texttt{type\_transition} statement.
 
 \subsubsection{Domain Transition}
-Starting a new process with a different security context is called domain
+Starting a~new process with a~different security context is called domain
 transition \cite[pp.~43--47]{tsn}. For example, the \texttt{systemd} process
 running as \texttt{init\_t} needs to start the Apache HTTP Server as
 \texttt{httpd\_t}. Apache executables are labeled \texttt{httpd\_exec\_t}. The
@@ -574,14 +574,14 @@ type_transition init_t httpd_exec_t:process httpd_t;
 The \texttt{systemd} process does not need to be aware of SELinux. The
 \texttt{type\_transition} rule in the policy will cause the \texttt{exec} call
 to automatically perform the transition. There are conditions that need to be
-met before a domain transition can happen:
+met before a~domain transition can happen:
 \begin{enumerate}
-    \item The source domain has a permission to transition into the target
+    \item The source domain has a~permission to transition into the target
         domain. For example:
 \begin{lstlisting}[language=te]
 allow init_t httpd_t:process transition;
 \end{lstlisting}
-    \item The source domain has a permission to read and execute the binary. For
+    \item The source domain has a~permission to read and execute the binary. For
         example:
 \begin{lstlisting}[language=te]
 allow init_t httpd_exec_t:file { execute read getattr };
@@ -595,7 +595,7 @@ allow httpd_t httpd_exec_t:file entrypoint;
 
 \subsubsection{Object Transition}
 When a~new object is created it inherits the security context of its parent. If
-a different context of the object is required, the object transition must be
+a~different context of the object is required, the object transition must be
 used \cite[pp.~47--48]{tsn}. For example when an X server creates a~file in the
 \texttt{/tmp} directory (which has the \texttt{tmp\_t} context), it gets the 
 \texttt{user\_tmp\_t} context. This is achieved by the following
@@ -622,7 +622,7 @@ the policy, it only logs actions. In \emph{disabled} mode, SELinux is turned
 off.
 
 Running SELinux in permissive mode is useful for catching AVC denials that can
-be analyzed using the audit2allow utility. To perform a single task (for example
+be analyzed using the audit2allow utility. To perform a~single task (for example
 to save a~file), several SELinux checks are usually needed. When running in the
 enforcing mode, only the first denial would be logged and the troubleshooting
 would be more difficult.
@@ -656,15 +656,15 @@ Security decisions made by the security server in the kernel are resolved using
 the SELinux policy. This section describes the most important SELinux policy
 statements. The primary output of the audit2allow utility are policy statements.
 
-SELinux supports either monolithic (compiled from a single source file) or
+SELinux supports either monolithic (compiled from a~single source file) or
 modular policy. Modular policy, which is used in Fedora and RHEL, consists of
 the mandatory base policy source file and loadable modules. In Fedora, almost
-each module contains a policy for one application or service, such as the
+each module contains a~policy for one application or service, such as the
 \texttt{apache} or \texttt{xserver} module. The audit2allow utility can be used
-to create a loadable policy module.
+to create a~loadable policy module.
 
 SELinux policy statements start with a~statement keyword, usually followed by
-several identifiers and a semicolon at the end. Comments start with a~``\#''.
+several identifiers and a~semicolon at the end. Comments start with a~``\#''.
 An example of an allow rule:
 \begin{lstlisting}[language=te]
 # This is an allow rule
@@ -710,8 +710,8 @@ allow httpd_t httpd_exec_t: file { ioctl read getattr lock execute open };
 \label{userroletype}
 To support mechanisms such as the type enforcement, the role-based access
 control, and multi-level and multi-category security, SELinux assigns security
-contexts to subjects and objects. A security context is a combination of a user,
-a role, a type, and optionally range identifiers (see section \ref{context}).
+contexts to subjects and objects. A~security context is a~combination of a~user,
+a~role, a~type, and optionally range identifiers (see section \ref{context}).
 This section describes policy statements that declare these identifiers.
 
 SELinux users are declared using the \texttt{user} statement. The users are
@@ -782,7 +782,7 @@ type type_id alias alias_id, attribute_id;
         braces.
     \item [\texttt{attribute\_id}] is one or more optional attributes declared
         by the \texttt{attribute} statement. Multiple attributes must be
-        separated by a comma.
+        separated by a~comma.
 \end{description}
 An example from Fedora 27:
 \begin{lstlisting}[language=te]
@@ -864,8 +864,8 @@ There are three other AV rules that follow the syntax pattern of the
         issues. The \texttt{dontaudit} rules help to keep the audit logs clean.
     \item [\texttt{auditallow}] audits the event. The \texttt{auditallow} rule
         itself does not allow the operation, so the rule must appear together
-        with a standard \texttt{allow} rule.
-    \item [\texttt{neverallow}] is a compiler statement that stops the
+        with a~standard \texttt{allow} rule.
+    \item [\texttt{neverallow}] is a~compiler statement that stops the
         compilation of the policy if this rule is found somewhere in the policy.
         It is used for marking rules that may be insecure.
 \end{description}
@@ -905,17 +905,17 @@ rule_name source_type target_type : obj_class operation xperm_set;
         \texttt{neverallowxperm} rules is a~compiler statement to prevent
         insecure rules from appearing in the policy.
     \item [\texttt{source\_type}, \texttt{target\_type}, \texttt{obj\_class}]
-        are a source type, a target type, and an object class, the same as with
-        a standard AV rule.
+        are a~source type, a~target type, and an object class, the same as with
+        a~standard AV rule.
     \item [\texttt{operation}] is a~single keyword defining the operation to be
         implemented by the rule. As of policy version 31, only the
         \texttt{ioctl} operation is supported. In contrast to permissions in
         standard access vector rules, each extended permission AV rule has only
-        one operation (standard AV rules can have a lot of permissions).
+        one operation (standard AV rules can have a~lot of permissions).
     \item [\texttt{xperm\_set}] are extended permissions represented by numeric
         values. The meaning of the values depends on the operation. The values
-        can be written in a decimal or hexadecimal form, for example \texttt{42}
-        or \texttt{0x2a}. Multiple values must be separated by a space and
+        can be written in a~decimal or hexadecimal form, for example \texttt{42}
+        or \texttt{0x2a}. Multiple values must be separated by a~space and
         enclosed in braces, for example \texttt{\{ 1 2 3 \}}. Value ranges are
         supported, for example \texttt{50-60} (both 50 and 60 are included in
         the range).  To allow all values except for those explicitly listed, the
@@ -934,12 +934,12 @@ any number from 50 to 60.
 \subsubsection{Filtering the ioctl System Call}
 Filtering ioctl calls is as of policy version 31 the only implementation of
 extended permission AV rules. The ioctl system call accepts three parameters:
-a file descriptor, a request number, and a~pointer \cite{ioctl}. The extended
+a~file descriptor, a~request number, and a~pointer \cite{ioctl}. The extended
 permission AV rules allow filtering based on the request number. For ioctl
 calls, the \texttt{operation} keyword is \texttt{ioctl} and numbers in the
 \texttt{xperm\_set} represent request numbers.
 
-When there is only an \texttt{allow} rule for a particular source and a target
+When there is only an \texttt{allow} rule for a~particular source and a~target
 context and object class, all ioctl calls are allowed. With an additional
 \texttt{allowxperm} rule, only the ioctl calls with parameters allowed by the
 \texttt{allowxperm} rules are allowed. The \texttt{allowxperm} rule alone has no
@@ -969,7 +969,7 @@ module module_name version;
     \item [\texttt{version}] is the version number in format \texttt{X.Y.Z}.
 \end{description}
 This name is used to refer to the module when using user space utilities. For
-example this command is used to remove a module from the policy:
+example this command is used to remove a~module from the policy:
 \begin{lstlisting}
 $ semodule -r module_name
 \end{lstlisting}
@@ -981,7 +981,7 @@ require { require_list }
 \end{lstlisting}
 \begin{description}
     \item [\texttt{require\_list}] represents one or more keywords followed by
-        an identifier separated by a semicolon. The valid keywords are:
+        an identifier separated by a~semicolon. The valid keywords are:
         \texttt{role}, \texttt{type}, \texttt{attribute}, \texttt{user},
         \texttt{bool}, \texttt{sensitivity}, \texttt{category}, \texttt{class}.
 \end{description}
@@ -1013,7 +1013,7 @@ somewhere in the policy (either in the base policy or in another policy module).
 %         4.6.3. Shell Auto-Completion
 \subsection{Conditional Policy}
 \label{booleans}
-SELinux policy allows turning on and off a set of policy statements without the
+SELinux policy allows turning on and off a~set of policy statements without the
 need for reloading policy. Conditional policy is defined using the \texttt{bool}
 statement that defines a~condition. Then an~\texttt{if}/\texttt{else} construct
 is used to mark statements that depend on the condition. An example:
@@ -1049,7 +1049,7 @@ by turning on a~boolean.
 
 The SELinux policy supports labeling of the following network objects:
 \begin{itemize}
-    \item TCP and UDP ports identified by a number,
+    \item TCP and UDP ports identified by a~number,
     \item network nodes represented by IP addresses and subnet masks,
     \item network interfaces (e.g. \texttt{eth0}).
 \end{itemize}
@@ -1132,7 +1132,7 @@ portcon tcp 22 system_u:object_r:ssh_port_t:s0
 \section{File Contexts}
 \label{filecontexts}
 When accessing files, SELinux relies on the labels stored with those files to
-make a security decision. SELinux labels can be viewed using the \texttt{ls -Z}
+make a~security decision. SELinux labels can be viewed using the \texttt{ls -Z}
 command:
 \begin{lstlisting}
 $ ls -Z
@@ -1158,8 +1158,8 @@ overwritten by a~file system relabel or running of restorecon.
 
 \subsection{Type Transition}
 To specify the context of files created by processes, the
-\texttt{type\_transition} rules are used. For example, when a process running
-with the \texttt{httpd\_t} context creates a~file in a directory with the
+\texttt{type\_transition} rules are used. For example, when a~process running
+with the \texttt{httpd\_t} context creates a~file in a~directory with the
 \texttt{var\_run\_t} context, the file will get the
 \texttt{httpd\_var\_run\_t} context:
 \begin{lstlisting}[language=te]
@@ -1168,14 +1168,14 @@ type_transition httpd_t var_run_t:file httpd_var_run_t;
 Type transitions are explained in section \ref{typetransitions}.
 
 \subsection{File Context Configuration Files}
-There are situations when files get a label that is different than the default
+There are situations when files get a~label that is different than the default
 one \cite{selinuxguide}:
 \begin{enumerate}
     \item When moving files, the label is preserved. This does not happen when
-        copying files because a new file is always created.
+        copying files because a~new file is always created.
     \item When SELinux is disabled, labels are not assigned to files.
     \item When the policy is changed (for example when a~module is unloaded),
-        there may be some files left with a type that is no longer defined in
+        there may be some files left with a~type that is no longer defined in
         the policy.
 \end{enumerate}
 For these situations, there is the~\texttt{file\_contexts} file which specifies
@@ -1250,7 +1250,7 @@ fcontext} command \cite{selinuxguide}. For example:
 SELinux fcontext    type        Context
 /etc/myfile         all files   system_u:object_r:samba_share_t:s0
 \end{lstlisting}
-In this example, a new file context entry was added. The rule states that the
+In this example, a~new file context entry was added. The rule states that the
 \texttt{/etc/myfile} file should obtain the
 \texttt{system\_u:object\_r:samba\_share\_t:s0} context.
 
@@ -1284,7 +1284,7 @@ When a~process tries to perform an operation without the permissions, an
 setroubleshoot or audit2allow then.
 
 Each AVC message contains information about the source context (the context of
-the process), the object class (for example a file), and the target context (the
+the process), the object class (for example a~file), and the target context (the
 context of the object). For example, when an \texttt{httpd} process running with
 the \texttt{unconfined\_u:system\_r:httpd\_t:s0} context is trying to perform
 the \texttt{getattr} operation on the \texttt{/var/www/html/file1} file with the
@@ -1364,9 +1364,9 @@ denials and to create new policy modules. When suitable, the audit2allow utility
 suggests other options to resolve denials, such as turning on a~boolean (see
 section \ref{booleans}).
 
-Policy developers use audit2allow to create basis for a new policy modules for
-their products. When writing a policy for their program, they can run the
-programs test suite in the permissive mode, collect AVC denials, create a policy
+Policy developers use audit2allow to create basis for a~new policy modules for
+their products. When writing a~policy for their program, they can run the
+programs test suite in the permissive mode, collect AVC denials, create a~policy
 module, and then manually finish the policy module. Policy developers can use
 the \texttt{-{}-reference} option to generate the policy using predefined
 macros.
@@ -1399,8 +1399,8 @@ log, or an arbitrary file (see \texttt{-{}-dmesg}, \texttt{-{}-all}, and
 the messages generated since last boot and \texttt{-{}-lastreload} option which
 loads only the messages since last SELinux policy reload.
 
-The audit2allow utility can output the policy rules directly to stdout or a
-file, or create a~policy module which can be loaded directly into the policy
+The audit2allow utility can output the policy rules directly to stdout or
+a~file, or create a~policy module which can be loaded directly into the policy
 (see \texttt{-{}-module}, \texttt{-M}, and \texttt{-{}-output} options).
 
 The audit2allow utility is using the currently loaded policy (or another policy
@@ -1451,12 +1451,12 @@ The \texttt{-{}-dontaudit} option generates \texttt{dontaudit} rules instead of
 % STATUS: 4
 The audit2allow collects audit messages from various sources first. The messages
 are stored based on their type and then parsed. Each AVC denial message is
-analyzed together with a binary policy file to find out the reason of denial.
+analyzed together with a~binary policy file to find out the reason of denial.
 
 From AVC denial messages, source contexts, target contexts, object classes, and
 permissions are extracted and converted into \emph{access vector sets}. Each
-access vector in the set contains a unique combination of a source context, a
-target context, and object class. Permissions from multiple AVC messages are
+access vector in the set contains a~unique combination of a~source context,
+a~target context, and object class. Permissions from multiple AVC messages are
 merged into one access vector set. An example of an access vector set:
 \begin{lstlisting}[language=Python]
 {
@@ -1486,7 +1486,7 @@ during the processing. The audit2allow prints comments with helpful messages.
 \subsection{Implementation of audit2allow}
 % STATUS: 4
 \label{implementation}
-The audit2allow utility is a part of the SELinux user space. It is written mostly
+The audit2allow utility is a~part of the SELinux user space. It is written mostly
 in Python, with several parts written in C. It uses sepolgen and sepolicy Python
 packages and libselinux and libsepol libraries.
 
@@ -1558,9 +1558,9 @@ The main script does the following steps:
 % AVCTypeFilter
 % ComputeSidTypeFilter
 
-The \texttt{audit.py} module is used for parsing audit messages. It is not a
-general purpose library for parsing audit messages, it is meant to parse mainly
-the AVC messages and policy load messages.
+The \texttt{audit.py} module is used for parsing audit messages. It is not
+a~general purpose library for parsing audit messages, it is meant to parse
+mainly the AVC messages and policy load messages.
 
 The \texttt{AuditParser} class reads strings and creates objects of an
 appropriate type for each message. The \texttt{AuditMessage} class is the base
@@ -1654,7 +1654,7 @@ in the \texttt{policygen.py} module.
 % InterfaceGenerator
 % gen_requires()
 The \texttt{policygen.py} module defines the \texttt{PolicyGenerator} class that
-generates a policy module from access vectors. \texttt{PolicyGenerator} converts
+generates a~policy module from access vectors. \texttt{PolicyGenerator} converts
 an access vector set into SELinux policy statements. For example, this access
 vector:
 \begin{lstlisting}[language=Python]
@@ -1722,7 +1722,7 @@ statements (for example the \texttt{Module} class), or a~leaf (for example the
 traversing trees made out of nodes and leaves. These functions are used when
 printing statements in the \texttt{output.py} module.
 
-The \texttt{IdSet} class represents a set of arbitrary identifiers and is used
+The \texttt{IdSet} class represents a~set of arbitrary identifiers and is used
 by many statements for storing permissions and other sets. The
 \texttt{SecurityContext} class represents an SELinux security context. Classes
 such as \texttt{TypeAttribute}, \texttt{RoleAttribute}, \texttt{Role},
@@ -1836,7 +1836,7 @@ policy modules and is generated with either \texttt{-{}-module} or
 \label{analysis}
 Two general areas for improvement to audit2allow were identified:
 \begin{enumerate}
-    \item Changing a label of an object instead of creating new policy rules.
+    \item Changing a~label of an object instead of creating new policy rules.
         This includes checking of mislabeled files, labeling network ports,
         nodes, and interfaces.
     \item Support for new SELinux policy statements such as extended permission
@@ -1908,9 +1908,9 @@ permission AV rules:
 It is not possible to distinguish these two situations by analyzing the AVC
 denial itself, because both denials contain the \texttt{ioctlcmd} field. The
 audit2allow utility would need to analyze the binary policy. The audit2allow
-utility may rather generate extended permission AV rules in all cases (it is a
-stricter, more secure solution) or only when requested by user (for example
-using a command-line option, it is a less secure solution, but it does not break
+utility may rather generate extended permission AV rules in all cases (it is
+a~stricter, more secure solution) or only when requested by user (for example
+using a~command-line option, it is a~less secure solution, but it does not break
 backward compatibility).
 
 In case of using the command-line option, there is still a~risk, that the users
@@ -1948,7 +1948,7 @@ instead of changing the file label.
 
 \subsection{AVC Denial Messages Caused by Mislabeled Files}
 % STATUS: 4
-When a~process is trying to access a file that is mislabeled, the operation is
+When a~process is trying to access a~file that is mislabeled, the operation is
 usually denied (unless the process has also access to the incorrect label). For
 example, when the user moves files from the \texttt{/root} directory to the
 \texttt{/var/www/html/} directory, the files retain their original label:
@@ -1966,7 +1966,7 @@ $ sesearch -A -s httpd_t -t admin_home_t -c file -p read
 (nothing)
 \end{lstlisting}
 
-As a~result, when trying to view \texttt{my\_file.html}, a similar AVC denial
+As a~result, when trying to view \texttt{my\_file.html}, a~similar AVC denial
 message is generated:
 \begin{lstlisting}
 type=AVC msg=audit(1226270358.848:238): avc:  denied  { read }
@@ -2001,7 +2001,7 @@ added to the policy and it does not solve the real problem.
 \subsection{Improving audit2allow}
 % STATUS: 4
 The audit2allow utility should detect when the AVC message is caused by
-a~mislabeled file and suggest a solution using the restorecon utility.
+a~mislabeled file and suggest a~solution using the restorecon utility.
 
 There are three fields in the AVC message that can be used to detect if the file
 was mislabeled: \texttt{path}, \texttt{name} and \texttt{inode}. When the
@@ -2010,7 +2010,7 @@ the default context of the file and compare it with the actual file context.
 
 In many cases, the \texttt{path} field is not present, only an inode number and
 the name of the file (without the full path). In this case, it is difficult to
-find the full path of the file. Ryan Hallisey created a solution
+find the full path of the file. Ryan Hallisey created a~solution
 \cite{restoreconpullreq} that uses the \texttt{locate} utility to get all files
 matching the name and then stat these files to get the inode number. This
 solution is only partial, it does not work on files that are not indexed in the
@@ -2045,10 +2045,10 @@ Portcon: 615
    portcon udp 67 system_u:object_r:dhcpd_port_t:s0
    ...
 \end{lstlisting}
-Portcon rules can overlap, for example a TCP port number 80 is labeled
+Portcon rules can overlap, for example a~TCP port number 80 is labeled
 \texttt{http\_port\_t} but also \texttt{reserved\_port\_t} because it is in the
-range 1--511. Each port has either a domain-specific label or one of the
-following labels (based on a range):
+range 1--511. Each port has either a~domain-specific label or one of the
+following labels (based on a~range):
 
 \begin{tabular}{l l}
     1--511 & \texttt{reserved\_port\_t} \\
@@ -2083,7 +2083,7 @@ This rule would grant \texttt{my\_app\_t} access to all reserved ports which is
 unnecessary and potentially insecure.
 
 The ports can be labeled using the \texttt{portcon} rules, but as of policy
-version 31, these rules are not valid in a policy module, only in the base
+version 31, these rules are not valid in a~policy module, only in the base
 policy. So audit2allow would not be able to generate the \texttt{portcon} rules
 directly.  Another way of labeling ports is via the \texttt{semanage port}
 command. The audit2allow should suggest using the \texttt{semanage port} command
@@ -2092,14 +2092,14 @@ when appropriate.
 \subsection{Network Nodes}
 % STATUS: 4
 SELinux is capable of labeling network nodes. For example, there can be rules
-that allow processes to communicate only on a private LAN or even only on the
+that allow processes to communicate only on a~private LAN or even only on the
 local host. Attempts to violate these rules would then produce AVC denial
 messages that contain IP addresses of the nodes.
 
-The proper solution would be to modify a label of a certain subnet of the
+The proper solution would be to modify a~label of a~certain subnet of the
 network, for example using the \texttt{semanage node} command. The AVC denial
 messages provide only IP addresses. As IP addresses can often change, labeling
-a single network node would not be useful. Labeling of network nodes is not used
+a~single network node would not be useful. Labeling of network nodes is not used
 on Fedora and RHEL. Improving the audit2allow utility to suggest
 \texttt{semanage node} commands would not make a~big impact on the security.
 
@@ -2135,7 +2135,7 @@ Main script \texttt{audit2allow} and the \texttt{audit.py}, \texttt{access.py},
 extended permissions. Support for extended permission AV rules with the
 \texttt{-{}-reference} option was not implemented.
 
-In main script, a new command-line option \texttt{-{}-xperms} was added to turn
+In main script, a~new command-line option \texttt{-{}-xperms} was added to turn
 on generating of the extended permission AV rules. This option turns on extended
 permission AV rules generating in \texttt{PoligyGenerator}.
 
@@ -2176,8 +2176,8 @@ extended permission values, new class \texttt{XpermSet} was implemented in the
 \texttt{refpolicy.py} module. The \texttt{XpermSet} class supports merging of
 multiple values. It is likely that in the future new extended permission
 operation will be introduced. Access vector must store values for different
-operations. For this purpose, \texttt{XpermSet} objects are stored in a
-dictionary where an operation is the key, for example:
+operations. For this purpose, \texttt{XpermSet} objects are stored in
+a~dictionary where an operation is the key, for example:
 \begin{lstlisting}
 {
     'ioctl': <refpolicy.XpermSet() object>,
@@ -2216,7 +2216,7 @@ The \texttt{AVExtRule} class is initialized from an access vector using the
 select which extended permission operation from the access vector should appear
 in the rule.
 
-Without extended permissions, each access vector can be converted into a single
+Without extended permissions, each access vector can be converted into a~single
 AV rule. With extended permissions attached to the access vector, to fully
 convert an access vector to the policy rules, there need to be one AV rule and
 possibly several extended permission AV rules. For example, this access vector:
@@ -2247,7 +2247,7 @@ allowxperm src_t tgt_t:tcp_socket another_command { 700 800 900 };
 
 \subsection{Generating Extended Permission AV Rules}
 % STATUS: 4
-A new configuration method \texttt{set\_gen\_xperms()} was added to the
+A~new configuration method \texttt{set\_gen\_xperms()} was added to the
 \texttt{PolicyGenerator} from the \texttt{policygen.py} module, to specify
 whether the extended permission AV rules should be generated.
 
@@ -2270,7 +2270,7 @@ for av in raw_allow:
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
 % STATUS: 4
-The audit2allow utility was extended to check the default context of a file if
+The audit2allow utility was extended to check the default context of a~file if
 the \texttt{path} field is present in the AVC denial message. The
 \texttt{audit.py} and \texttt{policygen.py} modules were modified.
 
@@ -2284,13 +2284,13 @@ number and file name.
 
 \subsection{Checking Default Context}
 % STATUS: 4
-In the \texttt{policygen.py} module, a new option was added to the
+In the \texttt{policygen.py} module, a~new option was added to the
 \texttt{PolicyGenerator} to turn on or off checking of mislabeled files.
 Checking is turned on by default. Each AVC message from each access vector is
 checked whether it contains the path. The default context of the path is
 obtained via the \texttt{selinux.matchpathcon()} function then. The target
-context of the access vector is then compared with the default context. In a
-case of difference, a comment is added to warn the user about the mislabeled
+context of the access vector is then compared with the default context. In
+a~case of difference, a~comment is added to warn the user about the mislabeled
 file. For example:
 \begin{lstlisting}
 #============= src_t ==============
@@ -2350,10 +2350,10 @@ Testing \texttt{AVCMessage.from\_split\_string()}:
     \\ \hline
     \texttt{test\_xperms()} & Test that the \texttt{ioctlcmd} field is parsed.
     \\ \hline
-    \texttt{test\_xperms\_invalid()} & Test a message with an invalid value in
+    \texttt{test\_xperms\_invalid()} & Test a~message with an invalid value in
     the \texttt{ioctlcmd} field
     \\ \hline
-    \texttt{test\_xperms\_without()} & Test a message without the
+    \texttt{test\_xperms\_without()} & Test a~message without the
     \texttt{ioctlcmd} field.
     \\ \hline
 \end{longtabu}
@@ -2378,8 +2378,8 @@ Testing \texttt{AccessVector.\_\_init\_\_()}:
     \multicolumn2{|l|}{\texttt{TestAccessVector} class from the
     \texttt{test\_access.py} module:}
     \\ \hline
-    \texttt{test\_init()} & Test that \texttt{AccessVector.xperms} is a
-    dictionary.
+    \texttt{test\_init()} & Test that \texttt{AccessVector.xperms} is
+    a~dictionary.
     \\ \hline
 \end{longtabu}
 
@@ -2537,7 +2537,7 @@ New unit tests were written to cover the new functionality.
 \subsection{Testing audit.py Module}
 % STATUS: 4
 In this module, the \texttt{AVCMessage.from\_split\_string()} method was
-extended to parse a path field. Test cases:
+extended to parse a~path field. Test cases:
 \begin{longtabu}{|l|X|} \hline
     \multicolumn2{|l|}{\texttt{TestAVCMessage} class from the
     \texttt{test\_audit.py} module:}
@@ -2548,7 +2548,7 @@ extended to parse a path field. Test cases:
 
 \subsection{Testing policygen Module}
 % STATUS: 4
-In this module, a new configuration option was added to the
+In this module, a~new configuration option was added to the
 \texttt{PolicyGenerator}. For the purposes of testing,
 \texttt{selinux.matchpathcon()} function used for checking the default context
 was replaced. 
@@ -2565,7 +2565,7 @@ was replaced.
 \subsection{Integration Tests of File Contexts Checks}
 % STATUS: 4
 To test checking of mislabeled files, integration test was written. First,
-an SELinux policy module that defines a new SELinux type is loaded. Test file is
+an SELinux policy module that defines a~new SELinux type is loaded. Test file is
 created and labeled with the new type. Testing program then tries to open that
 file and fails. AVC denials are collected and sent to the audit2allow utility.
 The output is checked for warnings about mislabeled file.
@@ -2596,8 +2596,8 @@ provides insecure and too permissive solutions. Several situations were found.
 The audit2allow utility relies on objects having the correct labels and it is
 not able to detect denials caused by mislabeled objects.
 
-In case of mislabeled files, audit2allow is only partially able to detect a
-mislabeled file. There are ways how to check if the file is mislabeled, but in
+In case of mislabeled files, audit2allow is only partially able to detect
+a~mislabeled file. There are ways how to check if the file is mislabeled, but in
 most situations, not enough information is logged using the Linux Audit system
 to get the full path of the file. Checking of the default file context was
 implemented as a~part of this thesis. This improvement warns users that the file
@@ -2632,6 +2632,6 @@ straightforward. Suggesting labels for ports can be implemented in the future.
 % in the future, more improvements can be implemented
 % some improvements are not useful
 The audit2allow utility can be further improved to detect situations when the
-correct solution is to use a different tool. This thesis serves as a~basis for
+correct solution is to use a~different tool. This thesis serves as a~basis for
 discussion about new features that would make troubleshooting problems with
 SELinux easier.
