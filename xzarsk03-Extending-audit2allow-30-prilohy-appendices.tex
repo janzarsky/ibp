@@ -25,9 +25,9 @@ The contents of the enclosed CD:
 
 \section{Upstream Repository}
 
-Improvements to audit2allow were implemented as a series of patches to a 2.8-rc1
-version of the SELinux userspace upstream repository. To install upstream
-version of userspace, follow the instructions in \texttt{README}.
+Improvements to audit2allow were implemented as a series of patches to the
+2.8-rc1 version of the SELinux userspace upstream repository. To install
+upstream version of userspace, follow the instructions in \texttt{README}.
 
 The \texttt{/selinux-xperms} directory contains the SELinux userspace repository
 with support for extended permissions applied on top of the \texttt{f04d6401}
@@ -49,7 +49,12 @@ Fedora~28. The \texttt{/packages} directory contains RPM packages. The
 
 These packages can be installed directly using the dnf command:
 \begin{lstlisting}
-# dnf install packages/*.rpm
+# cd packages
+# dnf install libselinux-2*.rpm libselinux-utils-2*.rpm
+    libsemanage-2*.rpm libsepol-2*.rpm policycoreutils-2*.rpm
+    policycoreutils-python-utils-2*.rpm python2-libselinux-2*.rpm
+    python3-libselinux-2*.rpm python3-libsemanage-2*.rpm
+    python3-policycoreutils-2*.rpm
 \end{lstlisting}
 or from a COPR repository:
 \begin{lstlisting}
