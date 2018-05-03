@@ -1,6 +1,6 @@
-From ae03f7af7117bdcf4681780e1c3081224cb03f03 Mon Sep 17 00:00:00 2001
+From 4833eac8ba6c0bb890170e1bbfccf0ebb316f65a Mon Sep 17 00:00:00 2001
 From: Jan Zarsky <jan.zarsky@gmail.com>
-Date: Mon, 23 Apr 2018 10:45:19 +0200
+Date: Tue, 24 Apr 2018 10:02:25 +0200
 Subject: [PATCH 3/3] python: add support for xperms to audit2allow
 
 Add support for extended permissions to audit2allow. Extend AuditParser
@@ -91,7 +91,7 @@ index a826a9f8..4427dea7 100644
  if __name__ == "__main__":
      unittest.main()
 diff --git a/python/sepolgen/src/sepolgen/access.py b/python/sepolgen/src/sepolgen/access.py
-index 21613eb8..da44f3c3 100644
+index 21613eb8..ba80f939 100644
 --- a/python/sepolgen/src/sepolgen/access.py
 +++ b/python/sepolgen/src/sepolgen/access.py
 @@ -78,6 +78,7 @@ class AccessVector(util.Comparison):
@@ -116,7 +116,7 @@ index 21613eb8..da44f3c3 100644
  
 +    def merge(self, av):
 +        """Add permissions and extended permissions from AV"""
-+        self.perms = self.perms.union(av.perms)
++        self.perms.update(av.perms)
 +
 +        for op in av.xperms:
 +            if op not in self.xperms:

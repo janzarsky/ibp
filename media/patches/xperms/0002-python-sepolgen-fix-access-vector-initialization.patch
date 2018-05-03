@@ -1,4 +1,4 @@
-From 36a8714a6c05b14ae8233acbae130c1de59d7cfe Mon Sep 17 00:00:00 2001
+From 1dd01fbd070e96c25a7e92eb43b58844b2651c8a Mon Sep 17 00:00:00 2001
 From: Jan Zarsky <jan.zarsky@gmail.com>
 Date: Tue, 17 Apr 2018 10:52:49 +0200
 Subject: [PATCH 2/3] python/sepolgen: fix access vector initialization

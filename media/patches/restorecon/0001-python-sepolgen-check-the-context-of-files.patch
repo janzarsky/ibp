@@ -1,4 +1,4 @@
-From 095ac9f98c0c6438953927f8acc927025b1f0cd7 Mon Sep 17 00:00:00 2001
+From dcd87e3188cda501613055ecac18ea4b86176f94 Mon Sep 17 00:00:00 2001
 From: Jan Zarsky <jan.zarsky@gmail.com>
 Date: Sat, 21 Apr 2018 19:03:35 +0200
 Subject: [PATCH] python/sepolgen: check the context of files
@@ -25,7 +25,7 @@ index 26ce6c92..69df2f9f 100644
          if not found_src or not found_tgt or not found_class or not found_access:
              raise ValueError("AVC message in invalid format [%s]\n" % self.message)
 diff --git a/python/sepolgen/src/sepolgen/policygen.py b/python/sepolgen/src/sepolgen/policygen.py
-index ee664fb7..620c8dfa 100644
+index ee664fb7..45fe9d94 100644
 --- a/python/sepolgen/src/sepolgen/policygen.py
 +++ b/python/sepolgen/src/sepolgen/policygen.py
 @@ -82,8 +82,9 @@ class PolicyGenerator:
@@ -57,15 +57,15 @@ index ee664fb7..620c8dfa 100644
  
 +    def __check_mislabeled(self, avs):
 +        for av in avs:
-+            av.mislabeled = []
++            av.mislabeled = set()
 +            for msg in av.audit_msgs:
-+                if msg.path:
++                if msg.path and msg.path not in av.mislabeled:
 +                    import selinux
 +                    try:
 +                        context = selinux.matchpathcon(msg.path, 0)
 +                        split = context[1].split(":")[2]
 +                        if split != av.tgt_type:
-+                            av.mislabeled.append(msg.path)
++                            av.mislabeled.add(msg.path)
 +                    except OSError:
 +                        pass
 +
@@ -77,7 +77,7 @@ index ee664fb7..620c8dfa 100644
                  rule.comment += "\n#!!!! This avc has a dontaudit rule in the current policy"
  
 +            for filename in av.mislabeled:
-+                rule.comment += "\n#!!!! The '%s' file has other than default context" % filename
++                rule.comment += "\n#!!!! The '%s' file has other than the default context" % filename
 +
              if av.type == audit2why.BOOLEAN:
                  if len(av.data) > 1:
@@ -121,7 +121,7 @@ index 6379954f..223264ce 100644
      def test_from_split_string(self):
          path = sepolgen.audit.PathMessage(path1)
 diff --git a/python/sepolgen/tests/test_policygen.py b/python/sepolgen/tests/test_policygen.py
-index 58d1adf3..7cac6802 100644
+index 58d1adf3..c0860817 100644
 --- a/python/sepolgen/tests/test_policygen.py
 +++ b/python/sepolgen/tests/test_policygen.py
 @@ -19,13 +19,44 @@
@@ -154,7 +154,7 @@ index 58d1adf3..7cac6802 100644
 +        g._PolicyGenerator__check_mislabeled(avs)
  
 +        for av in avs:
-+            self.assertEqual(av.mislabeled, [])
++            self.assertEqual(av.mislabeled, set())
 +
 +    def test_check_mislabeled_one(self):
 +        """ Test AVC messages with mislabeled files. """
@@ -167,7 +167,7 @@ index 58d1adf3..7cac6802 100644
 +        g._PolicyGenerator__check_mislabeled(avs)
  
 +        for av in avs:
-+            self.assertEqual(av.mislabeled, ['/test'])
++            self.assertEqual(av.mislabeled, set(['/test']))
  
 +    def tearDown(self):
 +        selinux.matchpathcon = self.matchpathcon_bak
