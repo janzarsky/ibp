@@ -46,7 +46,7 @@ cannot use the audit2allow utility to generate these statements.
 %   identify the importance of the proposed research
 The users, not familiar with SELinux, cannot recognize the limitations of the
 audit2allow utility. They either fail to solve the problem or end up with a
-workaround that is potentionally insecure.
+workaround that is potentially insecure.
 %   state the research problem/ questions
 %   state the research aims and/or research objectives
 This thesis aims to analyze different causes of SELinux denials and evaluate the
@@ -93,7 +93,7 @@ consists of kernel modifications and user-space tools and is a~part of several
 Linux distributions.
 
 \subsection{Purpose of SELinux}
-Without SELinux, the operating system relies on traditinal access control
+Without SELinux, the operating system relies on traditional access control
 methods such as the file permissions. Users can grant an insecure file
 permissions to others or gain access to the files that they do not need
 \cite{selinuxguide}:
@@ -108,7 +108,7 @@ permissions to others or gain access to the files that they do not need
         even though it may be compromised, is able to read all user's files.
 \end{itemize}
 
-SELinux enforces a~security policy that cannot be overriden by users.
+SELinux enforces a~security policy that cannot be overridden by users.
 Applications are allowed to perform only actions they need for normal operation,
 everything else is denied by default. The applications do not need to be aware
 of SELinux. When an action is denied, it is reported via an ``access denied''
@@ -148,7 +148,7 @@ error code to the application \cite{centoshowto}.
 % 2.2 CORE SELINUX COMPONENTS                                           Y
 %     1.3. SELinux Architecture
 \subsection{SELinux Components}
-SELinux is composed of kernel and userspace parts \cite[pp.~19--22]{tsn}. The
+SELinux is composed of kernel and user space parts \cite[pp.~19--22]{tsn}. The
 main components of SELinux are shown in figure \ref{fig:selinuxcomponents}.
 
 \begin{figure}
@@ -180,10 +180,10 @@ main components of SELinux are shown in figure \ref{fig:selinuxcomponents}.
         described in section \ref{audit2allow}.
     \item [Modified Linux Commands] are standard Linux commands such as ls or
         ps, modified to support SELinux.
-    \item [SELinux and proc filesystem] are used by the userspace tools to
+    \item [SELinux and proc filesystem] are used by the user space tools to
         communicate with the kernel security server.
     \item [Security Server] makes security decisions. It is embedded in the
-        kernel and it obtains the security policy via the userspace tools.
+        kernel and it obtains the security policy via the user space tools.
         The security server does not enforce the decision, it only states
         whether the operation is allowed or not.
     \item [Access Vector Cache] caches security decision made by the security
@@ -261,7 +261,7 @@ Smack and TOMOYO Linux.
 
 \subsection{SELinux and MAC Checks}
 SELinux security checks are carried out after the standard Linux DAC checks.
-When running an SELinux-enabled system, when a~userspace process makes a~system
+When running an SELinux-enabled system, when a~user space process makes a~system
 call, standard file permissions are checked first. Then, if the access is
 allowed, the Linux Security Module hooks call security checks in SELinux.
 
@@ -401,7 +401,7 @@ or RHEL, but it is supported.
 \label{context}
 Security decisions are based on a~\emph{security context} that must be assigned
 to each subject and object \cite[pp.~27--28]{tsn}. The security context is
-sometimes reffered to as a \emph{security label} or just a \emph{label}. The
+sometimes referred to as a \emph{security label} or just a \emph{label}. The
 security context is a~string in the following form:
 \begin{lstlisting}
 user:role:type[:range]
@@ -492,7 +492,7 @@ Classes: 1
 }
 \end{lstlisting}
 SELinux object classes maps to the kernel object classes (files, sockets, etc.)
-and userspace objects (for X-Windows or D-Bus).
+and user space objects (for X-Windows or D-Bus).
 
 % ----------------------------------------
 % TOPIC: labeling
@@ -870,7 +870,7 @@ There are three other AV rules that follow the syntax pattern of the
         It is used for marking rules that may be insecure.
 \end{description}
 Internally, access vectors defined by AV rules are stored in the memory as bit
-arrays that are 32~bits long. Because of this limitation, object classses cannot
+arrays that are 32~bits long. Because of this limitation, object classes cannot
 have more than 32 different permissions. Extended permission AV rules were
 introduced to overcome this issue.
 
@@ -968,7 +968,7 @@ module module_name version;
     \item [\texttt{module\_name}] is the name of the module.
     \item [\texttt{version}] is the version number in format \texttt{X.Y.Z}.
 \end{description}
-This name is used to refer to the module when using userspace utilities. For
+This name is used to refer to the module when using user space utilities. For
 example this command is used to remove a module from the policy:
 \begin{lstlisting}
 $ semodule -r module_name
@@ -1227,7 +1227,7 @@ special keywords are used to build the \texttt{file\_contexts} file which is
 used directly by utilities such as restorecon or setfiles.
 
 Rules with special keywords are used to build the \texttt{homedir\_template}
-file. These rules are asssociated with user home directories and need to be
+file. These rules are associated with user home directories and need to be
 expanded for individual users using the genhomedircon utility. For example the
 following \texttt{homedir\_template} entry:
 \begin{lstlisting}
@@ -1269,10 +1269,11 @@ calls, record commands run by the user, record failed login attempts and others
 \cite{secguide}. The Linux Audit system does not provide additional security by
 itself, it can be only used to discover security violations.
 
-The Linux Audit system consists of kernel and userspace parts. The kernel
+The Linux Audit system consists of kernel and user space parts. The kernel
 filters the events and sends them to the \emph{audit daemon}. The audit daemon
-writes the received events to a~log file then. There are several userspace tools
-used for interacting with the audit system and for working with the log file.
+writes the received events to a~log file then. There are several user space
+tools used for interacting with the audit system and for working with the log
+file.
 
 \subsection{Auditing SELinux Denials}
 
@@ -1352,7 +1353,7 @@ objects using restorecon or semanage.
 \section{The audit2allow Utility}
 % STATUS: 4
 \label{audit2allow}
-The audit2allow is a~userspace tool that scans the AVC messages and generates
+The audit2allow is a~user space tool that scans the AVC messages and generates
 SELinux policy snippets based on them.
 
 \subsection{Purpose of audit2allow}
@@ -1485,7 +1486,7 @@ during the processing. The audit2allow prints comments with helpful messages.
 \subsection{Implementation of audit2allow}
 % STATUS: 4
 \label{implementation}
-The audit2allow utility is a part of the SELinux userspace. It is written mostly
+The audit2allow utility is a part of the SELinux user space. It is written mostly
 in Python, with several parts written in C. It uses sepolgen and sepolicy Python
 packages and libselinux and libsepol libraries.
 
@@ -1675,7 +1676,7 @@ configuration methods:
 \begin{description}
     \item [\texttt{set\_gen\_refpol()}] turns on generating of interfaces.
     \item [\texttt{set\_gen\_requires()}] turns on generating of the
-        \texttt{require} statements that are neccessary for creating
+        \texttt{require} statements that are necessary for creating
         a~standalone policy module (see section \ref{modules}).
     \item [\texttt{set\_gen\_explain()}] turns on adding of comments explaining
         why the policy statements were generated.
@@ -1892,7 +1893,7 @@ permission AV rules:
 \begin{itemize}
     \item There is neither an \texttt{allow} nor \texttt{allowxperm} rule in the
         policy. The audit2allow utility has two options: either generate only
-        the \texttt{allow} rule (current behaviour) or generate both
+        the \texttt{allow} rule (current behavior) or generate both
         \texttt{allow} and \texttt{allowxperm} rules. Generating
         \texttt{allowxperm} rules is more secure and provides more granular
         access control. However, for many processes that use lots of different
@@ -1930,7 +1931,7 @@ extended permission AV rules. For example:
 #============= src_t ==============
 
 #!!!! This avc is allowed in the current policy
-#!!!! This av rule may have been overriden by extended permission av rule
+#!!!! This av rule may have been overridden by extended permission av rule
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
 Support for the extended permissions was implemented as a~part of this thesis,
@@ -2079,7 +2080,7 @@ adding the following rule to the policy:
 allow my_app_t reserved_port_t:tcp_socket name_bind;
 \end{lstlisting}
 This rule would grant \texttt{my\_app\_t} access to all reserved ports which is
-unneccessary and potentially insecure.
+unnecessary and potentially insecure.
 
 The ports can be labeled using the \texttt{portcon} rules, but as of policy
 version 31, these rules are not valid in a policy module, only in the base
@@ -2166,7 +2167,7 @@ system call produce AVC denial messages containing the \texttt{ioctlcmd} field.
 These messages can be treated the same way as any other AVC denial message, but
 for generating extended permission AV rules, the \texttt{ioctlcmd} field must be
 stored. The \texttt{AccessVector} class was extended to store the
-\texttt{ioctlcmd} field and potentionally any other extended permission fields
+\texttt{ioctlcmd} field and potentially any other extended permission fields
 introduced in the future.
 
 Single access vector may be product of several AVC denial messages that contain
@@ -2484,7 +2485,7 @@ values. The \texttt{add()} method adds values or ranges of values, the
     \multicolumn2{|l|}{\texttt{TestXpermSet} class from the
     \texttt{test\_refpolicy.py} module:}
     \\ \hline
-    \texttt{test\_init()} & Test that all atttributes are correctly initialized.
+    \texttt{test\_init()} & Test that all attributes are correctly initialized.
     \\ \hline
     \texttt{test\_normalize\_ranges()} & Test that ranges that are overlapping
     or neighboring are correctly merged into one range.
@@ -2617,7 +2618,7 @@ a~basis of a~security policy for their products.
 In case of mislabeled TCP or UDP ports, audit2allow can detect that the port
 needs an application-specific label. Creating new labels for ports is a~task
 that requires certain knowledge of SELinux and the solution is not
-straightforward. Suggesting labels for ports can be imlemented in the future.
+straightforward. Suggesting labels for ports can be implemented in the future.
 
 % 2. Contributions to your field of research, stating/restating the significance
 %       of what you have discovered. Can include limitations.
