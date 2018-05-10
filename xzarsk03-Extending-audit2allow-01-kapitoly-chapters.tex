@@ -1859,9 +1859,10 @@ Suppose there are the following rules present in the policy:
 allow src_t tgt_t : tcp_socket ioctl;
 allowxperm src_t tgt_t : tcp_socket ioctl 0x42;
 \end{lstlisting}
-When a~process tries to call \texttt{ioctl(0x1234, ...)}, the operation would be
-denied, because only the \texttt{ioctl(0x42, ...)} system call is allowed. The
-following AVC denial message would be generated:
+When a~process tries to call \texttt{ioctl(fd, \textbf{0x1234}, argp)}, the
+operation would be denied, because only the \texttt{ioctl(fd, \textbf{0x42},
+argp)} system call is allowed. The following AVC denial message would be
+generated:
 \begin{lstlisting}[escapechar=\%]
 type=AVC msg=audit(1515017775.689:1722): avc:  denied  { ioctl } for
 pid=14587 comm="test" dev="dm-0" ino=8390105 %\textbf{ioctlcmd=0x1234}%
