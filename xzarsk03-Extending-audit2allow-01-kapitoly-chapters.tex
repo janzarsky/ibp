@@ -2314,7 +2314,7 @@ interoperation between audit2allow, SELinux, and Linux Audit system.
 The unit tests were extended to ensure that the new functionality does not break
 the existing code. New test cases were added to test the new features.
 
-\subsection{Testing audit2allow Script}
+\subsection{Testing the audit2allow Script}
 % STATUS: 4
 In main script, new \texttt{-{}-xperms} and \texttt{-x} option was added to turn
 on extended permission AV rules generation.
@@ -2325,11 +2325,11 @@ on extended permission AV rules generation.
     \multicolumn2{|l|}{\texttt{Audit2allowTests} class from the
     \texttt{test\_audit2allow.py} module:}
     \\ \hline
-    \texttt{test\_xperms()} & Test that \texttt{audit2allow -x}
-    produces at least one \texttt{allowxperm} rule. \\ \hline
+    \texttt{test\_xperms()} & Tests that \texttt{audit2allow -x} produces at
+    least one \texttt{allowxperm} rule. \\ \hline
 \end{longtabu}
 
-\subsection{Testing audit.py Module}
+\subsection{Testing the audit.py Module}
 % STATUS: 4
 In this module, the audit message parser have been modified to recognize new
 field in AVC denial messages and to convert the field to extended permissions.
@@ -2339,7 +2339,7 @@ Testing \texttt{AVCMessage.\_\_init\_\_()}:
     \multicolumn2{|l|}{\texttt{TestAVCMessage} class from the
     \texttt{test\_audit.py} module:}
     \\ \hline
-    \texttt{test\_defs()} & Test that \texttt{AVCMessage.ioctlcmd} is
+    \texttt{test\_defs()} & Tests that \texttt{AVCMessage.ioctlcmd} is
     \texttt{None}.
     \\ \hline
 \end{longtabu}
@@ -2349,12 +2349,12 @@ Testing \texttt{AVCMessage.from\_split\_string()}:
     \multicolumn2{|l|}{\texttt{TestAVCMessage} class from the
     \texttt{test\_audit.py} module:}
     \\ \hline
-    \texttt{test\_xperms()} & Test that the \texttt{ioctlcmd} field is parsed.
+    \texttt{test\_xperms()} & Tests that the \texttt{ioctlcmd} field is parsed.
     \\ \hline
-    \texttt{test\_xperms\_invalid()} & Test a~message with an invalid value in
+    \texttt{test\_xperms\_invalid()} & Tests a~message with an invalid value in
     the \texttt{ioctlcmd} field
     \\ \hline
-    \texttt{test\_xperms\_without()} & Test a~message without the
+    \texttt{test\_xperms\_without()} & Tests a~message without the
     \texttt{ioctlcmd} field.
     \\ \hline
 \end{longtabu}
@@ -2364,12 +2364,12 @@ Testing \texttt{AVCMessage.to\_access()}:
     \multicolumn2{|l|}{\texttt{TestAuditParser} class from the
     \texttt{test\_audit.py} module:}
     \\ \hline
-    \texttt{test\_parse\_xperms()} & Test that correct access vectors are
+    \texttt{test\_parse\_xperms()} & Tests that correct access vectors are
     generated from a~set of AVC denial messages.
     \\ \hline
 \end{longtabu}
 
-\subsection{Testing access.py Module}
+\subsection{Testing the access.py Module}
 % STATUS: 4
 In this module, the \texttt{AccessVector} and \texttt{AccessVectorSet} classes
 have been extended.
@@ -2379,7 +2379,7 @@ Testing \texttt{AccessVector.\_\_init\_\_()}:
     \multicolumn2{|l|}{\texttt{TestAccessVector} class from the
     \texttt{test\_access.py} module:}
     \\ \hline
-    \texttt{test\_init()} & Test that \texttt{AccessVector.xperms} is
+    \texttt{test\_init()} & Tests that \texttt{AccessVector.xperms} is
     a~dictionary.
     \\ \hline
 \end{longtabu}
@@ -2390,19 +2390,19 @@ permissions and extended permissions of two access vectors.
     \multicolumn2{|l|}{\texttt{TestAccessVector} class from the
     \texttt{test\_access.py} module:}
     \\ \hline
-    \texttt{test\_merge\_noxperm()} & Test merging two AVs without extended
+    \texttt{test\_merge\_noxperm()} & Tests merging two AVs without extended
     permissions.
     \\ \hline
-    \texttt{test\_merge\_xperm1()} & Test merging AV that contains extended
+    \texttt{test\_merge\_xperm1()} & Tests merging AV that contains extended
     permissions with AV that does not.
     \\ \hline
-    \texttt{test\_merge\_xperm2()} & Test merging AV that does not contain
+    \texttt{test\_merge\_xperm2()} & Tests merging AV that does not contain
     extended permissions with AV that does.
     \\ \hline
-    \texttt{test\_merge\_xperm\_diff\_op()} & Test merging two AVs, both
+    \texttt{test\_merge\_xperm\_diff\_op()} & Tests merging two AVs, both
     containing extended permissions, but with different operations.
     \\ \hline
-    \texttt{test\_merge\_xperm\_same\_op()} & Test merging two AVs, both
+    \texttt{test\_merge\_xperm\_same\_op()} & Tests merging two AVs, both
     containing extended permissions with the same operation.
     \\ \hline
 \end{longtabu}
@@ -2413,28 +2413,28 @@ set.
     \multicolumn2{|l|}{\texttt{TestAccessVectorSet} class from the
     \texttt{test\_access.py} module:}
     \\ \hline
-    \texttt{test\_add\_av\_first()} & Test adding the first access vector to the
-    access vector set.
+    \texttt{test\_add\_av\_first()} & Tests adding the first access vector to
+    the access vector set.
     \\ \hline
-    \texttt{test\_add\_av\_second()} & Test adding the second AV to the set with
-    the same source and the target context and class.
+    \texttt{test\_add\_av\_second()} & Tests adding the second AV to the set
+    with the same source and the target context and class.
     \\ \hline
-    \texttt{test\_add\_av\_with\_msg()} & Test adding an audit message.
+    \texttt{test\_add\_av\_with\_msg()} & Tests adding an audit message.
     \\ \hline
 \end{longtabu}
 
-Testing \texttt{AccessVector.add()}: this method just creates an instance of
+Testing \texttt{AccessVector.add()}: this method just creates an instance of the
 \texttt{AccessVector} class and passes the AV to the
 \texttt{AccessVector.add\_av()} method.
 \begin{longtabu}{|l|X|} \hline
     \multicolumn2{|l|}{\texttt{TestAccessVectorSet} class from the
     \texttt{test\_access.py} module:}
     \\ \hline
-    \texttt{test\_add()} & Test adding access vector to the set.
+    \texttt{test\_add()} & Tests adding access vector to the set.
     \\ \hline
 \end{longtabu}
 
-\subsection{Testing policygen.py Module}
+\subsection{Testing the policygen.py Module}
 % STATUS: 4
 In this module, the \texttt{PolicyGenerator} class was extended to generate
 extended permission access vector rules.
@@ -2444,7 +2444,7 @@ Testing \texttt{PolicyGenerator.\_\_init\_\_()}:
     \multicolumn2{|l|}{\texttt{TestPolicyGenerator} class from the
     \texttt{test\_policygen.py} module:}
     \\ \hline
-    \texttt{test\_init()} & Test that extended permission AV rules are not
+    \texttt{test\_init()} & Tests that extended permission AV rules are not
     generated by default.
     \\ \hline
 \end{longtabu}
@@ -2454,7 +2454,7 @@ Testing \texttt{PolicyGenerator.set\_gen\_xperms()}:
     \multicolumn2{|l|}{\texttt{TestPolicyGenerator} class from the
     \texttt{test\_policygen.py} module:}
     \\ \hline
-    \texttt{test\_set\_gen\_xperms()} & Test turning on and off generating of
+    \texttt{test\_set\_gen\_xperms()} & Tests turning on and off generating of
     extended permission AV rules.
     \\ \hline
 \end{longtabu}
@@ -2464,16 +2464,16 @@ Testing \texttt{PolicyGenerator.add\_access()}:
     \multicolumn2{|l|}{\texttt{TestPolicyGenerator} class from the
     \texttt{test\_policygen.py} module:}
     \\ \hline
-    \texttt{test\_av\_rules()} & Test that new implementation of the
+    \texttt{test\_av\_rules()} & Tests that the new implementation of the
     \texttt{add\_access()} method does not break generating of standard AV
     rules.
     \\ \hline
-    \texttt{test\_ext\_av\_rules()} & Test that correct extended permission AV
+    \texttt{test\_ext\_av\_rules()} & Tests that correct extended permission AV
     rules are generated from access vectors.
     \\ \hline
 \end{longtabu}
 
-\subsection{Testing refpolicy.py Module}
+\subsection{Testing the refpolicy.py Module}
 % STATUS: 4
 The \texttt{XpermSet} and \texttt{AVExtRule} classes were added to represent
 extended permission access vector rules.
@@ -2486,17 +2486,17 @@ values. The \texttt{add()} method adds values or ranges of values, the
     \multicolumn2{|l|}{\texttt{TestXpermSet} class from the
     \texttt{test\_refpolicy.py} module:}
     \\ \hline
-    \texttt{test\_init()} & Test that all attributes are correctly initialized.
+    \texttt{test\_init()} & Tests that all attributes are correctly initialized.
     \\ \hline
-    \texttt{test\_normalize\_ranges()} & Test that ranges that are overlapping
+    \texttt{test\_normalize\_ranges()} & Tests that ranges that are overlapping
     or neighboring are correctly merged into one range.
     \\ \hline
-    \texttt{test\_add()} & Test adding new values or ranges to the set.
+    \texttt{test\_add()} & Tests adding new values or ranges to the set.
     \\ \hline
-    \texttt{test\_extend()} & Test adding ranges from another \texttt{XpermSet}
+    \texttt{test\_extend()} & Tests adding ranges from another \texttt{XpermSet}
     object.
     \\ \hline
-    \texttt{test\_to\_string()} & Test printing the values to a~string.
+    \texttt{test\_to\_string()} & Tests printing the values to a~string.
     \\ \hline
 \end{longtabu}
 
@@ -2508,16 +2508,16 @@ the \texttt{to\_string()} method prints the rule to a~string.
     \multicolumn2{|l|}{\texttt{TestAVExtRule} class from the
     \texttt{test\_refpolicy.py} module:}
     \\ \hline
-    \texttt{test\_init()} & Test that all attributes are correctly initialized.
+    \texttt{test\_init()} & Tests that all attributes are correctly initialized.
     \\ \hline
-    \texttt{test\_rule\_type\_str()} & Test printing the rule type.
+    \texttt{test\_rule\_type\_str()} & Tests printing the rule type.
     \\ \hline
-    \texttt{test\_from\_av()} & Test creating the rule from an access vector.
+    \texttt{test\_from\_av()} & Tests creating the rule from an access vector.
     \\ \hline
-    \texttt{test\_from\_av\_self()} & Test creating the rule from an access
+    \texttt{test\_from\_av\_self()} & Tests creating the rule from an access
     vector that has the same source and target context.
     \\ \hline
-    \texttt{test\_to\_string()} & Test printing the rule.
+    \texttt{test\_to\_string()} & Tests printing the rule.
     \\ \hline
 \end{longtabu}
 
@@ -2535,7 +2535,7 @@ different command-line options.
 % STATUS: 4
 New unit tests were written to cover the new functionality.
 
-\subsection{Testing audit.py Module}
+\subsection{Testing the audit.py Module}
 % STATUS: 4
 In this module, the \texttt{AVCMessage.from\_split\_string()} method was
 extended to parse a~path field. Test cases:
@@ -2543,11 +2543,11 @@ extended to parse a~path field. Test cases:
     \multicolumn2{|l|}{\texttt{TestAVCMessage} class from the
     \texttt{test\_audit.py} module:}
     \\ \hline
-    \texttt{test\_path()} & Test that the \texttt{path} field is parsed.
+    \texttt{test\_path()} & Tests that the \texttt{path} field is parsed.
     \\ \hline
 \end{longtabu}
 
-\subsection{Testing policygen Module}
+\subsection{Testing the policygen Module}
 % STATUS: 4
 In this module, a~new configuration option was added to the
 \texttt{PolicyGenerator}. For the purposes of testing,
@@ -2557,9 +2557,9 @@ was replaced.
     \multicolumn2{|l|}{\texttt{TestPolicyGenerator} class from the
     \texttt{test\_policygen.py} module:}
     \\ \hline
-    \texttt{test\_check\_mislabeled\_nothing()} & Test no mislabeled files.
+    \texttt{test\_check\_mislabeled\_nothing()} & Tests no mislabeled files.
     \\ \hline
-    \texttt{test\_check\_mislabeled\_one()} & Test one mislabeled file.
+    \texttt{test\_check\_mislabeled\_one()} & Tests one mislabeled file.
     \\ \hline
 \end{longtabu}
 
