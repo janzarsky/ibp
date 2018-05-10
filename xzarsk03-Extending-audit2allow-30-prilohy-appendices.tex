@@ -26,8 +26,9 @@ The contents of the enclosed CD:
 \section{Upstream Repository}
 
 Improvements to audit2allow were implemented as a series of patches to the
-2.8-rc1 version of the SELinux userspace upstream repository. To install
-upstream version of userspace, follow the instructions in \texttt{README}.
+2.8-rc1 version of the SELinux userspace upstream repository. To install the
+upstream version of the SELinux userspace, follow the instructions in
+\texttt{README}.
 
 The \texttt{/selinux-xperms} directory contains the SELinux userspace repository
 with support for extended permissions applied on top of the \texttt{f04d6401}
@@ -56,21 +57,21 @@ These packages can be installed directly using the dnf command:
     python3-libselinux-2*.rpm python3-libsemanage-2*.rpm
     python3-policycoreutils-2*.rpm
 \end{lstlisting}
-or from a COPR repository:
+or from a Fedora COPR repository:
 \begin{lstlisting}
 # dnf copr enable janzarsky/selinux-fedora
 # dnf install policycoreutils-python-utils
 \end{lstlisting}
 
 \section{Tests}
-To run unit tests, install modified packages on the system. Then navigate to the
-\\ \texttt{/selinux-xperms} or \texttt{/selinux-restorecon} directory and run
-tests from the upstream repository. As a part of this thesis, tests in
-\texttt{selinux/python/sepolgen/tests} and \\
-\texttt{selinux/python/audit2allow/test\_audit2allow} were implemented.
+To run unit tests, install the modified packages. Then navigate to the
+\texttt{/selinux-xperms} or \texttt{/selinux-restorecon} directory and run tests
+from the upstream repository. As a part of this thesis, tests in
+\texttt{selinux/\allowbreak python/\allowbreak sepolgen/\allowbreak tests} and 
+\texttt{selinux/\allowbreak python/\allowbreak audit2allow/\allowbreak test\_audit2allow}
+were implemented.
 
-% TODO: gcc package
 The \texttt{/tests} directory contains integration tests. These tests require
-the beakerlib library. To run the tests, install modified packages on the system
-and run the \texttt{runtest.sh} files.
+the beakerlib library and the gcc compiler. To run the tests, install modified
+packages on the system and execute the \texttt{runtest.sh} files.
 
