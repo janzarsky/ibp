@@ -1834,18 +1834,25 @@ policy modules and is generated with either \texttt{-{}-module} or
 \chapter{Problems of the audit2allow Utility}
 % STATUS: 4
 \label{analysis}
-Two general areas for improvement to audit2allow were identified:
+Two general areas for issues with the audit2allow utility were identified:
 \begin{enumerate}
-    \item Changing a~label of an object instead of creating new policy rules.
-        This includes checking of mislabeled files, labeling network ports,
-        nodes, and interfaces.
-    \item Support for new SELinux policy statements such as extended permission
-        access vector rules.
+    \item Several recently introduced types of SELinux policy statements are not
+        recognized by the audit2allow utility. Extended permission access vector
+        rules that allow more granular control are described in section
+        \ref{xpermsanalysis}.
+    \item Certain SELinux denials are not the result of missing rules in the
+        security policy, they are caused by mislabeled objects. The audit2alow
+        utility is designed to solve problems by adding new rules to the policy
+        and it is not able to detect mislabeled objects or even change the
+        context of the objects. Checking mislabeled files is described in
+        section \ref{mislabeled}, checking mislabeled network objects is
+        discussed in section \ref{networkobjects}.
 \end{enumerate}
 
 % ------------------------------------------------------------------------------
 \section{Extended Permission Access Vector Rules}
 % STATUS: 4
+\label{xpermsanalysis}
 Since policy version 30, the SELinux policy supports the extended permission
 access vector rules (see section \ref{extavrules}). Usage of the extended
 permission AV rules introduces situations when audit2allow is not able to detect
