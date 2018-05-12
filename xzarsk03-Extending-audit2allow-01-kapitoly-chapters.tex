@@ -278,6 +278,8 @@ example, Linux user \texttt{root} is mapped to an SELinux user
 \texttt{unconfined\_u} on Fedora 27. There is a~special SELinux user that is
 mapped to no user: \texttt{system\_u}.
 
+\pagebreak
+
 Available SELinux users can be listed using the \texttt{seinfo -{}-user}
 command:
 \begin{lstlisting}
@@ -347,6 +349,8 @@ SELinux uses type enforcement for enforcing mandatory access control
 type. Processes running with the same type are called a~\emph{domain}. The
 SELinux policy then contains rules that allow domains access types.
 
+\pagebreak
+
 Available SELinux types can be listed using the \texttt{seinfo -{}-type}
 command:
 \begin{lstlisting}
@@ -415,6 +419,8 @@ user:role:type[:range]
     \item [\texttt{range}] is used by MLS or MCS (see section \ref{mls}) and is
         optional.
 \end{description}
+
+\pagebreak
 
 An example of subject security contexts:
 \begin{lstlisting}
@@ -1944,7 +1950,7 @@ extended permission AV rules. For example:
 allow src_t tgt_t:tcp_socket ioctl;
 \end{lstlisting}
 Support for the extended permissions was implemented as a~part of this thesis,
-see section \ref{xpermsimp}.
+see section~\ref{xpermsimp}.
 
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
@@ -2163,6 +2169,7 @@ in AVC denial messages. The \texttt{ioctlcmd} field is then converted to fit the
 general concept of extended permissions and passed to the access vector set. The
 following code in the \texttt{AuditParser.to\_access()} method converts
 operation-specific fields to generic extended permission dictionary:
+\pagebreak
 \begin{lstlisting}[language=Python]
 if avc.ioctlcmd:
     xperm_set = refpolicy.XpermSet()
@@ -2565,6 +2572,7 @@ In this module, a~new configuration option was added to the
 \texttt{PolicyGenerator}. For the purposes of testing,
 \texttt{selinux.matchpathcon()} function used for checking the default context
 was replaced. 
+\pagebreak
 \begin{longtabu}{|l|X|} \hline \endfirsthead
     \multicolumn2{|l|}{\texttt{TestPolicyGenerator} class from the
     \texttt{test\_policygen.py} module:}
