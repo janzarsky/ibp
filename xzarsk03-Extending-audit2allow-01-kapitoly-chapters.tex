@@ -1834,7 +1834,7 @@ policy modules and is generated with either \texttt{-{}-module} or
 \chapter{Problems of the audit2allow Utility}
 % STATUS: 4
 \label{analysis}
-Two general areas for issues with the audit2allow utility were identified:
+Issues with the audit2allow utility can be grouped into the following two areas:
 \begin{enumerate}
     \item Several recently introduced types of SELinux policy statements are not
         recognized by the audit2allow utility. Extended permission access vector
@@ -2128,10 +2128,13 @@ improvements have been implemented:
     \item Support for extended permissions. The audit2allow utility can now
         detect denials that may be caused by extended permission AV rules. With
         the \texttt{-{}-xperms} option, audit2allow generates extended AV rules.
+        Implementation details of this extension are described in section
+        \ref{xpermsimp}.
     \item Checking mislabeled files. The audit2allow utility now parses the
         \texttt{path} field in AVC denial messages and checks if files have the
         default context. When the context in the AVC denial message is different
-        than the default one, audit2allow produces warning.
+        than the default one, audit2allow produces a warning. This extension is
+        described in section \ref{mislabeledimp}.
 \end{itemize}
 
 % ------------------------------------------------------------------------------
@@ -2278,6 +2281,7 @@ for av in raw_allow:
 % ------------------------------------------------------------------------------
 \section{Mislabeled Files}
 % STATUS: 4
+\label{mislabeledimp}
 The audit2allow utility was extended to check the default context of a~file if
 the \texttt{path} field is present in the AVC denial message. The
 \texttt{audit.py} and \texttt{policygen.py} modules were modified.
