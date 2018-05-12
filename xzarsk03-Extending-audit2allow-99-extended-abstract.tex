@@ -2,12 +2,13 @@
 % Bakalářská práce rozebírá roli nástroje audit2allow při řešení zamítnutí
 % přístupu systémem Security-Enhanced Linux a navrhuje rozšíření nástroje tak,
 % aby poskytoval více omezující a~bezpečnější řešení uživateli.
-Bakalářská práce se věnuje systému Security-Enhanced Linux a nástroji
-audit2allow, který analyzuje zprávy o~zamítnutí přístupu a~převádí je na
-pravidla bezpečnostní politiky udělující oprávnění, která byla původně
+Bakalářská práce se zabývá systémem Security-Enhanced Linux, který poskytuje
+mechanismus mandatorního řízení přístupu v Linuxu. Práce se věnuje především
+nástroji audit2allow, který analyzuje zprávy o~zamítnutí přístupu a~převádí je
+na pravidla bezpečnostní politiky udělující oprávnění, která byla původně
 zamítnuta. Cílem práce je analyzovat situace, ve kterých nástroj audit2allow
 poskytuje řešení, která udělují zbytečně velké množství oprávnění určitým
-procesům.
+procesům. Vybraná rozšíření byla implementována a v práci jsou popsána.
 
 % 2 Security-Enhanced Linux and audit2allow
 %   2.1 Security-Enhanced Linux
@@ -27,8 +28,8 @@ příkazy udělující subjektům oprávnění provádět operace nad objekty, j
 příkazy jsou výstupem nástroje audit2allow. Pozornost je věnována způsobu, jakým
 získávají soubory svůj bezpečnostní kontext, protože soubory se špatným
 bezpečnostním kontext často způsobují zamítnutí přístupu, která jsou pak
-analyzována pomocí audit2allow. Dále je představen způsob auditování zpráv o
-zamítnutí přístupu. Nástroj audit2allow je podrobně popsán, jeho účel,
+analyzována pomocí nástroje audit2allow. Dále je představen způsob auditování
+zpráv o zamítnutí přístupu. Nástroj audit2allow je podrobně popsán, jeho účel,
 schopnosti a implementační detaily.
 
 % 3 Analysis
@@ -40,16 +41,17 @@ schopnosti a implementační detaily.
 Kapitola \ref{analysis} analyzuje situace, kdy audit2allow poskytuje řešení,
 která jsou neefektivní a~potenciálně nebezpečná. Nástroj audit2allow nerozeznává
 tzv. rozšířená oprávnění, která umožňují granulárnějsí způsob přidělování
-oprávnění, například dokáží přidělit procesu oprávnění volat jen některá ioctl
-systémová volání. Práce rozebírá možnosti implementace podpory pro rozšířená
-oprávnění a~ideální výchozí chování nástroje s~ohledem na bezpečnost a~zpětnou
+oprávnění procesům. Rozšířená oprávnění dokáží například přidělit procesu
+oprávnění volat jen některá ioctl systémová volání na základě hodnoty parametru
+request. Práce rozebírá možnosti implementace podpory pro rozšířená oprávnění
+a~ideální výchozí chování nástroje s~ohledem na bezpečnost a~zpětnou
 kompatibilitu.
 Nástroj audit2allow spoléhá při analýze zamítnutí přístupu na to, že
 objekty, ke kterým byl přístup zamítnut, měly správný bezpečnostní kontext.
 Práce popisuje problémy, které jsou způsobeny soubory se špatným bezpečnostním
 kontextem. Podobně jsou popsány problémy způsobené síťovými porty, uzly
-a~rozhraními, které mají špatný bezpečnostní kontext. Způsoby, jak detekovat
-objekty se špatným bezpečnostním kontextem, jsou navrženy.
+a~rozhraními, které mají špatný bezpečnostní kontext. V práci jsou navrženy
+způsoby, jak detekovat objekty se špatným bezpečnostním kontextem.
 
 % 4 Implementation
 %   4.1 Extended Permissions
@@ -60,13 +62,16 @@ V~rámci práce byla implementována dvě rozšíření nástroje audit2allow po
 v~kapitole \ref{implementation}. Pro podporu rozšířených oprávnění bylo potřeba
 změnit zpracování vstupních zpráv, vytvořit objekty reprezentující rozšířená
 oprávnění a~implementovat generování pravidel povolující rozšířená oprávnění.
-Druhým rozšířením byla kontrola bezpečnostních kontextů souborů. Bylo potřeba
-detekovat cesty k~souborům ve vstupních zprávách a~využít knihovnu libselinux
-pro získání výchozího bezpečnostního kontextu. Upozornění na soubor se špatným
-bezpečnostním kontextem bylo přidáno jako komentář do výstupu audit2allow.
-Detekci síťových portů se špatným kontextem lze implementovat v~budoucnu,
-implementace detekce síťových uzlů a~rozhraní se špatným kontextem by neměla
-velký dopad na zvýšení bezpečnosti systému.
+Nástroj audit2allow je nyní schopen poznat zprávy o~zamítnutí přístupu, které
+mohou být důsledkem použití rozšířených oprávnění a~vygenerovat pravidla
+povolující zamítnutá rozšířená oprávnění.
+Druhým vylepšením nástroje audit2allow je kontrola bezpečnostních kontextů
+souborů. Bylo potřeba detekovat cesty k~souborům ve vstupních zprávách a~využít
+knihovnu libselinux pro získání výchozích bezpečnostních kontextů. Upozornění na
+soubor se špatným bezpečnostním kontextem bylo přidáno jako komentář do výstupu
+audit2allow. Detekci síťových portů se špatným kontextem lze implementovat
+v~budoucnu, implementace detekce síťových uzlů a~rozhraní se špatným kontextem
+by neměla velký dopad na zvýšení bezpečnosti systému.
 
 % 5 Functional Testing
 %   5.1 Unit Tests of Extended Permissions
