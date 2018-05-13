@@ -249,7 +249,7 @@ attributes. Then the security policy is used to determine whether this operation
 should be allowed or not. When using MAC, users do not have the ability to
 override the security policy and, for example, propagate sensitive information.
 
-There are several implementations of MAC. the Linux kernel currently contains
+There are several implementations of MAC. The Linux kernel currently contains
 several security modules implemented using the \emph{Linux Security Modules}
 (LSM) framework \cite{lsmusage}. Security-Enhanced Linux, developed by National
 Security Agency and Red Hat \cite{selinuxcontr}, is used in Red Hat Enterprise
@@ -261,7 +261,7 @@ Smack and TOMOYO Linux.
 
 \subsection{SELinux and MAC Checks}
 SELinux security checks are carried out after the standard Linux DAC checks.
-When running an SELinux-enabled system, when a~user space process makes a~system
+On an SELinux-enabled system, when a~user space process makes a~system
 call, standard file permissions are checked first. Then, if the access is
 allowed, the Linux Security Module hooks call security checks in SELinux.
 
